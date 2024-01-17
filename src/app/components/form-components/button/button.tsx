@@ -20,13 +20,14 @@ type ButtonProps = ButtonPropsButton | ButtonPropsSubmit;
 export default function Button(props: ButtonProps) {
 
     let className = `agf-component ${buttonStyle['agf-btn']} `;
+    const {classAdd, ...rest} = props;
 
-    if (props.classAdd) {
-        if (typeof props.classAdd === 'string') {
-            className += buttonStyle[`agf-btn-${props.classAdd}`];
+    if (classAdd) {
+        if (typeof classAdd === 'string') {
+            className += buttonStyle[`agf-btn-${classAdd}`];
         }
-        if (Array.isArray(props.classAdd)) {
-            className += props.classAdd.map((cls: string) => buttonStyle[`agf-btn-${cls}`]).join(' ');
+        if (Array.isArray(classAdd)) {
+            className += classAdd.map((cls: string) => buttonStyle[`agf-btn-${cls}`]).join(' ');
         }
     }
 
@@ -34,7 +35,7 @@ export default function Button(props: ButtonProps) {
         <button
             className={className}
             disabled={props.disabled}
-            {...props}
+            {...rest}
         >
             {props.text}
         </button>

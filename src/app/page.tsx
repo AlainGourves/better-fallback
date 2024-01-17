@@ -5,12 +5,40 @@ import styles from './page.module.scss'
 import TextInput from './components/form-components/textInput/textInput';
 import Button from './components/form-components/button/button';
 import { fetchExternalFont, loadFont, checkFontFile, fontTest } from './_lib/fonts';
+import Select from './components/form-components/select/select';
+import RadioGroup from './components/form-components/radioGroup/radioGroup';
 
 export default function Home() {
   const [fontURL, setFontURL] = useState('');
   const [fontFile, setFontFile] = useState<File | null>(null);
   const temoinRef = useRef<HTMLDivElement>(null);
   const fontInfosDiv = useRef<HTMLDivElement>(null);
+
+  // `Select` for choosing fallback font
+  const fallbackFontsOptions = [
+    { value: 'times', text: 'Times New Roman' },
+    { value: 'arial', text: 'Arial' },
+    { value: 'roboto', text: 'Roboto' }
+  ];
+  const fallbackFontDefault = 'times';
+  const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
+  const handleFallbackSelect = (ev: any) => {
+    if (ev.target.value) setFallbackFontValue(ev.target.value);
+  }
+  // `RadioGroup` for choosing the target language
+  const languageOptions = [
+    { id: 'lang-en', label: 'English', value: 'en' },
+    { id: 'lang-fr', label: 'French', value: 'fr' }
+  ]
+  const languageOptionsDefault = 'en';
+  const [targetedLanguage, setTargetedLanguage] = useState(languageOptionsDefault);
+  const handleLanguageChoice = (ev: React.FormEvent<HTMLFieldSetElement>) => {
+    const field = ev.currentTarget;
+    const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
+    if (selected) {
+      setTargetedLanguage(selected.value);
+    }
+  }
 
   const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
     if (!ev.target.files) return;
@@ -51,7 +79,7 @@ export default function Home() {
         size: '',
       }
       fontInfos.name = file.name;
-      const size = file.size / 1000;
+      const size = Math.round(file.size / 100) / 10;
       fontInfos.size = `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`;
       fontInfos.type = await checkFontFile(file);
       const buffer = await file.arrayBuffer();
@@ -117,23 +145,57 @@ export default function Home() {
           <Button
             id="select-font-submit"
             type="submit"
-            text={'Load the font'} />
+            text={'Load the font'}
+            classAdd={'outlined'}
+          />
         </div>
       </form>
-      <div className={styles['font-infos']} ref={fontInfosDiv}>
-        <h3>Selected Font</h3>
-          <dl>
-            <dt>Name</dt>
-            <dd></dd>
-          </dl>
-          <dl>
-            <dt>Type</dt>
-            <dd></dd>
-          </dl>
-          <dl>
-            <dt>Size</dt>
-            <dd></dd>
-          </dl>
+      <div className={styles['font-settings']}>
+        <div className={styles['font-infos']} ref={fontInfosDiv}>
+          <h3>Selected Font</h3>
+          <div>
+            <dl>
+              <dt>Name</dt>
+              <dd></dd>
+            </dl>
+            <dl>
+              <dt>Type</dt>
+              <dd></dd>
+            </dl>
+            <dl>
+              <dt>Size</dt>
+              <dd></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div className={styles['fallback-font']}>
+          <h3>Fallback Font</h3>
+          <Select
+            id='fallbackFontSelect'
+            label='Font'
+            options={fallbackFontsOptions}
+            defaultValue={fallbackFontDefault}
+            onChange={handleFallbackSelect}
+          />
+
+          <RadioGroup
+            groupName='targetLanguage'
+            defaultValue={languageOptionsDefault}
+            radios={languageOptions}
+            onInput={handleLanguageChoice}
+            label='Lang.'
+          />
+        </div>
+
+        <div>
+          <Button
+            id="proceed"
+            type="button"
+            text='Proceed'
+            onClick={(ev) => console.log('yolo!')}
+          />
+        </div>
       </div>
       <div className={styles.temoin} ref={temoinRef}>
         Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire : « Je m’endors. » Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait ; je voulais poser le volume que je croyais avoir encore dans les mains et souffler ma lumière ; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier ; il me semblait que j’étais moi-même ce dont parlait l’ouvrage : une église, un quatuor, la rivalité de François Ier et de Charles-Quint.

@@ -13,8 +13,8 @@ type SelectProps = {
     id: string,
     label: string,
     options: Option[],
-    defaultValue: string,
-    onChange(event: any): void;
+    defaultValue?: string,
+    onChange(event: React.FormEvent<HTMLSelectElement>): void;
     disabled?: boolean,
     labelPosition?: 'top' | 'right' | 'bottom' | 'left',
     classAdd?: string | string[] | undefined
@@ -46,7 +46,7 @@ export default function Select(props: SelectProps) {
                 name={props.id}
                 ref={selectRef}
                 onChange={props.onChange}
-                defaultValue={props.defaultValue}
+                defaultValue={props.defaultValue && props.defaultValue}
                 disabled={props.disabled}
             >
                 {
