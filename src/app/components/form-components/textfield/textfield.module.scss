@@ -1,0 +1,103 @@
+.agf-textfield {
+
+    // ----------------------------- Layout
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem; // distance between Textarea & Label
+
+
+    // invisible border
+    border: solid 2px transparent;
+    border-radius: .4em;
+    padding: .5em 1em;
+
+    &>div {
+        position: relative;
+    }
+
+    & textarea {
+        --__line-height: 1.2;
+        --__nb-lines: var(--lines, 3); // # of lines to show, `--lines` is eventually defined in JSX, if not defaults to 3 lines
+        --__padding-block: .5em;
+        --__padding-inline: .75em;
+
+        appearance: none;
+        font-family: inherit;
+        font-weight: normal;
+        color: var(--clr-active-900);
+        font-size: 1em;
+        font-size: max(16px, 1em);
+        line-height: var(--__line-height);
+        padding: var(--__padding-block) 1.25em var(--__padding-block) var(--__padding-inline);
+        border: 1px solid var(--clr-inactive-bdr);
+        border-radius: var(--bdr-radius);
+        background: var(--clr-active-50);
+        min-height: calc(var(--__nb-lines) * var(--__line-height) * 1em + 2 * var(--__padding-block));
+        min-width: 32ch;
+        max-width: 100%;
+
+        resize: vertical;
+
+        transition: all var(--anim-dur) var(--anim-fn);
+
+
+        box-shadow:
+            0 0 1px 0 rgb(0 0 0 / 0.2),
+            0 0 2px 0 rgb(0 0 0 / 0.14),
+            0 0 5px 0 rgb(0 0 0 / 0.12);
+
+        &:active,
+        &:focus-visible {
+            background: #fff;
+            border-color: var(--clr-active);
+        }
+
+        &:disabled {
+            background-color: var(--clr-inactive-bg);
+            border-color: var(--clr-inactive-bdr);
+            color: var(--clr-inactive-bdr);
+            box-shadow: none;
+        }
+
+        &::placeholder {
+            font-style: italic;
+            color: var(--clr-active-250);
+        }
+
+        &:read-only {
+            color: var(--clr-inactive-bdr);
+        }
+    }
+
+    & .erase {
+        --__w: 1.1rem;
+        appearance: none;
+        border: none;
+        position: absolute;
+        width: var(--__w);
+        aspect-ratio: 1;
+        background-color: rgb(0 0 0 / .125);
+        background-image: url("data:image/svg+xml,%3Csvg height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12' /%3E%3Cpath d='m17.9591 6-12 12' /%3E%3C/g%3E%3C/svg%3E");
+        background-size: cover;
+        border-radius: calc(var(--__w)/2);
+        margin-block-start: calc(var(--__w)/4);
+        margin-inline-end: calc(var(--__w)/4);
+        top: 0;
+        right: 0;
+        display: grid;
+        place-content: center;
+        opacity: 1;
+        transition: background-color var(--anim-dur) linear,
+            opacity var(--anim-dur) linear;
+        cursor: pointer;
+
+        &.hidden {
+            opacity: 0;
+        }
+
+        &:hover {
+            background-color: var(--clr-inactive-bg);
+        }
+    }
+}

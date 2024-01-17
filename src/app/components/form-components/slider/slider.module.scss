@@ -1,0 +1,180 @@
+@use "sass:color";
+// Slider -------------------------\
+// Width: slider takes 100% of his parent's width
+// --slider-value: must be updated by JS !! (& be unitless !!!)
+
+@mixin track() {
+    box-sizing: border-box;
+    border: none;
+    border-radius: calc(var(--track-height) / 2);
+    inline-size: 100%;
+    block-size: var(--track-height);
+    background: var(--clr-inactive-bg);
+    background-image: linear-gradient(90deg, var(--__bg-clr) calc(var(--slider-value, 0) * 1%), var(--clr-inactive-bg) 0);
+    background-repeat: repeat-y;
+    box-shadow: 0 0 calc(var(--track-height) / 2) rgba(0, 0, 0, .125) inset;
+}
+
+@mixin thumb() {
+    box-sizing: border-box;
+    border: none;
+    inline-size: var(--thumb-size);
+    block-size: var(--thumb-size);
+    border-radius: 50%;
+    background: var(--__bg-clr);
+    box-shadow: 0 0 0 var(--highlight-size) var(--clr-highlight);
+    transition: box-shadow var(--anim-dur) var(--anim-fn);
+}
+
+.agf-slider {
+    --thumb-size: 1rem;
+    --track-height: calc(var(--thumb-size) / 4);
+    --highlight-size: 0;
+    --__bg-clr: var(--clr-active);
+    --__padding: calc(var(--thumb-size) / 2);
+
+    // ----------------------------- Layout
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem; // distance between Swith & Label
+
+
+    // Reserve space for the output when present
+    &:not([class~='label-under']):has(output) {
+        margin-block-end: 2rem;
+    }
+
+    &[class~='label-under']:has(output) {
+        margin-block-start: 2.2rem;
+    }
+
+    &>div {
+        width: 100%;
+        position: relative;
+    }
+
+    &>span {
+        min-width: max-content;
+    }
+
+    & [type="range"] {
+
+        &,
+        &::-webkit-slider-thumb {
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        flex: 1;
+        margin: 0;
+        padding-inline: var(--__padding);
+        border-radius: calc(var(--thumb-size) / 2);
+        width: 100%;
+        min-height: var(--thumb-size);
+        background: transparent;
+        transition: box-shadow var(--anim-dur) var(--anim-fn);
+
+        &::-webkit-slider-runnable-track {
+            @include track();
+        }
+
+        &::-moz-range-track {
+            @include track;
+        }
+
+        &::-ms-track {
+            @include track;
+        }
+
+        &::-webkit-slider-thumb {
+            margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+            @include thumb;
+        }
+
+        &::-moz-range-thumb {
+            @include thumb;
+        }
+
+        &::-ms-thumb {
+            margin-top: 0;
+            @include thumb;
+        }
+
+        &::-ms-tooltip {
+            display: none;
+        }
+
+        &:not(:disabled):hover {
+            --highlight-size: calc(var(--thumb-size) / 2);
+        }
+
+        &:disabled {
+            --__bg-clr: var(--clr-active-300);
+            @media (prefers-color-scheme: dark) {
+                --__bg-clr: var(--clr-active-600);
+            }
+        }
+    }
+
+    // Output -----------------------------
+    & output {
+        --__radius: .875rem;
+        --__bg-color: var(--clr-secondary-500);
+
+        @media (prefers-color-scheme: dark) {
+            --__bg-color: var(--clr-secondary-700);
+        }
+
+        background: var(--__bg-color);
+        width: calc(var(--__radius) * 2);
+        aspect-ratio: 1;
+        padding: .25em;
+        border-radius: 50%;
+        position: absolute;
+        display: grid;
+        place-content: center;
+        // Make sure that the center of the output is always under the center of the thumb (it's a kind of lerp)
+        left: calc(var(--slider-value) * 1% + (50 - var(--slider-value))/100*(var(--thumb-size) + 2 * var(--__padding)));
+        top: -2.4rem;
+        translate: -50% 0;
+        pointer-events: none;
+        font-size: .75em;
+        line-height: 1;
+        text-align: center;
+        color: #fff;
+        z-index: -1; // output remains under hover highlight
+
+        &:before {
+            // conic gradient for the arrow
+            --__theta: 45deg;
+            position: absolute;
+            content: "";
+            width: var(--__radius);
+            aspect-ratio: 1;
+            background: var(--__bg-color);
+            transform-origin: top left;
+            rotate: var(--__theta);
+            top: 50%;
+            left: 50%;
+            z-index: -1;
+        }
+    }
+
+    & [type="range"]:disabled+output {
+        --__bg-color: var(--clr-secondary-300);
+
+        @media (prefers-color-scheme: dark) {
+            --__bg-color: var(--clr-secondary-800);
+        }
+    }
+
+    &[class~='label-above'] output {
+        bottom: -2.4rem;
+        top: initial;
+
+        &:before {
+            rotate: calc(var(--__theta) * -3);
+        }
+    }
+}

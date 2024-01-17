@@ -1,0 +1,102 @@
+@mixin button-reset {
+    // Reset button style
+    appearance: none;
+    padding: 0;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    background-color: transparent;
+}
+
+.agf-btn {
+    @include button-reset;
+
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1em;
+    // create small vertical space
+    margin-block: 2px;
+    // inivisible border
+    border: solid 2px transparent;
+    border-radius: var(--bdr-radius);
+    padding: .5em 1em;
+    color: #fff;
+    background-color: var(--clr-active);
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    box-shadow:
+        0 3px 2px -2px rgba(0, 0, 0, 0.2),
+        0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
+    transition: all var(--anim-dur) var(--anim-fn);
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        // for the ripple effect
+        position: absolute;
+        content: '';
+        top: 50%;
+        left: 50%;
+        aspect-ratio: 1;
+        padding: 50%;
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+        background: var(--clr-active);
+        transition: opacity 1s, transform 0.5s;
+    }
+
+    &:not(:disabled):active {
+        transform: translateY(1px);
+
+        &::after {
+            opacity: 0.4;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0s;
+        }
+    }
+
+    &:disabled {
+        background-color: var(--clr-inactive-bg);
+        border-color: var(--clr-inactive-bdr);
+        color: var(--clr-inactive-bdr);
+        box-shadow: none;
+    }
+
+    @media (hover:hover) {
+
+        // CSS hover style remains after button click in iOS devices
+        // https://stackoverflow.com/questions/47507495/css-hover-style-remains-after-button-click-in-ios-devices
+        &:not(:disabled):hover {
+            color: var(--clr-active);
+            background-color: #fff;
+            border-color: var(--clr-active);
+        }
+    }
+
+    &-small {
+        font-size: .75em;
+        padding: 0.25em 0.5em;
+        line-height: 1;
+        border-width: 1px;
+    }
+
+    &-outlined{
+        background-color: var(--clr-active-50);
+        border-width: 1px;
+        border-color: var(--clr-active);
+        color: var(--clr-active);
+
+        @media (hover:hover) {
+            &::after{
+                background-color: #fff;
+            }
+            &:not(:disabled):hover{
+                background-color: var(--clr-active);
+                color: #fff;
+            }
+        }
+    }
+}

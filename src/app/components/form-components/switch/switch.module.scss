@@ -1,0 +1,104 @@
+.agf-switch {
+    /*
+    Track is made with the `input[type="checkbox"]`
+    Thumb with the `:before`
+    */
+
+    // ----------------------------- Dimensions
+    --thumb-size: 1rem;
+    --track-size: calc(var(--thumb-size) * 2);
+    --track-padding: calc(var(--thumb-size) / 4);
+    --highlight-size: 0;
+
+    // ----------------------------- Colors
+    --thumb-color: hsl(0 0% 100%);
+    --thumb-highlight: var(--clr-highlight);
+
+    @media (prefers-color-scheme: dark) {
+        --thumb-color: hsl(0 0% 10%);
+    }
+
+    // ----------------------------- Layout
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem; // distance between Swith & Label
+
+    // TRACK -------
+    &>[type="checkbox"] {
+        --thumb-position: 0%;
+
+        appearance: none;
+        inline-size: var(--track-size);
+        block-size: var(--thumb-size);
+        padding: var(--track-padding);
+
+        border: none;
+        border-radius: var(--track-size);
+        box-sizing: content-box;
+
+        background-color: var(--clr-inactive-bg);
+
+        flex-shrink: 0; // flex item can't shrink, space is preserved for the switch
+        display: grid;
+        align-items: center;
+        grid: [track] 1fr / [track] 1fr;
+
+        transition: all var(--anim-dur) var(--anim-fn);
+        position: relative;
+
+        // THUMB -------
+        &::before {
+            content: '';
+            grid-area: track;
+            inline-size: var(--thumb-size);
+            block-size: var(--thumb-size);
+
+            border-radius: 50%;
+            background: var(--thumb-color);
+
+            box-shadow: 0 0 0 var(--highlight-size) var(--thumb-highlight);
+            transform: translateX(var(--thumb-position));
+            transition: inherit;
+        }
+
+        &::after{
+            // Can't put the inset box-shadow on the checkbox itself -> transition doesn't work from inset box-shadow to exterior one (for the pseudo outline of :focus-within)
+            content: '';
+            inline-size: var(--track-size);
+            block-size: var(--thumb-size);
+            padding: var(--track-padding);
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: var(--track-size);
+            box-shadow: 0 0 .3rem hsl(0 0% 0% / 0.3) inset;
+        }
+
+        &:checked {
+            --thumb-position: calc(var(--track-size) - 100%);
+            background-color: var(--clr-active);
+        }
+
+        &:disabled {
+            --thumb-color: transparent;
+
+            &::before {
+                box-shadow: 0 0 0 2px hsl(0 0% 100% / .75) inset;
+
+                @media (prefers-color-scheme: dark) {
+                    box-shadow: 0 0 0 2px hsl(0 0% 0% / .75) inset;
+
+                }
+            }
+        }
+
+        &:not(:disabled):hover::before {
+            --highlight-size: calc(var(--thumb-size) / 2);
+        }
+    }
+
+    // ----------------------------- Interactions
+    user-select: none; // label's text is not selectable
+    -webkit-tap-highlight-color: transparent;
+}

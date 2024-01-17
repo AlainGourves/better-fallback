@@ -1,0 +1,63 @@
+.agf-select {
+
+    // ----------------------------- Layout
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+
+    font-size: 1em;
+    line-height: 1.5;
+
+    & select {
+        --__arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet' width='24px' height='24px'%3E%3Cpath d='M5 9 l7 7l7 -7' fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' /%3E%3C/svg%3E");
+        --__arrow-size: 1.5em;
+        --__padding: .25em;
+        --__bg-color: var(--clr-active);
+        appearance: none;
+        display: inline-block;
+        min-width: 15ch;
+        max-width: 30ch;
+        border: 1px solid var(--clr-active);
+        border-radius: var(--bdr-radius);
+        background: #fff;
+        background-image:
+        var(--__arrow),
+            linear-gradient(90deg, transparent 0 calc(100% - (var(--__arrow-size) + 2 * var(--__padding))), var(--__bg-color) 0);
+        background-position: calc(100% - var(--__padding)) 50%, 0% 0%;
+        background-size: var(--__arrow-size) var(--__arrow-size), 100% 100%;
+        background-repeat: no-repeat;
+        padding: var(--__padding) calc(var(--__arrow-size) + var(--__padding)) var(--__padding) calc(var(--__padding) * 3);
+        font-size: inherit;
+        line-height: inherit;
+        color: var(--clr-active);
+
+        transition: all var(--anim-dur) var(--anim-fn); // TODO
+
+        &::-ms-expand {
+            // for IE, remove native arrow, just in case...
+            display: none;
+        }
+
+        &:disabled{
+            --__bg-color: var(--clr-inactive-bg);
+            background-color: hsl(0 0% 95%);
+            @media (prefers-color-scheme: dark) {
+                background-color: hsl(0 0% 85%);
+            }
+            border-color: var(--clr-inactive-bg);
+            color: var(--clr-inactive-bg);
+            opacity: 1; // browser's default styles may affect opacity
+
+        }
+    }
+
+    &-small {
+        --__arrow-size: 1.125em;
+        --__padding: .2em;
+        & select{
+            font-size:.75em;
+            line-height: 1;
+        }
+    }
+}

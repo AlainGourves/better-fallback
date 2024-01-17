@@ -1,0 +1,46 @@
+@use "sass:color";
+@use "sass:math";
+
+// $color-prop: CSS custom-property for the color
+// $percent: number in [-100,100]
+@function colorMix($color-prop, $percent) {
+    $second-color: "";
+
+    @if ($percent > 0) {
+        $second-color: #fff;
+    }
+
+    @else {
+        $second-color: #000;
+    }
+
+    @return "color-mix(in oklab, var(#{$color-prop}), #{$second-color} #{math.abs(checkPercent($percent))})";
+}
+
+// $color: Sass supported format
+// $percent: amount of mixing
+@function colorMixFallback($color, $percent) {
+    $percent: checkPercent($percent);
+    $newColor: color.scale($color, $lightness: $percent);
+    $hue: color.hue($newColor) / 1deg; // get rid of the unecessary unit
+    $sat: color.saturation($newColor);
+    $lig: math.round(color.lightness($newColor));
+    @return "hsl(#{$hue} #{$sat} #{$lig})";
+}
+
+// Utility functions ----------------------------------------------
+
+// linear interpolation between intervals [inMin, inMax] & [outMin, outMax]
+// First interval for the name of the shades : [0-1000] (0 would correspond to white and 1000 to black)
+// Second interval for the lightness adjustment (adding 100 would give white, -100 black)
+// Returns a number in [-100, 100]
+@function lerp($x, $inMin, $inMax, $outMin, $outMax) {
+    @return ($x - $inMin) * ($outMax - $outMin)/ ($inMax - $inMin)+$outMin;
+}
+
+@function checkPercent($n) {
+    @if (unitless($n)) {
+        @return ($n * 1%);
+    }
+    @return $n;
+}
