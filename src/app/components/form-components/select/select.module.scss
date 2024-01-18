@@ -23,12 +23,13 @@
         border-radius: var(--bdr-radius);
         background: #fff;
         background-image:
-        var(--__arrow),
-            linear-gradient(90deg, transparent 0 calc(100% - var(--__reserved)), var(--__bg-color) 0);
+            var(--__arrow),
+            linear-gradient(90deg, transparent 0 calc(100% - (var(--__arrow-size) + 2 * var(--__padding))), var(--__bg-color) 0);
         background-position: calc(100% - var(--__padding)) 50%, 0% 0%;
         background-size: var(--__arrow-size) var(--__arrow-size), 100% 100%;
         background-repeat: no-repeat;
-        padding: var(--__padding) calc(var(--__arrow-size) + var(--__padding)) var(--__padding) calc(var(--__padding) * 3);
+        padding: var(--__padding);
+        padding-inline-end: calc(var(--__arrow-size) + 3*var(--__padding)); // make space for the arrow
         font-size: inherit;
         line-height: inherit;
         color: var(--clr-active);
@@ -40,12 +41,14 @@
             display: none;
         }
 
-        &:disabled{
+        &:disabled {
             --__bg-color: var(--clr-inactive-bg);
             background-color: hsl(0 0% 95%);
+
             @media (prefers-color-scheme: dark) {
                 background-color: hsl(0 0% 85%);
             }
+
             border-color: var(--clr-inactive-bg);
             color: var(--clr-inactive-bg);
             opacity: 1; // browser's default styles may affect opacity
@@ -56,8 +59,9 @@
     &-small {
         --__arrow-size: 1.125em;
         --__padding: .2em;
-        & select{
-            font-size:.75em;
+
+        & select {
+            font-size: .75em;
             line-height: 1;
         }
     }

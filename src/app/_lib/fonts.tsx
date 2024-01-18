@@ -1,12 +1,13 @@
-import * as fontkit from 'fontkit';
+import Font, * as fontkit from 'fontkit';
 import { buffer } from 'stream/consumers';
 
-export const fetchExternalFont = async (url:string) => {
+export const fetchFont = async (url:string):Promise<File> => {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText}`)
     }
-    return response.blob();
+    const blob = await response.blob();
+    return new File([blob], "Web Font", { type: blob.type });
 }
 
 export const loadFont = async (fontName:string, buffer: ArrayBuffer) => {
@@ -17,8 +18,18 @@ export const loadFont = async (fontName:string, buffer: ArrayBuffer) => {
     // demoText.style.fontFamily = 'testFont';
 }
 
-export const fontTest = async (buffer:ArrayBuffer)=>{
-    const font = await fontkit.create(Buffer.from(buffer));
+export const fontTest = async (url:string)=>{
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`)
+    }
+    const buff = await response.arrayBuffer();
+    const font =  fontkit.create(new Uint8Array(buff) as Buffer);
+    return font.fullName;
+}
+
+export const getFontFullName =  (buffer:ArrayBuffer)=>{
+    const font =  fontkit.create(new Uint8Array(buffer) as Buffer);
     return font.fullName;
 }
 

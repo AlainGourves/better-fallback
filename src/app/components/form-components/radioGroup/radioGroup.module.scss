@@ -70,7 +70,6 @@
 
         &:has(:checked) {
             background: var(--clr-active);
-            font-weight: 600;
             color: #fff;
             transition: background-color var(--anim-dur) linear,
                 font-weight var(--anim-dur) var(--anim-fn);

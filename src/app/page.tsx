@@ -4,11 +4,13 @@ import Image from 'next/image';
 import styles from './page.module.scss'
 import TextInput from './components/form-components/textInput/textInput';
 import Button from './components/form-components/button/button';
-import { fetchExternalFont, loadFont, checkFontFile, fontTest } from './_lib/fonts';
+import { fetchFont, loadFont, checkFontFile, getFontFullName, fontTest } from './_lib/fonts';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
+import Font, * as fontkit from 'fontkit';
 
 export default function Home() {
+  // const [font, setFont] = useState<Font | null>(null);
   const [fontURL, setFontURL] = useState('');
   const [fontFile, setFontFile] = useState<File | null>(null);
   const temoinRef = useRef<HTMLDivElement>(null);
@@ -40,12 +42,15 @@ export default function Home() {
     }
   }
 
+  // Input[File] for selecting a font
   const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
     if (!ev.target.files) return;
     setFontURL(''); // get rid of an eventual URL
     setFontFile(ev.target.files[0]);
   }
 
+  // Input[text] for font URL
+  // TODO: reset fontFile if exists
   const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => setFontURL(ev.target.value);
 
 
@@ -62,12 +67,12 @@ export default function Home() {
     if (fontFile) {
       handleFile(fontFile);
     }
+    // 3) Dropped File
   }
 
   const loadExternalFont = async () => {
-    const blob = await fetchExternalFont(fontURL);
-    const externalFile = new File([blob], "Web Font", { type: blob.type });
-    await handleFile(externalFile)
+    const file = await fetchFont(fontURL);
+    await handleFile(file)
   }
 
   const handleFile = async (file: File) => {
@@ -83,7 +88,7 @@ export default function Home() {
       fontInfos.size = `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`;
       fontInfos.type = await checkFontFile(file);
       const buffer = await file.arrayBuffer();
-      fontInfos.fullName = await fontTest(buffer);
+      fontInfos.fullName = getFontFullName(buffer);
       loadFont(fontInfos.fullName, buffer);
       displayFontInfos(fontInfos);
       if (temoinRef.current) {

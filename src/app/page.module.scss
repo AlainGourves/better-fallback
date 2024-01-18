@@ -10,7 +10,7 @@
     padding: .75rem 1rem;
   }
 
-  &>*{
+  &>* {
     margin-block: .5rem;
   }
 }
@@ -85,26 +85,44 @@
   grid-template-columns: repeat(3, 1fr);
   gap: .5rem;
   width: 100%;
-  height:8lh;
+  height: 8lh;
   background-color: tomato;
 
-  &>* {
-    border: 1px dashed red;
-  }
-
-  &>div{
+  &>div {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: .25rem .5rem;
+    border-radius: 38% 62% 27% 73% / 33% 50% 50% 67%;
+    background-color: hsl(328 100% 40%);
 
-    &:last-of-type{
+    &:nth-of-type(2) {
+      background-color: hsl(328 95% 60%);
+    }
+
+    &:last-of-type {
       justify-content: center;
+      background-color: hsl(328 90% 80%);
+      border-radius: 40% 60% 60% 40%/70% 30%;
+      animation: blob 15s infinite alternate;
     }
   }
 }
 
+@keyframes blob {
+
+  0%,
+  100% {
+    border-radius: 40% 60% 60% 40%/70% 30%;
+  }
+
+
+  50% {
+    border-radius: 40% 60% ;
+  }
+}
+
 .font-infos {
-  background-color: deeppink;
 
   & dl {
     display: grid;
