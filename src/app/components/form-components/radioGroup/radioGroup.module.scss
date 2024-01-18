@@ -71,8 +71,6 @@
         &:has(:checked) {
             background: var(--clr-active);
             color: #fff;
-            transition: background-color var(--anim-dur) linear,
-                font-weight var(--anim-dur) var(--anim-fn);
         }
 
         &:not(:first-of-type) {

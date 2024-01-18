@@ -31,11 +31,11 @@
         padding: var(--__padding-block) var(--__padding-inline);
         border: 1px solid var(--clr-inactive-bdr);
         border-radius: 999rem;
-        background: var(--clr-active-50);
+        background-color: var(--clr-active-50);
         min-height: calc(var(--__line-height) * 1em + 2 * var(--__padding-block));
         width: 100%;
 
-        transition: all var(--anim-dur) var(--anim-fn);
+        transition: box-shadow var(--anim-dur) linear;
 
         box-shadow:
             0 0 1px 0 rgb(0 0 0 / 0.2),

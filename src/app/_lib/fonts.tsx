@@ -10,22 +10,17 @@ export const fetchFont = async (url:string):Promise<File> => {
     return new File([blob], "Web Font", { type: blob.type });
 }
 
-export const loadFont = async (fontName:string, buffer: ArrayBuffer) => {
-    const font = new FontFace(`${fontName}`, buffer);
+export const loadFont = async (fontName:string, file: File) => {
+    const buff = await file.arrayBuffer();
+    const font = new FontFace(`${fontName}`, buff);
     await font.load();
     document.fonts.add(font);
-    // const demoText = document.querySelector('.demo-text');
-    // demoText.style.fontFamily = 'testFont';
 }
 
-export const fontTest = async (url:string)=>{
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`${response.status} ${response.statusText}`)
-    }
-    const buff = await response.arrayBuffer();
+export const fontTest = async (file:File)=>{
+    const buff = await file.arrayBuffer();
     const font =  fontkit.create(new Uint8Array(buff) as Buffer);
-    return font.fullName;
+    return font;
 }
 
 export const getFontFullName =  (buffer:ArrayBuffer)=>{

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './page.module.scss'
 import TextInput from './components/form-components/textInput/textInput';
@@ -7,10 +7,25 @@ import Button from './components/form-components/button/button';
 import { fetchFont, loadFont, checkFontFile, getFontFullName, fontTest } from './_lib/fonts';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
-import Font, * as fontkit from 'fontkit';
+import * as fontkit from 'fontkit';
+import { URLValidator } from './_lib/utils';
+
+type FontTypes = 'font/otf' | 'font/ttf' | 'font/woff2' | 'font/woff' | undefined;
+type FontInfos = {
+  fileName: string | undefined,
+  fontType: FontTypes | undefined,
+  size: string | undefined,
+}
 
 export default function Home() {
-  // const [font, setFont] = useState<Font | null>(null);
+  // const [font, setFont] = useState(null);
+  const [fontInfos, setFontInfos] = useState({
+    fileName: '',
+    fullName: '',
+    fontType: '',
+    size: ''
+  });
+
   const [fontURL, setFontURL] = useState('');
   const [fontFile, setFontFile] = useState<File | null>(null);
   const temoinRef = useRef<HTMLDivElement>(null);
@@ -47,50 +62,59 @@ export default function Home() {
     if (!ev.target.files) return;
     setFontURL(''); // get rid of an eventual URL
     setFontFile(ev.target.files[0]);
+    console.log('handleFontFile', ev.currentTarget.form)
   }
 
   // Input[text] for font URL
   // TODO: reset fontFile if exists
-  const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => setFontURL(ev.target.value);
+  const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('from handleFontURL');
+    const val = ev.target.value;
+    setFontURL(ev.target.value);
+  };
 
 
-  const handleSubmit = (ev: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     if (fontURL === '' && fontFile === null) return;
-    // const form = ev.currentTarget;
-    // TODO/ set priorities if fontUrl & fontFile are defined
+    if (!URLValidator(fontURL)) {
+      // Error handling
+      console.warn('Couille en potage!!!')
+      return;
+    }
+    console.log('from handleSubmit')
+    // TODO: which choice if fontUrl & fontFile are defined ?
+    // -> variable to store the last modified ?
     // 1) fontUrl -> Load the font
     if (fontURL) {
-      loadExternalFont();
+      const file = await fetchFont(fontURL);
+      // setFontURL('');
+      setFontFile(file);
+      await handleFile(file);
     }
     // 2) fontFile -> check the file type
     if (fontFile) {
-      handleFile(fontFile);
+      await handleFile(fontFile);
     }
     // 3) Dropped File
-  }
 
-  const loadExternalFont = async () => {
-    const file = await fetchFont(fontURL);
-    await handleFile(file)
   }
 
   const handleFile = async (file: File) => {
     try {
-      const fontInfos = {
-        name: '',
-        fullName: '',
-        type: '',
-        size: '',
-      }
-      fontInfos.name = file.name;
-      const size = Math.round(file.size / 100) / 10;
-      fontInfos.size = `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`;
-      fontInfos.type = await checkFontFile(file);
-      const buffer = await file.arrayBuffer();
-      fontInfos.fullName = getFontFullName(buffer);
-      loadFont(fontInfos.fullName, buffer);
-      displayFontInfos(fontInfos);
+      let size = Math.round(file.size / 100) / 10;
+      const fType = await checkFontFile(file);
+      const font = await fontTest(file);
+
+      setFontInfos((fontInfos) => ({
+        ...fontInfos,
+        fileName: file.name,
+        fullName: font.fullName,
+        fontType: fType,
+        size: `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`
+      }));
+
+      loadFont(fontInfos.fullName, file);
       if (temoinRef.current) {
         temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
       }
@@ -99,17 +123,47 @@ export default function Home() {
       console.error('handleFile', error);
     }
   }
+  // const handleFile = async (file: File) => {
+  //   try {
+  //     const fontInfos = {
+  //       name: '',
+  //       fullName: '',
+  //       type: '',
+  //       size: '',
+  //     }
+  //     fontInfos.name = file.name;
+  //     const size = Math.round(file.size / 100) / 10;
+  //     fontInfos.size = `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`;
+  //     fontInfos.type = await checkFontFile(file);
+  //     const buffer = await file.arrayBuffer();
+  //     fontInfos.fullName = getFontFullName(buffer);
+  //     loadFont(fontInfos.fullName, buffer);
+  //     displayFontInfos(fontInfos);
+  //     if (temoinRef.current) {
+  //       temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
+  //     }
+  //     console.log('>>>', fontInfos)
+  //   } catch (error) {
+  //     console.error('handleFile', error);
+  //   }
+  // }
 
-  const displayFontInfos = (fontInfos: any) => {
+  const displayFontInfos = () => {
     if (fontInfosDiv.current) {
       let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
       if (el) el.textContent = fontInfos.fullName;
       el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
-      if (el) el.textContent = fontInfos.type;
+      if (el) el.textContent = fontInfos.fontType;
       el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
       if (el) el.textContent = fontInfos.size;
     }
   }
+
+  useEffect(() => {
+    if (fontInfos.fullName) displayFontInfos();
+    console.log('-> ping!')
+  }, [fontInfos]);
+
 
   return (
     <main className={styles.main}>
