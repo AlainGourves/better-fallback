@@ -39,7 +39,7 @@ export default function TextField(props: TextFieldProps) {
             className={className}
             style={props.nbLines ? style : undefined}
         >
-            <span>{props.label}</span>
+            {props.label && (<span>{props.label}</span>)}
             <div>
 
                 <textarea

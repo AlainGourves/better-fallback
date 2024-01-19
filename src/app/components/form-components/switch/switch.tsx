@@ -21,7 +21,7 @@ export default function Switch(props: SwitchProps) {
             htmlFor={props.id}
             className={className}
         >
-            <span>{props.label}</span>
+            {props.label && (<span>{props.label}</span>)}
             <input
                 type='checkbox'
                 role='switch'
