@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import * as fontkit from 'fontkit';
-import { fetchFont, loadFont, checkFontFile, getFontFullName, fontTest } from './_lib/fonts';
+import { fetchFont, loadFont, checkFontFile, fontKitLoad } from './_lib/fonts';
 import { URLValidator } from './_lib/utils';
 import styles from './page.module.scss'
 import Image from 'next/image';
@@ -9,7 +9,7 @@ import TextInput from './components/form-components/textInput/textInput';
 import Button from './components/form-components/button/button';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
-
+import TextTools from './components/textTools';
 
 export default function Home() {
   const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
@@ -65,7 +65,7 @@ export default function Home() {
   const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
     console.log('from handleFontURL');
     const val = ev.target.value;
-    if (URLValidator(val)) {
+    if (URLValidator(val) || val === '') {
       urlRef.current?.setCustomValidity(''); // remove :invalid state if present
     }
     setFontURL(ev.target.value);
@@ -99,7 +99,7 @@ export default function Home() {
       }
       // 3) Dropped File
     } catch (err) {
-      // Error handling
+      // TODO: Error handling
     }
   }
 
@@ -107,7 +107,7 @@ export default function Home() {
     try {
       let size = Math.round(file.size / 100) / 10;
       const fType = await checkFontFile(file);
-      const font = await fontTest(file);
+      const font = await fontKitLoad(file);
 
       setFontInfos((fontInfos) => ({
         ...fontInfos,
@@ -117,12 +117,7 @@ export default function Home() {
         size: `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`
       }));
 
-      await loadFont(fontInfos.fullName, file);
-      if (temoinRef.current) {
-        // TODO/ metttre ça dans un useEffect
-        temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
-      }
-      console.log('>>>', fontInfos)
+      await loadFont(font.fullName, file);
     } catch (error) {
       console.error('handleFile', error);
     }
@@ -140,8 +135,16 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (fontInfos.fullName) displayFontInfos();
-    console.log('-> ping!')
+    console.log('>> useEffect fontInfos')
+    if (fontInfos.fullName) {
+      displayFontInfos();
+      console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
+      if (temoinRef.current) {
+        temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
+        console.log('-> done something')
+      }
+    };
+    console.log('->', fontInfos)
   }, [fontInfos]);
 
 
@@ -171,6 +174,9 @@ export default function Home() {
                 onChange={handleFontFile}
               />
             </label>
+            {fontFile && (
+              <span>{fontFile.name}</span>
+            )}
           </div>
         </div>
         <div>OR</div>
@@ -237,8 +243,12 @@ export default function Home() {
           />
         </div>
       </div>
-      <div className={styles.temoin} ref={temoinRef}>
-        Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire : « Je m’endors. » Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait ; je voulais poser le volume que je croyais avoir encore dans les mains et souffler ma lumière ; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier ; il me semblait que j’étais moi-même ce dont parlait l’ouvrage : une église, un quatuor, la rivalité de François Ier et de Charles-Quint.
+
+      <div className={styles['text-container']}>
+        <TextTools />
+        <div className={styles.temoin} ref={temoinRef}>
+          Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire : « Je m’endors. » Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait ; je voulais poser le volume que je croyais avoir encore dans les mains et souffler ma lumière ; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier ; il me semblait que j’étais moi-même ce dont parlait l’ouvrage : une église, un quatuor, la rivalité de François Ier et de Charles-Quint.
+        </div>
       </div>
     </main>
   )

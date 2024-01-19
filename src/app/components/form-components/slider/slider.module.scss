@@ -41,13 +41,13 @@
 
 
     // Reserve space for the output when present
-    &:not([class~='label-under']):has(output) {
-        margin-block-end: 2rem;
-    }
+    // &:not([class~='label-above']):has(output) {
+    //     margin-block-start: 2rem;
+    // }
 
-    &[class~='label-under']:has(output) {
-        margin-block-start: 2.2rem;
-    }
+    // &[class~='label-above']:has(output) {
+    //     margin-block-end: 2.2rem;
+    // }
 
     &>div {
         width: 100%;
@@ -107,6 +107,10 @@
 
         &:not(:disabled):hover {
             --highlight-size: calc(var(--thumb-size) / 2);
+
+            & + output{
+                opacity: 1;
+            }
         }
 
         &:disabled {
@@ -143,7 +147,8 @@
         line-height: 1;
         text-align: center;
         color: #fff;
-        z-index: -1; // output remains under hover highlight
+        opacity: 0;
+        transition: opacity var(--anim-dur) var(--anim-fn);
 
         &:before {
             // conic gradient for the arrow

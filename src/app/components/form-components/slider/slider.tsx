@@ -9,6 +9,7 @@ type SliderProps = {
     value: number,
     min: number,
     max: number,
+    step?: number,
     label?: string | null,
     labelPosition?: 'top' | 'right' | 'bottom' | 'left',
     isOutput?: boolean | undefined,
@@ -16,7 +17,18 @@ type SliderProps = {
     onChange: React.ChangeEventHandler<HTMLInputElement>
 }
 
-export default function Slider({ id, value, min, max, label, labelPosition, isOutput = undefined, disabled = undefined, onChange }: SliderProps) {
+export default function Slider({
+    id,
+    value,
+    min,
+    max,
+    step = undefined,
+    label,
+    labelPosition,
+    isOutput = undefined,
+    disabled = undefined,
+    onChange }: SliderProps
+) {
 
     const className = getClassName(sliderStyles['agf-slider'], labelPosition);
 
@@ -40,7 +52,8 @@ export default function Slider({ id, value, min, max, label, labelPosition, isOu
                         id={id}
                         min={min}
                         max={max}
-                        defaultValue={value}
+                        step={step && step}
+                        value={value}
                         disabled={disabled}
                         onChange={onChange}
                     />
