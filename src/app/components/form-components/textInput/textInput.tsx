@@ -2,6 +2,7 @@
 import '../component-global.scss';
 import textInputStyle from './textInput.module.scss';
 import { getClassName } from '../utils'
+import { forwardRef } from 'react';
 
 type TextInputProps = {
     id: string,
@@ -14,9 +15,7 @@ type TextInputProps = {
     onChange: React.ChangeEventHandler<HTMLInputElement>,
 }
 
-export default function TextInput(props: TextInputProps) {
-
-    // TODO: traiter le onSubmit
+const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: React.Ref<HTMLInputElement>) {
 
     const className = getClassName(textInputStyle['agf-textinput'], props.labelPosition);
 
@@ -24,9 +23,10 @@ export default function TextInput(props: TextInputProps) {
         <label htmlFor={props.id}
             className={className}
         >
-            {props.label && (<span>props.label</span>)}
+            {props.label && (<span>{props.label}</span>)}
 
             <input
+                ref={ref}
                 type="text"
                 id={props.id}
                 value={props.value}
@@ -37,4 +37,6 @@ export default function TextInput(props: TextInputProps) {
             />
         </label>
     )
-}
+});
+
+export default TextInput;
