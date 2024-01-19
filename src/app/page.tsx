@@ -1,24 +1,18 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+import * as fontkit from 'fontkit';
+import { fetchFont, loadFont, checkFontFile, getFontFullName, fontTest } from './_lib/fonts';
+import { URLValidator } from './_lib/utils';
 import styles from './page.module.scss'
+import Image from 'next/image';
 import TextInput from './components/form-components/textInput/textInput';
 import Button from './components/form-components/button/button';
-import { fetchFont, loadFont, checkFontFile, getFontFullName, fontTest } from './_lib/fonts';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
-import * as fontkit from 'fontkit';
-import { URLValidator } from './_lib/utils';
 
-type FontTypes = 'font/otf' | 'font/ttf' | 'font/woff2' | 'font/woff' | undefined;
-type FontInfos = {
-  fileName: string | undefined,
-  fontType: FontTypes | undefined,
-  size: string | undefined,
-}
 
 export default function Home() {
-  // const [font, setFont] = useState(null);
+  const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
   const [fontInfos, setFontInfos] = useState({
     fileName: '',
     fullName: '',
@@ -28,6 +22,7 @@ export default function Home() {
 
   const [fontURL, setFontURL] = useState('');
   const [fontFile, setFontFile] = useState<File | null>(null);
+  const urlRef = useRef<HTMLInputElement>(null);
   const temoinRef = useRef<HTMLDivElement>(null);
   const fontInfosDiv = useRef<HTMLDivElement>(null);
 
@@ -42,6 +37,7 @@ export default function Home() {
   const handleFallbackSelect = (ev: any) => {
     if (ev.target.value) setFallbackFontValue(ev.target.value);
   }
+
   // `RadioGroup` for choosing the target language
   const languageOptions = [
     { id: 'lang-en', label: 'English', value: 'en' },
@@ -66,10 +62,12 @@ export default function Home() {
   }
 
   // Input[text] for font URL
-  // TODO: reset fontFile if exists
   const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
     console.log('from handleFontURL');
     const val = ev.target.value;
+    if (URLValidator(val)) {
+      urlRef.current?.setCustomValidity(''); // remove :invalid state if present
+    }
     setFontURL(ev.target.value);
   };
 
@@ -77,27 +75,32 @@ export default function Home() {
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     if (fontURL === '' && fontFile === null) return;
-    if (!URLValidator(fontURL)) {
+    if (fontURL && !URLValidator(fontURL)) {
       // Error handling
-      console.warn('Couille en potage!!!')
+      const msg = "Please, verify the URL format.";
+      urlRef.current?.setCustomValidity(msg); // Sets the :invalid state to the input
+      urlRef.current?.reportValidity(); // display the tooltip
       return;
     }
-    console.log('from handleSubmit')
-    // TODO: which choice if fontUrl & fontFile are defined ?
-    // -> variable to store the last modified ?
-    // 1) fontUrl -> Load the font
-    if (fontURL) {
-      const file = await fetchFont(fontURL);
-      // setFontURL('');
-      setFontFile(file);
-      await handleFile(file);
+    try {
+      console.log('from handleSubmit')
+      // TODO: which choice if fontUrl & fontFile are defined ?
+      // -> variable to store the last modified ?
+      // 1) fontUrl -> Load the font
+      if (fontURL) {
+        const file = await fetchFont(fontURL);
+        // setFontURL('');
+        // setFontFile(file);
+        await handleFile(file);
+      }
+      // 2) fontFile -> check the file type
+      if (fontFile) {
+        await handleFile(fontFile);
+      }
+      // 3) Dropped File
+    } catch (err) {
+      // Error handling
     }
-    // 2) fontFile -> check the file type
-    if (fontFile) {
-      await handleFile(fontFile);
-    }
-    // 3) Dropped File
-
   }
 
   const handleFile = async (file: File) => {
@@ -114,8 +117,9 @@ export default function Home() {
         size: `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`
       }));
 
-      loadFont(fontInfos.fullName, file);
+      await loadFont(fontInfos.fullName, file);
       if (temoinRef.current) {
+        // TODO/ metttre ça dans un useEffect
         temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
       }
       console.log('>>>', fontInfos)
@@ -123,30 +127,6 @@ export default function Home() {
       console.error('handleFile', error);
     }
   }
-  // const handleFile = async (file: File) => {
-  //   try {
-  //     const fontInfos = {
-  //       name: '',
-  //       fullName: '',
-  //       type: '',
-  //       size: '',
-  //     }
-  //     fontInfos.name = file.name;
-  //     const size = Math.round(file.size / 100) / 10;
-  //     fontInfos.size = `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`;
-  //     fontInfos.type = await checkFontFile(file);
-  //     const buffer = await file.arrayBuffer();
-  //     fontInfos.fullName = getFontFullName(buffer);
-  //     loadFont(fontInfos.fullName, buffer);
-  //     displayFontInfos(fontInfos);
-  //     if (temoinRef.current) {
-  //       temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
-  //     }
-  //     console.log('>>>', fontInfos)
-  //   } catch (error) {
-  //     console.error('handleFile', error);
-  //   }
-  // }
 
   const displayFontInfos = () => {
     if (fontInfosDiv.current) {
@@ -187,7 +167,7 @@ export default function Home() {
               <input
                 type="file"
                 id="font-upload"
-                accept="font/otf, font/ttf, font/woff2, font/woff"
+                accept={fontTypes.join(',')}
                 onChange={handleFontFile}
               />
             </label>
@@ -196,6 +176,7 @@ export default function Home() {
         <div>OR</div>
         <div>
           <TextInput
+            ref={urlRef}
             id={'fontUrl'}
             value={fontURL}
             placeholder={'Paste a font URL'}
