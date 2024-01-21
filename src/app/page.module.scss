@@ -76,6 +76,14 @@
     position: absolute;
     z-index: -1;
   }
+
+  & .font-file{
+    font-size: .75em;
+    padding: .25em .5em;
+    border-radius: .5em;
+    background: rgb(255 255 255 / 0.5);
+    border: 1px solid #fff;
+  }
 }
 
 .font-settings {
@@ -145,14 +153,14 @@
 
 }
 .text-tools{
-  --__border: 1px solid var(--clr-active);
+  --__border: 1px solid var(--clr-active-200);
   background-color: var(--clr-active-50);
   display: flex;
   flex-direction: row;
   gap: .5rem;
   justify-content: space-around;
   width: 100%;
-  border: var(--__border);
+  // border: var(--__border);
   border-radius: 999rem;
   margin-block-end:.5rem;
 
@@ -171,4 +179,25 @@
 .temoin {
   line-height: 1.5;
   font-size: var(--temoin-fs, 1rem);
+}
+
+// Button with a 'X' icon
+.erase {
+  --__w: .8rem;
+  appearance: none;
+  border: none;
+  width: var(--__w);
+  aspect-ratio: 1;
+  background-color: rgb(255 255 255 / .25);
+  background-image: url("data:image/svg+xml,%3Csvg height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12' /%3E%3Cpath d='m17.9591 6-12 12' /%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
+  border-radius: calc(var(--__w)/2);
+  display: grid;
+  place-content: center;
+  transition: background-color var(--anim-dur) linear;
+  cursor: pointer;
+
+  &:hover {
+      background-color: rgb(255 255 255 / .75);
+  }
 }

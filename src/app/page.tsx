@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as fontkit from 'fontkit';
 import { fetchFont, loadFont, checkFontFile, fontKitLoad } from './_lib/fonts';
 import { URLValidator } from './_lib/utils';
@@ -10,6 +10,7 @@ import Button from './components/form-components/button/button';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import TextTools from './components/textTools';
+import FontFile from './components/fontFile';
 
 export default function Home() {
   const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
@@ -59,6 +60,11 @@ export default function Home() {
     setFontURL(''); // get rid of an eventual URL
     setFontFile(ev.target.files[0]);
     console.log('handleFontFile', ev.currentTarget.form)
+  }
+
+  // 'X' button to remove previously selected font file
+  const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>)=>{
+    setFontFile(null);
   }
 
   // Input[text] for font URL
@@ -175,7 +181,10 @@ export default function Home() {
               />
             </label>
             {fontFile && (
-              <span>{fontFile.name}</span>
+              <FontFile
+                name={fontFile.name}
+                onClick={handleRemoveFontFile}
+              />
             )}
           </div>
         </div>
