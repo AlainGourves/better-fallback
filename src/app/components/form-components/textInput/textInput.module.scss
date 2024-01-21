@@ -6,14 +6,14 @@
     justify-content: flex-end;
     gap: .5rem; // distance between Textarea & Label
     width: 100%;
-
+    position: relative;
 
     // invisible border
     border: solid 2px transparent;
     border-radius: .4em;
     // padding: .5em 1em;
 
-    &>span{
+    &>span {
         min-width: max-content;
     }
 
@@ -63,5 +63,13 @@
         &:read-only {
             color: var(--clr-inactive-bdr);
         }
+
+    }
+
+    & button {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        translate: -0.75em -50%;
     }
 }

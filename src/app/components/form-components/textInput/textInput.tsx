@@ -1,6 +1,7 @@
 'use client';
 import '../component-global.scss';
 import textInputStyle from './textInput.module.scss';
+import CloseBtn from '../closeBtn/closeBtn';
 import { getClassName } from '../utils'
 import { forwardRef } from 'react';
 
@@ -13,6 +14,8 @@ type TextInputProps = {
     disabled?: boolean | undefined,
     readOnly?: boolean | undefined,
     onChange: React.ChangeEventHandler<HTMLInputElement>,
+    onClick(event: React.MouseEvent<HTMLButtonElement>): void,
+    title: string,
 }
 
 const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: React.Ref<HTMLInputElement>) {
@@ -35,6 +38,11 @@ const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: Reac
                 readOnly={props.readOnly}
                 placeholder={props.placeholder ?? props.placeholder}
             />
+
+            {props.value && <CloseBtn
+                title={props.title}
+                onClick={props.onClick}
+            />}
         </label>
     )
 });

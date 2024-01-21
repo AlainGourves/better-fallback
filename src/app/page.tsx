@@ -76,7 +76,10 @@ export default function Home() {
     }
     setFontURL(ev.target.value);
   };
-
+// button with an 'X' to erase TextInpu
+const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
+  setFontURL('');
+}
 
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -178,14 +181,14 @@ export default function Home() {
                 id="font-upload"
                 accept={fontTypes.join(',')}
                 onChange={handleFontFile}
-              />
+                />
             </label>
             {fontFile && (
               <FontFile
-                name={fontFile.name}
-                onClick={handleRemoveFontFile}
+              name={fontFile.name}
+              onClick={handleRemoveFontFile}
               />
-            )}
+              )}
           </div>
         </div>
         <div>OR</div>
@@ -196,6 +199,8 @@ export default function Home() {
             value={fontURL}
             placeholder={'Paste a font URL'}
             onChange={handleFontURL}
+            title='Erase field'
+            onClick={eraseTextInput}
           />
           <Button
             id="select-font-submit"

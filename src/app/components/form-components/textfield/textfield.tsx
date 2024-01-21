@@ -2,7 +2,8 @@
 import '../component-global.scss';
 import textFieldStyle from './textfield.module.scss';
 import { useRef } from 'react';
-import {getClassName} from '../utils'
+import { getClassName } from '../utils'
+import CloseBtn from '../closeBtn/closeBtn';
 
 type TextFieldProps = {
     id: string,
@@ -51,12 +52,13 @@ export default function TextField(props: TextFieldProps) {
                     placeholder={props.placeholder ?? props.placeholder}
                     ref={textAreaRef}
                 ></textarea>
-                    <button
-                        className={btnClassName}
+                {
+                    (!props.readOnly && (props.value && props.value.length > 0)) &&
+                    <CloseBtn
                         title='Clear text'
-                        tabIndex={-1} // button is not focusable
                         onClick={props.reset}
-                    ></button>
+                    />
+                }
             </div>
         </label>
     )
