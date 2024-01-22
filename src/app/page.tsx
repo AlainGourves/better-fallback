@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as fontkit from 'fontkit';
 import { fetchFont, loadFont, checkFontFile, fontKitLoad } from './_lib/fonts';
+import { demoText } from './_lib/demoText';
 import { URLValidator } from './_lib/utils';
 import styles from './page.module.scss'
 import Image from 'next/image';
@@ -38,6 +39,10 @@ export default function Home() {
   const handleFallbackSelect = (ev: any) => {
     if (ev.target.value) setFallbackFontValue(ev.target.value);
   }
+
+  useEffect(()=>{
+    document.body.style.setProperty('--fallback-family', fallbackFontValue);
+  }, [fallbackFontValue])
 
   // `RadioGroup` for choosing the target language
   const languageOptions = [
@@ -260,8 +265,11 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
 
       <div className={styles['text-container']}>
         <TextTools />
-        <div className={styles.temoin} ref={temoinRef}>
-          Longtemps, je me suis couché de bonne heure. Parfois, à peine ma bougie éteinte, mes yeux se fermaient si vite que je n’avais pas le temps de me dire : « Je m’endors. » Et, une demi-heure après, la pensée qu’il était temps de chercher le sommeil m’éveillait ; je voulais poser le volume que je croyais avoir encore dans les mains et souffler ma lumière ; je n’avais pas cessé en dormant de faire des réflexions sur ce que je venais de lire, mais ces réflexions avaient pris un tour un peu particulier ; il me semblait que j’étais moi-même ce dont parlait l’ouvrage : une église, un quatuor, la rivalité de François Ier et de Charles-Quint.
+        <div
+          className={styles.temoin}
+          ref={temoinRef}
+          data-txt={demoText[targetedLanguage as keyof typeof demoText]}>
+          {demoText[targetedLanguage as keyof typeof demoText]}
         </div>
       </div>
     </main>

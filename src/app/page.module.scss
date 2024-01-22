@@ -179,4 +179,19 @@
 .temoin {
   line-height: 1.5;
   font-size: var(--temoin-fs, 1rem);
+  white-space: pre-line;
+  position: relative;
+
+  &::before{
+    position: absolute;
+    content: attr(data-txt);
+    inset: 0;
+    padding: inherit;
+    font-size: inherit;
+    color:red;
+    user-select: none;
+    pointer-events: none;
+    font-family:var(--fallback-family, 'Times New Roman', Times, serif);
+    opacity: var(--fallback-opacity, .75);
+  }
 }

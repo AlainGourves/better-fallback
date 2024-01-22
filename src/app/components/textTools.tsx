@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from '../page.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
@@ -19,6 +19,14 @@ export default function TextTools(props: any) {
     const handleFMOSwitch = (ev:any)=>{
         setFMOSwitch(ev.target?.checked);
     }
+
+    useEffect(()=>{
+        document.body.style.setProperty('--fallback-opacity', alphaSlider.toString())
+    }, [alphaSlider])
+
+    useEffect(()=>{
+        document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`)
+    }, [fontSizeSlider])
 
     return (
         <div className={styles['text-tools-container']}>
