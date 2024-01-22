@@ -137,28 +137,23 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
     }
   }
 
-  const displayFontInfos = () => {
-    if (fontInfosDiv.current) {
-      let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
-      if (el) el.textContent = fontInfos.fullName;
-      el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
-      if (el) el.textContent = fontInfos.fontType;
-      el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
-      if (el) el.textContent = fontInfos.size;
-    }
-  }
-
   useEffect(() => {
-    console.log('>> useEffect fontInfos')
     if (fontInfos.fullName) {
-      displayFontInfos();
+      if (fontInfosDiv.current) {
+        let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
+        if (el) el.textContent = fontInfos.fullName;
+        el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
+        if (el) el.textContent = fontInfos.fontType;
+        el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
+        if (el) el.textContent = fontInfos.size;
+      }
       console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
       if (temoinRef.current) {
         temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
-        console.log('-> done something')
+        console.log('témoin-> done something')
       }
     };
-    console.log('->', fontInfos)
+    console.log('fontInfos->', fontInfos)
   }, [fontInfos]);
 
 
