@@ -1,0 +1,50 @@
+.text-container {
+    background-color: #c0c7f0;
+}
+
+.text-tools {
+    --__border: 1px solid var(--clr-active-200);
+    background-color: deepskyblue;//var(--clr-active-50);
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    // border: var(--__border);
+    border-radius: 999rem;
+    margin-block-end: .5rem;
+
+    &>* {
+        // justify-content: center;
+
+        &:not(:last-child) {
+            padding: .5em;
+            border-inline-end: var(--__border);
+        }
+    }
+}
+
+.reset-btn {
+    appearance: none;
+    border: none;
+    width: 2rem;
+    height: 2rem;
+
+    display: grid;
+    place-content: center;
+    // background: transparent;
+    border-radius: 50%;
+    color: var(--clr-active);
+
+    cursor: pointer;
+
+    & span {
+        display: none; // TODO: why ?? Tell me whyyyy ??
+    }
+
+    & svg {
+        width: 100%;
+        height: 100%;
+    }
+}
