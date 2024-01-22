@@ -3,21 +3,30 @@ import styles from '../page.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
 
+const defaultAlpha = .5;
+const defaultFontSize = 16;
+
 export default function TextTools(props: any) {
-    const [alphaSlider, setAlphaSlider] = useState(.5);
-    const [fontSizeSlider, setFontSizeSlider] = useState(16);
+    const [alphaSlider, setAlphaSlider] = useState(defaultAlpha);
+    const [fontSizeSlider, setFontSizeSlider] = useState(defaultFontSize);
     const [FMOSwitch, setFMOSwitch] = useState(true);
 
-    const handleAlphaSlider = (ev:any)=>{
+    const handleAlphaSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setAlphaSlider(parseFloat(ev.target.value));
     }
 
-    const handleFontSizeSlider = (ev:any)=>{
+    const handleFontSizeSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setFontSizeSlider(parseInt(ev.target.value));
     }
 
-    const handleFMOSwitch = (ev:any)=>{
+    const handleFMOSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setFMOSwitch(ev.target?.checked);
+    }
+
+    const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        setFontSizeSlider(defaultFontSize);
+        setAlphaSlider(defaultAlpha);
+        setFMOSwitch(true);
     }
 
     return (
@@ -46,9 +55,19 @@ export default function TextTools(props: any) {
                 <Switch
                     id='switch-fmo'
                     label={'Apply FMO'}
-                    checked={FMOSwitch  }
+                    checked={FMOSwitch}
                     onChange={handleFMOSwitch}
                 />
+                <button
+                    id="controls-reset"
+                    className="btn"
+                    onClick={handleReset}
+                >
+                    <span>Reset</span>
+                    <svg>
+                        <use href="#rotate"></use>
+                    </svg>
+                </button>
             </div>
         </div>
     );
