@@ -8,6 +8,7 @@ import { forwardRef } from 'react';
 type TextInputProps = {
     id: string,
     label?: string | null,
+    type?: 'text' | 'url',
     value: string | undefined,
     placeholder?: string | undefined,
     labelPosition?: 'top' | 'right' | 'bottom' | 'left',
@@ -30,7 +31,7 @@ const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: Reac
 
             <input
                 ref={ref}
-                type="text"
+                type={props.type ? props.type : 'text'}
                 id={props.id}
                 value={props.value}
                 onChange={props.onChange}

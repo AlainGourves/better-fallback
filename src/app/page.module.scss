@@ -147,18 +147,23 @@
   }
 }
 
+.text-container{
+  max-width: 80ch;
+}
+
 .temoin {
   line-height: 1.5;
+  font-family: 'Times New Roman', Times, serif;
   font-size: var(--temoin-fs, 1rem);
+  text-rendering: optimizeSpeed; // Important ! Somes shiftings without it in Chrome and Safari
   white-space: pre-line;
   position: relative;
+  border: 0;
 
   &::before{
     position: absolute;
     content: attr(data-txt);
     inset: 0;
-    padding: inherit;
-    font-size: inherit;
     color:red;
     user-select: none;
     pointer-events: none;

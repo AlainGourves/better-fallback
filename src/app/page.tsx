@@ -30,13 +30,14 @@ export default function Home() {
 
   // `Select` for choosing fallback font
   const fallbackFontsOptions = [
-    { value: 'times', text: 'Times New Roman' },
-    { value: 'arial', text: 'Arial' },
-    { value: 'roboto', text: 'Roboto' }
+    { value: 'times', text: 'Times New Roman' , style: "'Times New Roman', times, serif" },
+    { value: 'arial', text: 'Arial' , style: "Arial, sans-serif" },
+    { value: 'roboto', text: 'Roboto', style: "'Roboto Regular', roboto, sans-serif" }
   ];
-  const fallbackFontDefault = 'times';
+  const fallbackFontDefault = 'Times New Roman';
   const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
-  const handleFallbackSelect = (ev: any) => {
+  const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log(ev.target.value)
     if (ev.target.value) setFallbackFontValue(ev.target.value);
   }
 
@@ -149,7 +150,7 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
       }
       console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
       if (temoinRef.current) {
-        temoinRef.current.style.fontFamily = `${fontInfos.fullName}`;
+        temoinRef.current.style.fontFamily = `'${fontInfos.fullName}'`;
         console.log('témoin-> done something')
       }
     };
@@ -196,6 +197,7 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
           <TextInput
             ref={urlRef}
             id={'fontUrl'}
+            type={'url'}
             value={fontURL}
             placeholder={'Paste a font URL'}
             onChange={handleFontURL}

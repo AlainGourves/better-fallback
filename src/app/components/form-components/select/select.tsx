@@ -6,7 +6,8 @@ import { getClassName } from '../utils'
 
 type Option = {
     value: string,
-    text: string
+    text: string,
+    style: string,
 }
 
 type SelectProps = {
@@ -50,9 +51,9 @@ export default function Select(props: SelectProps) {
                 disabled={props.disabled}
             >
                 {
-                    props.options.map((item: any, idx: any) => {
+                    props.options.map((item: Option, idx: number) => {
                         return (
-                            <option key={idx} value={props.options[idx].value}>{props.options[idx].text}</option>
+                            <option key={props.options[idx].value} value={props.options[idx].style}>{props.options[idx].text}</option>
                         )
                     })
                 }

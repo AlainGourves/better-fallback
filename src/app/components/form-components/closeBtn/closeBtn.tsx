@@ -1,3 +1,4 @@
+import CloseIcon from '../../svg/closeIcon';
 import closeBtnStyles from './closeBtn.module.scss';
 
 type CloseBtnProps = {
@@ -11,8 +12,11 @@ export default function CloseBtn(props: CloseBtnProps) {
         <button
             className={closeBtnStyles['close-btn']}
             title={props.title}
+            type='button' // Important ! by default, in a form, a button will be of type 'submit'
             tabIndex={-1} // button is not focusable
             onClick={props.onClick}
-        ></button>
+        >
+            <CloseIcon  />
+        </button>
     )
 }

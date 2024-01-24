@@ -29,7 +29,10 @@
         0 2px 2px 0 rgba(0, 0, 0, 0.14),
         0 1px 5px 0 rgba(0, 0, 0, 0.12);
 
-    transition: all var(--anim-dur) var(--anim-fn);
+    transition: color var(--anim-dur) var(--anim-fn),
+        background-color var(--anim-dur) var(--anim-fn),
+        border-color var(--anim-dur) var(--anim-fn);
+
     position: relative;
     overflow: hidden;
 
@@ -39,8 +42,8 @@
         content: '';
         top: 50%;
         left: 50%;
+        width: 100%;
         aspect-ratio: 1;
-        padding: 50%;
         border-radius: 50%;
         transform: translate(-50%, -50%) scale(1);
         opacity: 0;
@@ -83,17 +86,18 @@
         border-width: 1px;
     }
 
-    &-outlined{
+    &-outlined {
         background-color: var(--clr-active-50);
         border-width: 1px;
         border-color: var(--clr-active);
         color: var(--clr-active);
 
         @media (hover:hover) {
-            &::after{
+            &::after {
                 background-color: #fff;
             }
-            &:not(:disabled):hover{
+
+            &:not(:disabled):hover {
                 background-color: var(--clr-active);
                 color: #fff;
             }

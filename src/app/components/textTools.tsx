@@ -51,6 +51,7 @@ export default function TextTools(props: any) {
                     onChange={handleAlphaSlider}
                     isOutput={true}
                 />
+                <span className={textToolsStyles.divider}></span>
                 <Slider
                     id='slider-font-size'
                     min={10}
@@ -61,17 +62,19 @@ export default function TextTools(props: any) {
                     onChange={handleFontSizeSlider}
                     isOutput={true}
                 />
+                <span className={textToolsStyles.divider}></span>
                 <Switch
                     id='switch-fmo'
                     label={'Apply FMO'}
                     checked={FMOSwitch}
                     onChange={handleFMOSwitch}
-                />
+                    />
+                <span className={textToolsStyles.divider}></span>
                 <button
                     className={textToolsStyles['reset-btn']}
                     onClick={handleReset}
+                    title='Reset'
                 >
-                    <span>Reset</span>
                     <svg xmlns="http://www.w3.org/2000/svg"
                      viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
                         <path fill="currentColor" d="M17.96 5v1.65a8 8 0 1 0 1.29 8.8 1 1 0 0 0-.9-1.44c-.37 0-.73.2-.88.53A6 6 0 1 1 17.22 9h-3.25c-.55 0-1 .45-1 1s.45 1 1 1h5a1 1 0 0 0 1-1V5c0-.55-.45-1-1-1s-1 .45-1 1z" />

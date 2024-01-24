@@ -29,6 +29,7 @@
         font-size: max(16px, 1em);
         line-height: var(--__line-height);
         padding: var(--__padding-block) var(--__padding-inline);
+        padding-inline-end: 2em; // reserves space for the 'close' button
         border: 1px solid var(--clr-inactive-bdr);
         border-radius: 999rem;
         background-color: var(--clr-active-50);
@@ -71,5 +72,6 @@
         right: 0;
         top: 50%;
         translate: -0.75em -50%;
+        background-color: rgb(0 0 0 / 0.18);
     }
 }
