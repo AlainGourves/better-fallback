@@ -11,10 +11,14 @@ export const fetchFont = async (url: string): Promise<File> => {
 }
 
 export const loadFont = async (fontName: string, file: File) => {
-    const buff = await file.arrayBuffer();
-    const font = new FontFace(fontName, buff);
-    await font.load();
-    document.fonts.add(font);
+    try {
+        const buff = await file.arrayBuffer();
+        const font = new FontFace(fontName, buff);
+        await font.load();
+        document.fonts.add(font);
+    } catch (err) {
+        throw new Error(`Problem loading font '${fontName}'. ${err}`);
+    }
 }
 
 export const fontKitLoad = async (file: File) => {

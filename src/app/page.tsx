@@ -28,20 +28,28 @@ export default function Home() {
   const temoinRef = useRef<HTMLDivElement>(null);
   const fontInfosDiv = useRef<HTMLDivElement>(null);
 
+  // Error handling
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (!error) setErrorMessage('');
+  }, [error]);
+
+
   // `Select` for choosing fallback font
   const fallbackFontsOptions = [
-    { value: 'times', text: 'Times New Roman' , style: "'Times New Roman', times, serif" },
-    { value: 'arial', text: 'Arial' , style: "Arial, sans-serif" },
+    { value: 'times', text: 'Times New Roman', style: "'Times New Roman', times, serif" },
+    { value: 'arial', text: 'Arial', style: "Arial, sans-serif" },
     { value: 'roboto', text: 'Roboto', style: "'Roboto Regular', roboto, sans-serif" }
   ];
   const fallbackFontDefault = 'Times New Roman';
   const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
   const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log(ev.target.value)
     if (ev.target.value) setFallbackFontValue(ev.target.value);
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     document.body.style.setProperty('--fallback-family', fallbackFontValue);
   }, [fallbackFontValue])
 
@@ -69,8 +77,9 @@ export default function Home() {
   }
 
   // 'X' button to remove previously selected font file
-  const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>)=>{
+  const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
     setFontFile(null);
+    if (error === true) setError(false);
   }
 
   // Input[text] for font URL
@@ -82,10 +91,11 @@ export default function Home() {
     }
     setFontURL(ev.target.value);
   };
-// button with an 'X' to erase TextInpu
-const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
-  setFontURL('');
-}
+  // button with an 'X' to erase TextInpu
+  const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    setFontURL('');
+    if (error === true) setError(false);
+  }
 
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -115,6 +125,10 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
       // 3) Dropped File
     } catch (err) {
       // TODO: Error handling
+      setError(true);
+      if (err instanceof Error) {
+        setErrorMessage(`${err.name}: ${err.message}`)
+      }
     }
   }
 
@@ -134,7 +148,8 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
 
       await loadFont(font.fullName, file);
     } catch (error) {
-      console.error('handleFile', error);
+      // rethrows the error
+      throw new Error(`handleFile: ${error}`);
     }
   }
 
@@ -182,14 +197,14 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
                 id="font-upload"
                 accept={fontTypes.join(',')}
                 onChange={handleFontFile}
-                />
+              />
             </label>
             {fontFile && (
               <FontFile
-              name={fontFile.name}
-              onClick={handleRemoveFontFile}
+                name={fontFile.name}
+                onClick={handleRemoveFontFile}
               />
-              )}
+            )}
           </div>
         </div>
         <div>OR</div>
@@ -209,8 +224,17 @@ const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>)=>{
             type="submit"
             text={'Load the font'}
             classAdd={'outlined'}
+            disabled={!fontURL && !fontFile}
           />
         </div>
+        {error && (
+          <div className={styles['error-msg-container']}>
+            <div className={styles['error-msg']}>
+              <h3>A problem occurred!</h3>
+              {errorMessage && errorMessage}
+            </div>
+          </div>
+        )}
       </form>
       <div className={styles['font-settings']}>
         <div className={styles['font-infos']} ref={fontInfosDiv}>

@@ -171,3 +171,17 @@
     opacity: var(--fallback-opacity, .75);
   }
 }
+
+.error-msg-container{
+  padding: 1rem;
+}
+
+.error-msg{
+  padding: .5rem;
+  background: #ff6701;
+  border-radius: .25rem;
+  font-family: monospace-ui, monospace;
+  color: #052441;
+  box-shadow: 0 1px 0 rgb(255 255 255 / .25) inset,
+  0 -1px 0 rgb(0 0 0 / .25) inset;
+}
