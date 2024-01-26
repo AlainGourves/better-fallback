@@ -64,7 +64,8 @@
 
 
         background: var(--clr-active-50);
-        @media (prefers-color-scheme:dark){
+
+        @media (prefers-color-scheme:dark) {
             background: var(--clr-active-100);
         }
 

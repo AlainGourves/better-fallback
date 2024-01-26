@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { useFormState, useFormStatus } from "react-dom";
-import { getFormData } from './api/actions';
+import { useFormState } from "react-dom";
+import { getFontInfos } from './api/actions';
 import * as fontkit from 'fontkit';
-import { fetchFont, loadFont, checkFontFile, fontKitLoad } from './_lib/fonts';
+import { fetchFont, loadFont, getFontType, fontKitLoad } from './_lib/fonts';
 import { demoText } from './_lib/demoText';
 import { URLValidator } from './_lib/utils';
 import styles from './page.module.scss'
@@ -14,7 +14,7 @@ import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import TextTools from './components/textTools';
 import FontFile from './components/fontFile';
-import { SubmitButton } from './components/submitButton';
+import SubmitButton from './components/submitButton';
 
 export default function Home() {
   const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
@@ -92,6 +92,9 @@ export default function Home() {
     if (URLValidator(val) || val === '') {
       urlRef.current?.setCustomValidity(''); // remove :invalid state if present
     }
+    if (fontFile) {
+      setFontFile(null); // fontFile and fontURL are exclusives
+    }
     setFontURL(ev.target.value);
   };
   // button with an 'X' to erase TextInpu
@@ -100,6 +103,7 @@ export default function Home() {
     if (error === true) setError(false);
   }
 
+  /*
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     if (fontURL === '' && fontFile === null) return;
@@ -155,6 +159,7 @@ export default function Home() {
       throw new Error(`handleFile: ${error}`);
     }
   }
+  */
 
   useEffect(() => {
     if (fontInfos.fullName) {
@@ -166,26 +171,39 @@ export default function Home() {
         el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
         if (el) el.textContent = fontInfos.size;
       }
-      console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
-      if (temoinRef.current) {
-        temoinRef.current.style.fontFamily = `'${fontInfos.fullName}'`;
-        console.log('témoin-> done something')
-      }
+      // console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
+      // if (temoinRef.current) {
+      //   temoinRef.current.style.fontFamily = `'${fontInfos.fullName}'`;
+      //   console.log('témoin-> done something')
+      // }
     };
-    console.log('fontInfos->', fontInfos)
   }, [fontInfos]);
 
   // Server actions
+  const initialState = {
+    success: false,
+    message: null,
+  }
+  const [formState, formAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
-  const [formState, formAction] = useFormState(getFormData, null);
-
+  useEffect(()=>{
+    if(formState.success) {
+      setFontInfos((fontInfos) => ({
+        ...fontInfos,
+        fullName: formState.message?.fullName,
+        fontType: formState.message?.type,
+        size: formState.message?.size
+        // size: `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`
+      }));    }
+  }, [formState]);
 
   return (
     <main className={styles.main}>
       <form
         id="select-font"
         className={styles["select-font"]}
-        onSubmit={handleSubmit}>
+        action={formAction}>
+
         <div>
           <Image
             src="/letter.svg"
@@ -202,6 +220,7 @@ export default function Home() {
               <input
                 type="file"
                 id="font-upload"
+                name="font-upload"
                 accept={fontTypes.join(',')}
                 onChange={handleFontFile}
               />
@@ -226,70 +245,68 @@ export default function Home() {
             title='Erase field'
             onClick={eraseTextInput}
           />
-          <Button
+          <SubmitButton
             id="select-font-submit"
-            type="submit"
             text={'Load the font'}
             classAdd={'outlined'}
             disabled={!fontURL && !fontFile}
           />
         </div>
-        {error && (
+        {!formState.success &&  formState.message && (
           <div className={styles['error-msg-container']}>
             <div className={styles['error-msg']}>
               <h3>A problem occurred!</h3>
-              {errorMessage && errorMessage}
+              {formState.message}
             </div>
           </div>
         )}
       </form>
-      <div className={styles['font-settings']}>
-        <form action={formAction}>
-          <div className={styles['font-infos']} ref={fontInfosDiv}>
-            <h3>Selected Font</h3>
-            <div>
-              <dl>
-                <dt>Name</dt>
-                <dd></dd>
-              </dl>
-              <dl>
-                <dt>Type</dt>
-                <dd></dd>
-              </dl>
-              <dl>
-                <dt>Size</dt>
-                <dd></dd>
-              </dl>
-            </div>
-          </div>
 
-          <div className={styles['fallback-font']}>
-            <h3>Fallback Font</h3>
-            <Select
-              id='fallbackFontSelect'
-              label='Font'
-              options={fallbackFontsOptions}
-              defaultValue={fallbackFontDefault}
-              onChange={handleFallbackSelect}
-            />
-
-            <RadioGroup
-              groupName='targetLanguage'
-              defaultValue={languageOptionsDefault}
-              radios={languageOptions}
-              onInput={handleLanguageChoice}
-              label='Lang.'
-            />
-          </div>
-
+      <form className={styles['font-settings']}>
+        <div className={styles['font-infos']} ref={fontInfosDiv}>
+          <h3>Selected Font</h3>
           <div>
-            <SubmitButton
-              id="proceed"
-              text='Proceed'
-            />
+            <dl>
+              <dt>Name</dt>
+              <dd></dd>
+            </dl>
+            <dl>
+              <dt>Type</dt>
+              <dd></dd>
+            </dl>
+            <dl>
+              <dt>Size</dt>
+              <dd></dd>
+            </dl>
           </div>
-        </form>
-      </div>
+        </div>
+
+        <div className={styles['fallback-font']}>
+          <h3>Fallback Font</h3>
+          <Select
+            id='fallbackFontSelect'
+            label='Font'
+            options={fallbackFontsOptions}
+            defaultValue={fallbackFontDefault}
+            onChange={handleFallbackSelect}
+          />
+
+          <RadioGroup
+            groupName='targetLanguage'
+            defaultValue={languageOptionsDefault}
+            radios={languageOptions}
+            onInput={handleLanguageChoice}
+            label='Lang.'
+          />
+        </div>
+
+        <div>
+          <SubmitButton
+            id="proceed"
+            text='Proceed'
+          />
+        </div>
+      </form>
 
       <div className={styles['text-container']}>
         <TextTools />

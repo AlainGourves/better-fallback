@@ -37,7 +37,7 @@ export default function RadioGroup(props: RadioGroupProps) {
             onInput={props.onInput}
             disabled={props.disabled && true}
         >
-            {props.label ?? (
+            {props.label && (
                 <div className={radioGroupStyles['legend']}>{props.label}</div>
             )}
             <div className={radioGroupStyles['radio-group']} >

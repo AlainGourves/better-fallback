@@ -33,6 +33,7 @@ const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: Reac
                 ref={ref}
                 type={props.type ? props.type : 'text'}
                 id={props.id}
+                name={props.id}
                 value={props.value}
                 onChange={props.onChange}
                 disabled={props.disabled}

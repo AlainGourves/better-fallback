@@ -26,10 +26,11 @@ export const fontKitLoad = async (file: File) => {
     return fontkit.create(new Uint8Array(buff) as Buffer);
 }
 
-export const checkFontFile = async (file: File) => {
+export const getFontType = async (file: File) => {
     // Check the file type (accepts only OTF, TTF, WOFF, WOFF2)
+    // Returns the font type or null
     const fontFormats = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
-    let type;
+    let type= null;
     if (!file.type || !fontFormats.includes(file.type)) {
         // Reads the 4 first bytes of the file to get the font type
         const start = file.slice(0, 4) // Blob
@@ -48,8 +49,6 @@ export const checkFontFile = async (file: File) => {
             case '4F54544F':
                 type = 'font/otf';
                 break;
-            default:
-                throw new Error("Incorrect file type.")
         }
     } else {
         type = file.type;
