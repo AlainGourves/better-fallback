@@ -53,7 +53,7 @@ export default function Select(props: SelectProps) {
                 disabled={props.disabled}
             >
                 {
-                    Object.getOwnPropertyNames(props.options).map((item: string, idx: number) => {
+                    [...props.options.keys()].map((item, idx) => {
                         return (
                             <option key={idx} value={item}>{props.options.get(item)?.text}</option>
                         )
