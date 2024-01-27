@@ -5,7 +5,7 @@ import { getFontInfos } from './api/actions';
 import * as fontkit from 'fontkit';
 import { fetchFont, loadFont, getFontType, fontKitLoad } from './_lib/fonts';
 import { demoText } from './_lib/demoText';
-import { URLValidator } from './_lib/utils';
+import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
 import Image from 'next/image';
 import TextInput from './components/form-components/textInput/textInput';
@@ -16,13 +16,32 @@ import TextTools from './components/textTools';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 
+// See: https://stackoverflow.com/questions/52085454/typescript-define-a-union-type-from-an-array-of-strings
+const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'] as const;
+export type FontTypes = typeof fontTypes[number];
+
+type FontMetrics = {
+  UPM: number,
+  ascent: number,
+  descent: number,
+  lineGap: number,
+}
+
+type FontInfos = {
+  fullName: string | null,
+  familyName: string | null,
+  type: FontTypes | null,
+  size: number,
+  metrics: FontMetrics | {}
+}
+
 export default function Home() {
-  const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
-  const [fontInfos, setFontInfos] = useState({
-    fileName: '',
-    fullName: '',
-    fontType: '',
-    size: ''
+  const [fontInfos, setFontInfos] = useState<FontInfos>({
+    fullName: null,
+    familyName: null,
+    type: null,
+    size: 0,
+    metrics: {}
   });
 
   const [fontURL, setFontURL] = useState('');
@@ -41,12 +60,43 @@ export default function Home() {
 
 
   // `Select` for choosing fallback font
-  const fallbackFontsOptions = [
-    { value: 'times', text: 'Times New Roman', style: "'Times New Roman', times, serif" },
-    { value: 'arial', text: 'Arial', style: "Arial, sans-serif" },
-    { value: 'roboto', text: 'Roboto', style: "'Roboto Regular', roboto, sans-serif" }
-  ];
-  const fallbackFontDefault = 'Times New Roman';
+
+  type opp = {
+    "text": string,
+    "style": string
+  }
+  const falbala = new Map<string, opp>();
+  falbala.set("times", {
+    "text": "Times New Roman",
+    "style": "'Times New Roman', times, serif"
+  });
+  falbala.set("arial", {
+    "text": "Arial",
+    "style": "Arial, sans-serif"
+  });
+  falbala.set("roboto", {
+    "text": "Roboto",
+    "style": "'Roboto Regular', roboto, sans-serif"
+  });
+  const fallbackFontsOptions = {
+    "times": {
+      "text": "Times New Roman",
+      "style": "'Times New Roman', times, serif"
+    },
+    "arial": {
+      "text": "Arial",
+      "style": "Arial, sans-serif"
+    },
+    "roboto": {
+      "text": "Roboto",
+      "style": "'Roboto Regular', roboto, sans-serif"
+    }
+  };
+  let fallbackFontDefault = 'times';
+  // if (falbala.get("times").text !== undefined && falbala.get("times").text !== null) {
+  //   fallbackFontDefault = falbala.get("times").text;
+  // }
+  // const fallbackFontDefault = fallbackFontsOptions.times.text;
   const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
   const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
     if (ev.target.value) setFallbackFontValue(ev.target.value);
@@ -167,9 +217,9 @@ export default function Home() {
         let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
         if (el) el.textContent = fontInfos.fullName;
         el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
-        if (el) el.textContent = fontInfos.fontType;
+        if (el) el.textContent = fontInfos.type;
         el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
-        if (el) el.textContent = fontInfos.size;
+        if (el) el.textContent = `${(Number.isInteger(fontInfos.size)) ? fontInfos.size : fontInfos.size.toFixed(1)}Ko`;
       }
       // console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
       // if (temoinRef.current) {
@@ -186,15 +236,15 @@ export default function Home() {
   }
   const [formState, formAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
-  useEffect(()=>{
-    if(formState.success) {
+  useEffect(() => {
+    if (formState.success) {
       setFontInfos((fontInfos) => ({
         ...fontInfos,
         fullName: formState.message?.fullName,
         fontType: formState.message?.type,
         size: formState.message?.size
-        // size: `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`
-      }));    }
+      }));
+    }
   }, [formState]);
 
   return (
@@ -221,7 +271,7 @@ export default function Home() {
                 type="file"
                 id="font-upload"
                 name="font-upload"
-                accept={fontTypes.join(',')}
+                accept={listAcceptable([...fontTypes])}
                 onChange={handleFontFile}
               />
             </label>
@@ -252,7 +302,7 @@ export default function Home() {
             disabled={!fontURL && !fontFile}
           />
         </div>
-        {!formState.success &&  formState.message && (
+        {!formState.success && formState.message && (
           <div className={styles['error-msg-container']}>
             <div className={styles['error-msg']}>
               <h3>A problem occurred!</h3>
@@ -286,7 +336,7 @@ export default function Home() {
           <Select
             id='fallbackFontSelect'
             label='Font'
-            options={fallbackFontsOptions}
+            options={falbala}
             defaultValue={fallbackFontDefault}
             onChange={handleFallbackSelect}
           />

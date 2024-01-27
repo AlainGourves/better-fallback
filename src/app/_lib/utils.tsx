@@ -13,14 +13,6 @@ export const URLValidator = (str: string): boolean => {
     }
 }
 
-// TODO: moment de la validation !!!
-/*
-Actuellement ça cherche à valider à chaque `change`
-=> c'est invalide tout le temps !! (sauf à coller une url complète)
-
-==> ne valider qu'au moement d'utiliser `fontUrl`
-*/
-
 // TODO: File size validation
 /*
 Mettre une limite + gestion d'erreur et affichage adéquat
@@ -40,3 +32,14 @@ element.setCustomValidity('')
 -> enlève l'état :invalid
 
 */
+
+import type {FontTypes} from '../page'
+// Returns acceptable file types for input[type=file]
+// arr: array of mimes types
+// MacOS recognizes "font/ttf" or ".woff2", but not "font/woff2" for eg.
+// hence the need to extract extensions from mime types
+export const listAcceptable = (arr: FontTypes[])=>{
+    const regex =/font\/(.+)/; // to get file extensions
+    const ext = arr.map(val => `.${val.replace(regex, "$1")}`);
+    return [...arr, ...ext].join(',');
+}

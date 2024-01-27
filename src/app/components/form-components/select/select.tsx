@@ -4,16 +4,18 @@ import selectStyles from './select.module.scss';
 import { useRef } from 'react';
 import { getClassName } from '../utils'
 
-type Option = {
-    value: string,
-    text: string,
-    style: string,
+type OptionVal={
+    text:string,
+    style: string
+}
+type Option={
+    [key: string]: OptionVal
 }
 
 type SelectProps = {
     id: string,
     label: string,
-    options: Option[],
+    options: Map<string, OptionVal>,
     defaultValue?: string,
     onChange(event: React.FormEvent<HTMLSelectElement>): void;
     disabled?: boolean,
@@ -51,11 +53,12 @@ export default function Select(props: SelectProps) {
                 disabled={props.disabled}
             >
                 {
-                    props.options.map((item: Option, idx: number) => {
+                    Object.getOwnPropertyNames(props.options).map((item: string, idx: number) => {
                         return (
-                            <option key={props.options[idx].value} value={props.options[idx].style}>{props.options[idx].text}</option>
+                            <option key={idx} value={item}>{props.options.get(item)?.text}</option>
                         )
                     })
+
                 }
             </select>
         </label>
