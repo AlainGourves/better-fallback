@@ -214,12 +214,13 @@ export default function Home() {
   useEffect(() => {
     if (fontInfos.fullName) {
       if (fontInfosDiv.current) {
-        let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
-        if (el) el.textContent = fontInfos.fullName;
-        el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
-        if (el) el.textContent = fontInfos.type;
-        el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
-        if (el) el.textContent = `${(Number.isInteger(fontInfos.size)) ? fontInfos.size : fontInfos.size.toFixed(1)}Ko`;
+        // let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
+        // if (el) el.textContent = fontInfos.fullName;
+        // el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
+        // if (el) el.textContent = fontInfos.type;
+        // el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
+        // if (el) el.textContent = `${(Number.isInteger(fontInfos.size)) ? fontInfos.size : fontInfos.size.toFixed(1)}Ko`;
+        console.log(fontInfos)
       }
       // console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
       // if (temoinRef.current) {
@@ -241,7 +242,8 @@ export default function Home() {
       setFontInfos((fontInfos) => ({
         ...fontInfos,
         fullName: formState.message?.fullName,
-        fontType: formState.message?.type,
+        familyName: formState.message?.familyName,
+        type: formState.message?.type,
         size: formState.message?.size
       }));
     }
@@ -318,15 +320,19 @@ export default function Home() {
           <div>
             <dl>
               <dt>Name</dt>
-              <dd></dd>
+              <dd>{fontInfos.fullName && fontInfos.fullName}</dd>
+            </dl>
+            <dl>
+              <dt>Family</dt>
+              <dd>{fontInfos.familyName && fontInfos.familyName}</dd>
             </dl>
             <dl>
               <dt>Type</dt>
-              <dd></dd>
+              <dd>{fontInfos.type && fontInfos.type}</dd>
             </dl>
             <dl>
               <dt>Size</dt>
-              <dd></dd>
+              <dd>{(fontInfos.size >0) && fontInfos.size}</dd>
             </dl>
           </div>
         </div>

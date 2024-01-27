@@ -43,3 +43,9 @@ export const listAcceptable = (arr: FontTypes[])=>{
     const ext = arr.map(val => `.${val.replace(regex, "$1")}`);
     return [...arr, ...ext].join(',');
 }
+
+// TODO:
+// Formater le poids des fontes
+// NB: peut-être fait au iveau du serveur !!
+// Prend size: number
+// retourne :string
