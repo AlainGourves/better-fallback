@@ -1,7 +1,7 @@
 'use server';
 
 import * as fontkit from 'fontkit';
-import { getFontType } from '../_lib/fonts';
+import { getFontType, getFontSize } from '../_lib/fonts';
 
 type ResponseType = {
     success: boolean,
@@ -24,7 +24,7 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
                 fullName: font.fullName,
                 familyName: font.familyName,
                 type: type,
-                size: size,
+                size: getFontSize(size),
                 metrics: {
                     UPM: font.unitsPerEm,
                     ascent: font.ascent,

@@ -55,3 +55,14 @@ export const getFontType = async (file: File) => {
     }
     return type;
 }
+
+// Formats fonts size
+// n: number (size in bytes)
+// returns :string (size in ko, ex: '21.2ko')
+export const getFontSize = (n: number)=>{
+    let size:number|string = Math.round(n / 100) / 10;
+    if (!Number.isInteger(size)) {
+        size = size.toFixed(1);
+    }
+    return `${size}ko`;
+}

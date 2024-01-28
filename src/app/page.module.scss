@@ -137,7 +137,6 @@
 .font-infos {
 
   & div {
-    animation: glow 5s ease-in-out infinite;
     animation-delay: .5s;
     border-radius: .5em;
   }
@@ -202,25 +201,4 @@
   color: #052441;
   box-shadow: 0 1px 0 rgb(255 255 255 / .25) inset,
     0 -1px 0 rgb(0 0 0 / .25) inset;
-}
-
-@keyframes glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 #fff;
-  }
-
-  25%,
-  75% {
-    box-shadow: 0 0 0 2px #fff,
-      0 0 0 #fff;
-    background-color: #fff0;
-  }
-
-  50% {
-    box-shadow: 0 0 0 2px #fff,
-      0 0 1em #fff;
-    background-color: #ffffff54;
-  }
 }

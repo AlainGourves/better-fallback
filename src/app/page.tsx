@@ -31,7 +31,7 @@ type FontInfos = {
   fullName: string | null,
   familyName: string | null,
   type: FontTypes | null,
-  size: number,
+  size: string | null,
   metrics: FontMetrics | {}
 }
 
@@ -40,7 +40,7 @@ export default function Home() {
     fullName: null,
     familyName: null,
     type: null,
-    size: 0,
+    size: null,
     metrics: {}
   });
 
@@ -153,76 +153,15 @@ export default function Home() {
     if (error === true) setError(false);
   }
 
-  /*
-  const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
-    if (fontURL === '' && fontFile === null) return;
-    if (fontURL && !URLValidator(fontURL)) {
-      // Error handling
-      const msg = "Please, verify the URL format.";
-      urlRef.current?.setCustomValidity(msg); // Sets the :invalid state to the input
-      urlRef.current?.reportValidity(); // display the tooltip
-      return;
-    }
-    try {
-      console.log('from handleSubmit')
-      // TODO: which choice if fontUrl & fontFile are defined ?
-      // -> variable to store the last modified ?
-      // 1) fontUrl -> Load the font
-      if (fontURL) {
-        const file = await fetchFont(fontURL);
-        // setFontURL('');
-        // setFontFile(file);
-        await handleFile(file);
-      }
-      // 2) fontFile -> check the file type
-      if (fontFile) {
-        await handleFile(fontFile);
-      }
-      // 3) Dropped File
-    } catch (err) {
-      // TODO: Error handling
-      setError(true);
-      if (err instanceof Error) {
-        setErrorMessage(`${err.name}: ${err.message}`)
-      }
-    }
-  }
-
-  const handleFile = async (file: File) => {
-    try {
-      let size = Math.round(file.size / 100) / 10;
-      const fType = await checkFontFile(file);
-      const font = await fontKitLoad(file);
-
-      setFontInfos((fontInfos) => ({
-        ...fontInfos,
-        fileName: file.name,
-        fullName: font.fullName,
-        fontType: fType,
-        size: `${(Number.isInteger(size)) ? size : size.toFixed(1)}Ko`
-      }));
-
-      await loadFont(font.fullName, file);
-    } catch (error) {
-      // rethrows the error
-      throw new Error(`handleFile: ${error}`);
-    }
-  }
-  */
-
   useEffect(() => {
     if (fontInfos.fullName) {
+
+      console.log(fontInfos)
+
       if (fontInfosDiv.current) {
-        // let el = fontInfosDiv.current.querySelector('dl:nth-of-type(1) dd');
-        // if (el) el.textContent = fontInfos.fullName;
-        // el = fontInfosDiv.current.querySelector('dl:nth-of-type(2) dd')
-        // if (el) el.textContent = fontInfos.type;
-        // el = fontInfosDiv.current.querySelector('dl:nth-of-type(3) dd');
-        // if (el) el.textContent = `${(Number.isInteger(fontInfos.size)) ? fontInfos.size : fontInfos.size.toFixed(1)}Ko`;
-        console.log(fontInfos)
+        fontInfosDiv.current.classList.add('glow');
+        console.log("current", fontInfosDiv.current.classList)
       }
-      // console.log(`font check (${fontInfos.fullName})`, document.fonts.check(`16px '${fontInfos.fullName}'`))
       // if (temoinRef.current) {
       //   temoinRef.current.style.fontFamily = `'${fontInfos.fullName}'`;
       //   console.log('témoin-> done something')
@@ -238,6 +177,7 @@ export default function Home() {
   const [formState, formAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
   useEffect(() => {
+    console.log("useEffect formstate")
     if (formState.success) {
       setFontInfos((fontInfos) => ({
         ...fontInfos,
@@ -315,7 +255,15 @@ export default function Home() {
       </form>
 
       <form className={styles['font-settings']}>
-        <div className={styles['font-infos']} ref={fontInfosDiv}>
+        <div
+          className={styles['font-infos']}
+          ref={fontInfosDiv}
+          onAnimationEnd={e => {
+            const target = e.target as HTMLElement;
+            console.log('onAnimationEnd')
+            if (target.classList.contains('glow')) target.classList.remove('glow');
+          }}
+        >
           <h3>Selected Font</h3>
           <div>
             <dl>
@@ -332,7 +280,7 @@ export default function Home() {
             </dl>
             <dl>
               <dt>Size</dt>
-              <dd>{(fontInfos.size >0) && fontInfos.size}</dd>
+              <dd>{fontInfos.size && fontInfos.size}</dd>
             </dl>
           </div>
         </div>
