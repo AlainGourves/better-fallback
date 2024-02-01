@@ -66,3 +66,21 @@ export const getFontSize = (n: number)=>{
     }
     return `${size}ko`;
 }
+
+// Get a font name from its URL
+export const getFontName = (str: string)=>{
+    try{
+        const url = new URL(str);
+        const path = url.pathname;
+        const regex = /\/([a-z-]{2,})[./]/i; // a sequence of 2 or more letters between slashes
+        const match = path.match(regex);
+        if (match){
+             return match[1];
+        }else{
+            return undefined;
+        }
+    }catch(err) {
+        // rethrow error
+        throw new Error(err as string);
+    }
+}

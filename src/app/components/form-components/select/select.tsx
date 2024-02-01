@@ -42,7 +42,8 @@ export default function Select(props: SelectProps) {
     return (
         <label
             htmlFor={props.id}
-            className={className}>
+            className={className}
+        >
             {props.label && (<span>{props.label}</span>)}
             <select
                 id={props.id}

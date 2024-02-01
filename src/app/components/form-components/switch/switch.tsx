@@ -10,6 +10,7 @@ type SwitchProps={
     checked?: boolean | undefined,
     labelPosition?: 'top' | 'right' | 'bottom' | 'left',
     disabled?: boolean | undefined,
+    title?: string,
 }
 
 export default function Switch(props: SwitchProps) {
@@ -20,6 +21,7 @@ export default function Switch(props: SwitchProps) {
         <label
             htmlFor={props.id}
             className={className}
+            title={props.title}
         >
             {props.label && (<span>{props.label}</span>)}
             <input

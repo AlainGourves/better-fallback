@@ -28,8 +28,8 @@
         background-position: calc(100% - var(--__padding)) 50%, 0% 0%;
         background-size: var(--__arrow-size) var(--__arrow-size), 100% 100%;
         background-repeat: no-repeat;
-        padding: var(--__padding);
-        padding-inline-end: calc(var(--__arrow-size) + 3*var(--__padding)); // make space for the arrow
+        padding-block: var(--__padding);
+        padding-inline: calc(2*var(--__padding)) calc(var(--__arrow-size) + 3*var(--__padding)); // make space for the arrow
         font-size: inherit;
         line-height: inherit;
         color: var(--clr-active);

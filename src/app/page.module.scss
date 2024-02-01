@@ -160,22 +160,24 @@
 
 .text-container {
   width: 100%;
-  background-color: lightcoral;
+  background-color: #fff;
 }
 
 .temoin {
   max-width: 80ch;
   max-height: 20rem;
   overflow-y: auto;
-  overscroll-behavior-y: contain; // prevent scroll chaining
   margin-inline: auto;
   line-height: 1.5;
   font-family: 'Times New Roman', Times, serif;
-  font-size: var(--temoin-fs, 1rem);
+  font-size: var(--temoin-fs, 24px);
   text-rendering: optimizeSpeed; // Important ! Somes shiftings without it in Chrome and Safari
+  overscroll-behavior-y: contain; // prevent scroll chaining
+  scrollbar-gutter: stable both-edges;
+  text-wrap: pretty;
   white-space: pre-line;
   position: relative;
-  border: 0;
+  // border: 0;
 
   &::before {
     position: absolute;

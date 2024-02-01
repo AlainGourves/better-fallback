@@ -4,7 +4,7 @@ import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
 
 const defaultAlpha = .5;
-const defaultFontSize = 16;
+const defaultFontSize = 24;
 
 export default function TextTools(props: any) {
     const [alphaSlider, setAlphaSlider] = useState(defaultAlpha);
@@ -65,7 +65,8 @@ export default function TextTools(props: any) {
                 <span className={textToolsStyles.divider}></span>
                 <Switch
                     id='switch-fmo'
-                    label={'Apply FMO'}
+                    label={'FMO'}
+                    title='Font Metrics Overrides'
                     checked={FMOSwitch}
                     onChange={handleFMOSwitch}
                     />

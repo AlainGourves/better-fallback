@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Arial",
+        "upm": 2048,
+        "data": [
+            {
+                "lang": "en",
+                "width": 900.37350022
+            },
+            {
+                "lang": "fr",
+                "width": 964.1224921979497
+            }
+        ]
+    },
+    {
+        "name": "Roboto",
+        "upm": 2048,
+        "data": [
+            {
+                "lang": "en",
+                "width": 902.6539578400001
+            },
+            {
+                "lang": "fr",
+                "width": 974.7482166740978
+            }
+        ]
+    },
+    {
+        "name": "Times New Roman",
+        "upm": 2048,
+        "data": [
+            {
+                "lang": "en",
+                "width": 815.83659778
+            },
+            {
+                "lang": "fr",
+                "width": 865.7457646009814
+            }
+        ]
+    }
+]

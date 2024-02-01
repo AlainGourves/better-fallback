@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormState } from "react-dom";
-import { getFontInfos } from './api/actions';
+import { getFontInfos, getFontOverrides } from './api/actions';
 import * as fontkit from 'fontkit';
-import { fetchFont, loadFont, getFontType, fontKitLoad } from './_lib/fonts';
+import { fetchFont, loadFont, getFontType, getFontName } from './_lib/fonts';
 import { demoText } from './_lib/demoText';
 import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
@@ -126,7 +126,6 @@ export default function Home() {
     if (!ev.target.files) return;
     setFontURL(''); // get rid of an eventual URL
     setFontFile(ev.target.files[0]);
-    console.log('handleFontFile', ev.currentTarget.form)
   }
 
   // 'X' button to remove previously selected font file
@@ -137,7 +136,6 @@ export default function Home() {
 
   // Input[text] for font URL
   const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('from handleFontURL');
     const val = ev.target.value;
     if (URLValidator(val) || val === '') {
       urlRef.current?.setCustomValidity(''); // remove :invalid state if present
@@ -160,7 +158,6 @@ export default function Home() {
 
       if (fontInfosDiv.current) {
         fontInfosDiv.current.classList.add('glow');
-        console.log("current", fontInfosDiv.current.classList)
       }
       // if (temoinRef.current) {
       //   temoinRef.current.style.fontFamily = `'${fontInfos.fullName}'`;
@@ -174,27 +171,66 @@ export default function Home() {
     success: false,
     message: null,
   }
-  const [formState, formAction] = useFormState<any, FormData>(getFontInfos, initialState);
+  const [loadFormState, loadFormAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
   useEffect(() => {
-    console.log("useEffect formstate")
-    if (formState.success) {
+    if (loadFormState.success) {
       setFontInfos((fontInfos) => ({
         ...fontInfos,
-        fullName: formState.message?.fullName,
-        familyName: formState.message?.familyName,
-        type: formState.message?.type,
-        size: formState.message?.size
+        fullName: loadFormState.message?.fullName,
+        familyName: loadFormState.message?.familyName,
+        type: loadFormState.message?.type,
+        size: loadFormState.message?.size
       }));
     }
-  }, [formState]);
+  }, [loadFormState]);
+
+  const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
+
+  useEffect(() => {
+    console.log("overrides", overridesFormState)
+  }, [overridesFormState])
+
+  const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
+    // Load the font & add it to the document
+    try {
+      let fontName = undefined;
+      let theFont;
+      if (fontURL) {
+        fontName = getFontName(fontURL);
+        if (!fontName) fontName = 'Web font';
+        console.log("TuRL", fontName, fontURL)
+        theFont = new FontFace(fontName, `url(${fontURL})`);
+        console.log("theFont", theFont)
+        await theFont.load();
+      }
+      if (fontFile) {
+        fontName = fontFile.name.split('.')[0]; // file name without he extension
+        const buffer = await fontFile.arrayBuffer();
+        theFont = new FontFace(fontName, buffer);
+        await theFont.load();
+      }
+      // load the font in the document
+      if (theFont){
+        document.fonts.add(theFont);
+        console.log("yo!", fontURL, theFont)
+      }
+      if (temoinRef.current) {
+        temoinRef.current.style.fontFamily = `'${fontName}'`;
+      }
+    } catch (err) {
+
+    }
+  }
 
   return (
     <main className={styles.main}>
       <form
         id="select-font"
         className={styles["select-font"]}
-        action={formAction}>
+        action={loadFormAction}
+        onSubmit={handleSubmit}
+      >
 
         <div>
           <Image
@@ -244,23 +280,25 @@ export default function Home() {
             disabled={!fontURL && !fontFile}
           />
         </div>
-        {!formState.success && formState.message && (
+        {!loadFormState.success && loadFormState.message && (
           <div className={styles['error-msg-container']}>
             <div className={styles['error-msg']}>
               <h3>A problem occurred!</h3>
-              {formState.message}
+              {loadFormState.message}
             </div>
           </div>
         )}
       </form>
 
-      <form className={styles['font-settings']}>
+      <form
+        className={styles['font-settings']}
+        action={overridesFormAction}
+      >
         <div
           className={styles['font-infos']}
           ref={fontInfosDiv}
           onAnimationEnd={e => {
             const target = e.target as HTMLElement;
-            console.log('onAnimationEnd')
             if (target.classList.contains('glow')) target.classList.remove('glow');
           }}
         >
@@ -289,7 +327,7 @@ export default function Home() {
           <h3>Fallback Font</h3>
           <Select
             id='fallbackFontSelect'
-            label='Font'
+            label='Family'
             options={falbala}
             defaultValue={fallbackFontDefault}
             onChange={handleFallbackSelect}
