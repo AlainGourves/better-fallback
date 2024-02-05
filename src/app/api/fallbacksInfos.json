@@ -1,6 +1,8 @@
 [
     {
-        "name": "Arial",
+        "name": "arial",
+        "fullName": "Arial",
+        "postscriptName": "ArialMT",
         "upm": 2048,
         "data": [
             {
@@ -14,7 +16,9 @@
         ]
     },
     {
-        "name": "Roboto",
+        "name": "roboto",
+        "fullName": "Roboto",
+        "postscriptName": "Roboto-Regular",
         "upm": 2048,
         "data": [
             {
@@ -28,7 +32,9 @@
         ]
     },
     {
-        "name": "Times New Roman",
+        "name": "times",
+        "fullName": "Times New Roman",
+        "postscriptName": "TimesNewRomanPSMT",
         "upm": 2048,
         "data": [
             {

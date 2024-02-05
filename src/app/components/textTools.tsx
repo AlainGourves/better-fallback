@@ -23,20 +23,26 @@ export default function TextTools(props: any) {
         setFMOSwitch(ev.target?.checked);
     }
 
-    useEffect(() => {
-        document.body.style.setProperty('--fallback-opacity', alphaSlider.toString())
-    }, [alphaSlider])
-
-    useEffect(() => {
-        document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`)
-    }, [fontSizeSlider])
-
-
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
         setFontSizeSlider(defaultFontSize);
         setAlphaSlider(defaultAlpha);
         setFMOSwitch(true);
     }
+
+    // Fallback font's Alpha -------------
+    useEffect(() => {
+        document.body.style.setProperty('--fallback-opacity', alphaSlider.toString())
+    }, [alphaSlider])
+
+    // Fallback font's Family -------------
+    useEffect(() => {
+        document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`)
+    }, [fontSizeSlider])
+
+    // Overrides' Switch -------------
+    useEffect(() => {
+        document.body.style.setProperty('--fmo', `${fontSizeSlider}px`)
+    }, [FMOSwitch])
 
     return (
         <div className={textToolsStyles['text-tools-container']}>
@@ -69,7 +75,7 @@ export default function TextTools(props: any) {
                     title='Font Metrics Overrides'
                     checked={FMOSwitch}
                     onChange={handleFMOSwitch}
-                    />
+                />
                 <span className={textToolsStyles.divider}></span>
                 <button
                     className={textToolsStyles['reset-btn']}
@@ -77,7 +83,7 @@ export default function TextTools(props: any) {
                     title='Reset'
                 >
                     <svg xmlns="http://www.w3.org/2000/svg"
-                     viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
+                        viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
                         <path fill="currentColor" d="M17.96 5v1.65a8 8 0 1 0 1.29 8.8 1 1 0 0 0-.9-1.44c-.37 0-.73.2-.88.53A6 6 0 1 1 17.22 9h-3.25c-.55 0-1 .45-1 1s.45 1 1 1h5a1 1 0 0 0 1-1V5c0-.55-.45-1-1-1s-1 .45-1 1z" />
                     </svg>
                 </button>

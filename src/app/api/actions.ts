@@ -6,12 +6,12 @@ import Font, * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
 
 
-type FrequencyMap={
-    [key:string]:number
+type FrequencyMap = {
+    [key: string]: number
 }
-type LanguageFrequency={
-    lang:string,
-    fraq:FrequencyMap
+type LanguageFrequency = {
+    lang: string,
+    fraq: FrequencyMap
 }
 type LanguagesArray = LanguageFrequency[];
 
@@ -22,6 +22,8 @@ type FbFontData = {
 
 type FbFont = {
     name: string;
+    fullName: string;
+    postscriptName: string;
     upm: number;
     data: FbFontData[];
 };
@@ -33,7 +35,7 @@ type ResponseType = {
     message: string | object
 }
 
-let myFont:Font.Font|undefined;
+let myFont: Font.Font | undefined;
 
 export async function getFontInfos(prevState: ResponseType, formData: FormData) {
     // let font: Font.Font;
@@ -50,15 +52,9 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
                 familyName: font.familyName,
                 type: type,
                 size: getFontSize(size),
-                metrics: {
-                    UPM: font.unitsPerEm,
-                    ascent: font.ascent,
-                    descent: font.descent,
-                    lineGap: font.lineGap,
-                }
             }
             console.log(">>>>", font.fullName)
-            myFont =  font;
+            myFont = font;
         }
     } catch (err) {
         return {
@@ -73,25 +69,42 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
     }
 }
 
-let rawdata = readFileSync(process.cwd() + '/src/app/api/frequencies.json', 'utf8' );
+let rawdata = readFileSync(process.cwd() + '/src/app/api/frequencies.json', 'utf8');
 const frequencies = JSON.parse(rawdata);
-rawdata = readFileSync(process.cwd() + '/src/app/api/fallbackAvgWidth.json', 'utf8' );
-const fallbackAvgWidth = JSON.parse(rawdata);
+rawdata = readFileSync(process.cwd() + '/src/app/api/fallbacksInfos.json', 'utf8');
+const fallbacks = JSON.parse(rawdata);
 
 
 export async function getFontOverrides(prevState: ResponseType, formData: FormData) {
 
 
     console.log("hello from server");
-    console.log(myFont?.postscriptName);
 
     const fallbackFont = formData.get('fallbackFontSelect') as string;
     const lang = formData.get('targetLanguage') as string;
 
-    console.log(fallbackFont, lang)
-
     let fontOverrides = {};
     try {
+        if (myFont) {
+            const fallbackFontInfos = getFallbackInfos(fallbackFont);
+            const sizeAdjust = await getSizeAdjust(myFont, fallbackFontInfos, lang);
+            console.log("sizeAdjust", sizeAdjust)
+            const upm = myFont.unitsPerEm
+            const ascent = formatForCSS(myFont.ascent / (upm * sizeAdjust));
+            console.log('97', myFont.descent)
+            const descent = formatForCSS(myFont.descent / (upm * sizeAdjust));
+            const lineGap = formatForCSS(myFont.lineGap / (upm * sizeAdjust));
+            fontOverrides = {
+                'fullName': fallbackFontInfos.fullName,
+                'postscriptName': fallbackFontInfos.postscriptName,
+                'ascent': ascent,
+                'descent': descent,
+                'lineGap': lineGap,
+                'sizeAdjust': formatForCSS(sizeAdjust),
+            }
+        } else {
+            throw new Error("I've lost the font! 😭");
+        }
 
     } catch (err) {
         return {
@@ -136,7 +149,7 @@ const loadUploadedFont = async (file: File) => {
     }
 }
 
-const getAvgWidth = async (font: Font.Font, freq:FrequencyMap) => {
+const getAvgWidth = async (font: Font.Font, freq: FrequencyMap) => {
     let width = 0;
     const chars = Object.keys(freq);
     chars.forEach((char) => {
@@ -147,30 +160,39 @@ const getAvgWidth = async (font: Font.Font, freq:FrequencyMap) => {
     return width;
 }
 
-const getFrequencies = (lang:string) => {
-    const obj = frequencies.find((o:LanguageFrequency) => o.lang === lang);
+const getFrequencies = (lang: string) => {
+    const obj = frequencies.find((o: LanguageFrequency) => o.lang === lang);
     return obj.freq;
 }
 
-const getFallbackAvgWidth = (name:string, lang:string) => {
-    const obj = fallbackAvgWidth.find((o:FbFont) => o.name === name);
-    const data = obj.data.find((o:FbFontData) => o.lang === lang);
-    return data.width;
+
+const getFallbackAvgWidth = (fb: FbFont, lang: string) => {
+    const data = fb.data.find((o: FbFontData) => o.lang === lang);
+    return data?.width;
 }
 
-const getFallbackUPM = (name:string) => {
-    const obj = fallbackAvgWidth.find((o:FbFont) => o.name === name);
-    return obj.upm;
+const getFallbackInfos = (name: string) => {
+    const obj = fallbacks.find((o: FbFont) => o.name === name);
+    return obj;
 }
 
-const getSizeAdjust = async (font:Font.Font, fallback:string, lang:string)=>{
+const getSizeAdjust = async (font: Font.Font, fbInfos: FbFont, lang: string) => {
     const freq = getFrequencies(lang);
     // Average with of the submitted font
     const avgWidthFont = await getAvgWidth(font, freq);
     const fontUPM = font.unitsPerEm;
     // Average with of the fallback font
-    const avgWidthFallback = getFallbackAvgWidth(fallback, lang);
-    const fallbackUPM = getFallbackUPM(fallback);
-    const sizeAdjust = (avgWidthFont / avgWidthFallback) * (fallbackUPM / fontUPM);
-    return sizeAdjust;
+    const avgWidthFallback = getFallbackAvgWidth(fbInfos, lang);
+    const fallbackUPM = fbInfos.upm;
+    if (avgWidthFallback) {
+        const sizeAdjust = (avgWidthFont / avgWidthFallback) * (fallbackUPM / fontUPM);
+        return sizeAdjust;
+    }else{
+        throw new Error(`Impossible to get average width for ${fbInfos.fullName}`)
+    }
 }
+
+// returns percentages (with 3 digits precision)
+// Math.abs() is necessary as `descent` value is negative
+// whereas `descent-override` is a percentage
+const formatForCSS = (x:number) => `${parseFloat(Math.abs(x * 100).toFixed(3))}%`;

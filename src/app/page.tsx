@@ -20,11 +20,18 @@ import SubmitButton from './components/submitButton';
 const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'] as const;
 export type FontTypes = typeof fontTypes[number];
 
-type FontMetrics = {
-  UPM: number,
-  ascent: number,
-  descent: number,
-  lineGap: number,
+// In the current state (02 2024), Typescript interface for FontFace descriptor doesn't have the `sizeAdjust` property
+interface MyFontFaceDescriptors extends FontFaceDescriptors {
+  sizeAdjust?: string
+}
+
+type FontOverrides = {
+  fullName: string,
+  postscriptName: string,
+  ascent: string,
+  descent: string,
+  lineGap: string,
+  sizeAdjust: string,
 }
 
 type FontInfos = {
@@ -32,7 +39,6 @@ type FontInfos = {
   familyName: string | null,
   type: FontTypes | null,
   size: string | null,
-  metrics: FontMetrics | {}
 }
 
 export default function Home() {
@@ -41,7 +47,6 @@ export default function Home() {
     familyName: null,
     type: null,
     size: null,
-    metrics: {}
   });
 
   const [fontURL, setFontURL] = useState('');
@@ -60,24 +65,6 @@ export default function Home() {
 
 
   // `Select` for choosing fallback font
-
-  type opp = {
-    "text": string,
-    "style": string
-  }
-  const falbala = new Map<string, opp>();
-  falbala.set("times", {
-    "text": "Times New Roman",
-    "style": "'Times New Roman', times, serif"
-  });
-  falbala.set("arial", {
-    "text": "Arial",
-    "style": "Arial, sans-serif"
-  });
-  falbala.set("roboto", {
-    "text": "Roboto",
-    "style": "'Roboto Regular', roboto, sans-serif"
-  });
   const fallbackFontsOptions = {
     "times": {
       "text": "Times New Roman",
@@ -93,10 +80,6 @@ export default function Home() {
     }
   };
   let fallbackFontDefault = 'times';
-  // if (falbala.get("times").text !== undefined && falbala.get("times").text !== null) {
-  //   fallbackFontDefault = falbala.get("times").text;
-  // }
-  // const fallbackFontDefault = fallbackFontsOptions.times.text;
   const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
   const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
     if (ev.target.value) setFallbackFontValue(ev.target.value);
@@ -188,7 +171,29 @@ export default function Home() {
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
-    console.log("overrides", overridesFormState)
+    const overrides = overridesFormState.message;
+    console.log("overrides", overrides)
+    const loadFallBackFont = async (overrides: FontOverrides) => {
+      try {
+        const fbFont = new FontFace(
+          `fallback for ${fontInfos.fullName} (${fallbackFontValue})`,
+          `url("${encodeURI('/Users/minim1/Library/Fonts/Roboto-Regular.ttf')}"))`,
+          {
+            "ascentOverride": overrides.ascent,
+            "descentOverride": overrides.descent,
+            "lineGapOverride": overrides.lineGap,
+            // "sizeAdjust": overrides.sizeAdjust,
+          } as MyFontFaceDescriptors
+        );
+        await fbFont.load();
+        console.log(">>>>>>>>>>>>>", fbFont)
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    if (overrides && overrides.fullName) {
+      loadFallBackFont(overrides);
+    }
   }, [overridesFormState])
 
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
@@ -211,7 +216,7 @@ export default function Home() {
         await theFont.load();
       }
       // load the font in the document
-      if (theFont){
+      if (theFont) {
         document.fonts.add(theFont);
         console.log("yo!", fontURL, theFont)
       }
@@ -328,7 +333,7 @@ export default function Home() {
           <Select
             id='fallbackFontSelect'
             label='Family'
-            options={falbala}
+            options={fallbackFontsOptions}
             defaultValue={fallbackFontDefault}
             onChange={handleFallbackSelect}
           />
