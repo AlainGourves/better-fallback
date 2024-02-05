@@ -186,7 +186,7 @@
     color: red;
     user-select: none;
     pointer-events: none;
-    font-family: var(--fallback-family, 'Times New Roman', Times, serif);
+    font-family: var(--fallback-family);
     opacity: var(--fallback-opacity, .75);
   }
 }

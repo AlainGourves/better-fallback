@@ -3,6 +3,7 @@
         "name": "arial",
         "fullName": "Arial",
         "postscriptName": "ArialMT",
+        "file": "Arial.ttf",
         "upm": 2048,
         "data": [
             {
@@ -19,6 +20,7 @@
         "name": "roboto",
         "fullName": "Roboto",
         "postscriptName": "Roboto-Regular",
+        "file": "Roboto-Regular.ttf",
         "upm": 2048,
         "data": [
             {
@@ -35,6 +37,7 @@
         "name": "times",
         "fullName": "Times New Roman",
         "postscriptName": "TimesNewRomanPSMT",
+        "file": "Times New Roman.ttf",
         "upm": 2048,
         "data": [
             {

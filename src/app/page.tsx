@@ -9,12 +9,12 @@ import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
 import Image from 'next/image';
 import TextInput from './components/form-components/textInput/textInput';
-import Button from './components/form-components/button/button';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import TextTools from './components/textTools';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
+import SectionCode from './components/sectionCode';
 
 // See: https://stackoverflow.com/questions/52085454/typescript-define-a-union-type-from-an-array-of-strings
 const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'] as const;
@@ -25,9 +25,10 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
   sizeAdjust?: string
 }
 
-type FontOverrides = {
+export type FontOverrides = {
   fullName: string,
   postscriptName: string,
+  file: string,
   ascent: string,
   descent: string,
   lineGap: string,
@@ -51,6 +52,7 @@ export default function Home() {
 
   const [fontURL, setFontURL] = useState('');
   const [fontFile, setFontFile] = useState<File | null>(null);
+  const [fallbackFamilyName, setFallbackFamilyName] = useState<string | null>(null);
   const urlRef = useRef<HTMLInputElement>(null);
   const temoinRef = useRef<HTMLDivElement>(null);
   const fontInfosDiv = useRef<HTMLDivElement>(null);
@@ -175,18 +177,24 @@ export default function Home() {
     console.log("overrides", overrides)
     const loadFallBackFont = async (overrides: FontOverrides) => {
       try {
+        setFallbackFamilyName(`"fallback for ${fontInfos.fullName} (${fallbackFontValue})"`);
+        const path = encodeURI(`/${overrides.file}`);
+        console.log(fallbackFamilyName, path, `url("${path}")`)
         const fbFont = new FontFace(
-          `fallback for ${fontInfos.fullName} (${fallbackFontValue})`,
-          `url("${encodeURI('/Users/minim1/Library/Fonts/Roboto-Regular.ttf')}"))`,
+          fallbackFamilyName as string,
+          `url("${path}")`,
           {
             "ascentOverride": overrides.ascent,
             "descentOverride": overrides.descent,
             "lineGapOverride": overrides.lineGap,
-            // "sizeAdjust": overrides.sizeAdjust,
+            "sizeAdjust": overrides.sizeAdjust,
           } as MyFontFaceDescriptors
         );
         await fbFont.load();
-        console.log(">>>>>>>>>>>>>", fbFont)
+        document.fonts.add(fbFont);
+        document.body.style.setProperty('--fallback-family', fallbackFamilyName);
+
+        console.log(">>>>>>>>>>>>> Fallback loaded & added")
       } catch (err) {
         console.error(err);
       }
@@ -364,6 +372,13 @@ export default function Home() {
           {demoText[targetedLanguage as keyof typeof demoText]}
         </div>
       </div>
+
+      {fallbackFamilyName && (
+        <SectionCode
+          fallbackName={fallbackFamilyName}
+          overrides={overridesFormState?.message}
+        />
+      )}
     </main>
   )
 }

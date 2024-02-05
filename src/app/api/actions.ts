@@ -24,6 +24,7 @@ type FbFont = {
     name: string;
     fullName: string;
     postscriptName: string;
+    file: string;
     upm: number;
     data: FbFontData[];
 };
@@ -97,6 +98,7 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
             fontOverrides = {
                 'fullName': fallbackFontInfos.fullName,
                 'postscriptName': fallbackFontInfos.postscriptName,
+                'file': fallbackFontInfos.file,
                 'ascent': ascent,
                 'descent': descent,
                 'lineGap': lineGap,
