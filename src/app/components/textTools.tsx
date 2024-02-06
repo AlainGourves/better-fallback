@@ -3,13 +3,13 @@ import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
 
-const defaultAlpha = .5;
+const defaultAlpha = .75;
 const defaultFontSize = 24;
 
 export default function TextTools(props: any) {
     const [alphaSlider, setAlphaSlider] = useState(defaultAlpha);
     const [fontSizeSlider, setFontSizeSlider] = useState(defaultFontSize);
-    const [FMOSwitch, setFMOSwitch] = useState(true);
+    const [editSwitch, setEditSwitch] = useState(true);
 
     const handleAlphaSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setAlphaSlider(parseFloat(ev.target.value));
@@ -19,14 +19,14 @@ export default function TextTools(props: any) {
         setFontSizeSlider(parseInt(ev.target.value));
     }
 
-    const handleFMOSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        setFMOSwitch(ev.target?.checked);
+    const handleEditSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        setEditSwitch(ev.target?.checked);
     }
 
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
         setFontSizeSlider(defaultFontSize);
         setAlphaSlider(defaultAlpha);
-        setFMOSwitch(true);
+        setEditSwitch(true);
     }
 
     // Fallback font's Alpha -------------
@@ -39,10 +39,10 @@ export default function TextTools(props: any) {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`)
     }, [fontSizeSlider])
 
-    // Overrides' Switch -------------
+    // Edit Switch -------------
     // useEffect(() => {
-    //     document.body.style.setProperty('--fmo', `${fontSizeSlider}px`)
-    // }, [FMOSwitch])
+    //     // Make the demo text DIV editable
+    // }, [editSwitch])
 
     return (
         <div className={textToolsStyles['text-tools-container']}>
@@ -53,7 +53,7 @@ export default function TextTools(props: any) {
                     max={1}
                     step={0.1}
                     value={alphaSlider}
-                    label='Transparency'
+                    label='Opacity'
                     onChange={handleAlphaSlider}
                     isOutput={true}
                 />
@@ -64,17 +64,17 @@ export default function TextTools(props: any) {
                     max={128}
                     step={1}
                     value={fontSizeSlider}
-                    label='Font Size'
+                    label='Font size'
                     onChange={handleFontSizeSlider}
                     isOutput={true}
                 />
                 <span className={textToolsStyles.divider}></span>
                 <Switch
-                    id='switch-fmo'
-                    label={'FMO'}
+                    id='switch-edit'
+                    label={'Edit text'}
                     title='Font Metrics Overrides'
-                    checked={FMOSwitch}
-                    onChange={handleFMOSwitch}
+                    checked={editSwitch}
+                    onChange={handleEditSwitch}
                 />
                 <span className={textToolsStyles.divider}></span>
                 <button
