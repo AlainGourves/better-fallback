@@ -3,17 +3,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFormState } from "react-dom";
 import { getFontInfos, getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
-import { demoText } from './_lib/demoText';
 import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
 import Image from 'next/image';
 import TextInput from './components/form-components/textInput/textInput';
 import Select from './components/form-components/select/select';
 import RadioGroup from './components/form-components/radioGroup/radioGroup';
-import TextTools from './components/textTools';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
+import DemoText from './components/demoText';
 
 // See: https://stackoverflow.com/questions/52085454/typescript-define-a-union-type-from-an-array-of-strings
 const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'] as const;
@@ -26,6 +25,9 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
 
 const fallbackFonts = ['arial', 'roboto', 'times'] as const;
 type FallbackFontsType = typeof fallbackFonts[number];
+
+const languages = ['en', 'fr'] as const;
+export type LanguagesType = typeof languages[number];
 
 export type FontOverrides = {
   fullName: string,
@@ -93,7 +95,7 @@ export default function Home() {
 
   useEffect(() => {
     const family = fallbackFontsOptions[fallbackFontValue as FallbackFontsType].style;
-    if (family){
+    if (family) {
       document.body.style.setProperty('--fallback-family', family);
     }
   }, [fallbackFontValue])
@@ -104,12 +106,12 @@ export default function Home() {
     { id: 'lang-fr', label: 'French', value: 'fr' }
   ]
   const languageOptionsDefault = 'en';
-  const [targetedLanguage, setTargetedLanguage] = useState(languageOptionsDefault);
+  const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
   const handleLanguageChoice = (ev: React.FormEvent<HTMLFieldSetElement>) => {
     const field = ev.currentTarget;
     const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
     if (selected) {
-      setTargetedLanguage(selected.value);
+      setTargetedLanguage(selected.value as LanguagesType);
     }
   }
 
@@ -358,19 +360,15 @@ export default function Home() {
           <SubmitButton
             id="proceed"
             text='Proceed'
+            disabled={!fontInfos}
           />
         </div>
       </form>
 
-      <div className={styles['text-container']}>
-        <TextTools />
-        <div
-          className={styles.temoin}
-          ref={temoinRef}
-          data-txt={demoText[targetedLanguage as keyof typeof demoText]}>
-          {demoText[targetedLanguage as keyof typeof demoText]}
-        </div>
-      </div>
+      <DemoText
+        ref={temoinRef}
+        lang={targetedLanguage as LanguagesType}
+      />
 
       {fallbackFamilyName && (
         <SectionCode

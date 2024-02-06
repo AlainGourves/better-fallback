@@ -9,7 +9,6 @@ const defaultFontSize = 24;
 export default function TextTools(props: any) {
     const [alphaSlider, setAlphaSlider] = useState(defaultAlpha);
     const [fontSizeSlider, setFontSizeSlider] = useState(defaultFontSize);
-    const [editSwitch, setEditSwitch] = useState(true);
 
     const handleAlphaSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setAlphaSlider(parseFloat(ev.target.value));
@@ -19,14 +18,10 @@ export default function TextTools(props: any) {
         setFontSizeSlider(parseInt(ev.target.value));
     }
 
-    const handleEditSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        setEditSwitch(ev.target?.checked);
-    }
-
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
         setFontSizeSlider(defaultFontSize);
         setAlphaSlider(defaultAlpha);
-        setEditSwitch(true);
+        // setEditSwitch(true);
     }
 
     // Fallback font's Alpha -------------
@@ -39,10 +34,7 @@ export default function TextTools(props: any) {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`)
     }, [fontSizeSlider])
 
-    // Edit Switch -------------
-    // useEffect(() => {
-    //     // Make the demo text DIV editable
-    // }, [editSwitch])
+
 
     return (
         <div className={textToolsStyles['text-tools-container']}>
@@ -73,8 +65,8 @@ export default function TextTools(props: any) {
                     id='switch-edit'
                     label={'Edit text'}
                     title='Font Metrics Overrides'
-                    checked={editSwitch}
-                    onChange={handleEditSwitch}
+                    checked={props.checked}
+                    onChange={props.onChange}
                 />
                 <span className={textToolsStyles.divider}></span>
                 <button
