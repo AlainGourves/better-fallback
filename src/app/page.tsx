@@ -2,8 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormState } from "react-dom";
 import { getFontInfos, getFontOverrides } from './api/actions';
-import * as fontkit from 'fontkit';
-import { fetchFont, loadFont, getFontType, getFontName } from './_lib/fonts';
+import { fetchFont } from './_lib/fonts';
 import { demoText } from './_lib/demoText';
 import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
@@ -25,6 +24,9 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
   sizeAdjust?: string
 }
 
+const fallbackFonts = ['arial', 'roboto', 'times'] as const;
+type FallbackFontsType = typeof fallbackFonts[number];
+
 export type FontOverrides = {
   fullName: string,
   postscriptName: string,
@@ -37,6 +39,7 @@ export type FontOverrides = {
 
 type FontInfos = {
   fullName: string | null,
+  postscriptName: string | null,
   familyName: string | null,
   type: FontTypes | null,
   size: string | null,
@@ -45,6 +48,7 @@ type FontInfos = {
 export default function Home() {
   const [fontInfos, setFontInfos] = useState<FontInfos>({
     fullName: null,
+    postscriptName: null,
     familyName: null,
     type: null,
     size: null,
@@ -70,15 +74,15 @@ export default function Home() {
   const fallbackFontsOptions = {
     "times": {
       "text": "Times New Roman",
-      "style": "'Times New Roman', times, serif"
+      "style": "'Times New Roman', TimesNewRomanPSMT, times"
     },
     "arial": {
       "text": "Arial",
-      "style": "Arial, sans-serif"
+      "style": "Arial, ArialMT"
     },
     "roboto": {
       "text": "Roboto",
-      "style": "'Roboto Regular', roboto, sans-serif"
+      "style": "'Roboto Regular', Roboto-Regular, Roboto"
     }
   };
   let fallbackFontDefault = 'times';
@@ -88,7 +92,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    document.body.style.setProperty('--fallback-family', fallbackFontValue);
+    const family = fallbackFontsOptions[fallbackFontValue as FallbackFontsType].style;
+    if (family){
+      document.body.style.setProperty('--fallback-family', family);
+    }
   }, [fallbackFontValue])
 
   // `RadioGroup` for choosing the target language
@@ -137,17 +144,40 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (fontInfos.fullName) {
-
+    if (fontInfos.postscriptName) {
       console.log(fontInfos)
+
+      const loadFontInDocument = async () => {
+        try {
+          let theFile: null | File;
+          if (fontURL) {
+            theFile = await fetchFont(fontURL, fontInfos.postscriptName as string);
+          } else {
+            theFile = fontFile;
+          }
+          if (theFile) {
+            const buff = await theFile.arrayBuffer();
+            const font = new FontFace(fontInfos.postscriptName as string, buff);
+            await font.load();
+            document.fonts.add(font)
+          }
+
+        } catch (err) {
+          throw new Error(`Problem loading font '${fontInfos.fullName}'. ${err}`);
+        }
+      }
 
       if (fontInfosDiv.current) {
         fontInfosDiv.current.classList.add('glow');
       }
-      // if (temoinRef.current) {
-      //   temoinRef.current.style.fontFamily = `'${fontInfos.fullName}'`;
-      //   console.log('témoin-> done something')
-      // }
+
+      // Load the font
+      loadFontInDocument();
+      // Update demo text
+      if (temoinRef.current) {
+        temoinRef.current.style.fontFamily = `'${fontInfos.postscriptName}'`;
+        console.log('témoin-> done something')
+      }
     };
   }, [fontInfos]);
 
@@ -163,6 +193,7 @@ export default function Home() {
       setFontInfos((fontInfos) => ({
         ...fontInfos,
         fullName: loadFormState.message?.fullName,
+        postscriptName: loadFormState.message?.postscriptName,
         familyName: loadFormState.message?.familyName,
         type: loadFormState.message?.type,
         size: loadFormState.message?.size
@@ -177,7 +208,7 @@ export default function Home() {
     console.log("overrides", overrides)
     const loadFallBackFont = async (overrides: FontOverrides) => {
       try {
-        const name = `"fallback for ${fontInfos.fullName} (${fallbackFontValue})"`;
+        const name = `fallback for ${fontInfos.postscriptName}`;
         setFallbackFamilyName(name);
         const path = encodeURI(`/${overrides.file}`);
         console.log(name, path, `url("${path}")`)
@@ -205,43 +236,12 @@ export default function Home() {
     }
   }, [overridesFormState, fallbackFontValue, fontInfos])
 
-  const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
-    // Load the font & add it to the document
-    try {
-      let fontName = undefined;
-      let theFont;
-      if (fontURL) {
-        fontName = getFontName(fontURL);
-        if (!fontName) fontName = 'Web font';
-        theFont = new FontFace(fontName, `url(${fontURL})`);
-        await theFont.load();
-      }
-      if (fontFile) {
-        fontName = fontFile.name.split('.')[0]; // file name without he extension
-        const buffer = await fontFile.arrayBuffer();
-        theFont = new FontFace(fontName, buffer);
-        await theFont.load();
-      }
-      // load the font in the document
-      if (theFont) {
-        console.log("theFont", theFont)
-        document.fonts.add(theFont);
-      }
-      if (temoinRef.current) {
-        temoinRef.current.style.fontFamily = `'${fontName}'`;
-      }
-    } catch (err) {
-
-    }
-  }
-
   return (
     <main className={styles.main}>
       <form
         id="select-font"
         className={styles["select-font"]}
         action={loadFormAction}
-        onSubmit={handleSubmit}
       >
 
         <div>

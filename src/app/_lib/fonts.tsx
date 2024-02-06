@@ -1,13 +1,13 @@
 import Font, * as fontkit from 'fontkit';
 import { buffer } from 'stream/consumers';
 
-export const fetchFont = async (url: string): Promise<File> => {
+export const fetchFont = async (url: string, name:string): Promise<File> => {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText}`)
     }
     const blob = await response.blob();
-    return new File([blob], "Web Font", { type: blob.type });
+    return new File([blob], name, { type: blob.type });
 }
 
 export const loadFont = async (fontName: string, file: File) => {
@@ -65,22 +65,4 @@ export const getFontSize = (n: number)=>{
         size = size.toFixed(1);
     }
     return `${size}ko`;
-}
-
-// Get a font name from its URL
-export const getFontName = (str: string)=>{
-    try{
-        const url = new URL(str);
-        const path = url.pathname;
-        const regex = /\/([a-z-]{2,})[./]/i; // a sequence of 2 or more letters between slashes
-        const match = path.match(regex);
-        if (match){
-             return match[1];
-        }else{
-            return undefined;
-        }
-    }catch(err) {
-        // rethrow error
-        throw new Error(err as string);
-    }
 }

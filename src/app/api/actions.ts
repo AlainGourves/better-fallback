@@ -10,7 +10,7 @@ type FrequencyMap = {
 }
 type LanguageFrequency = {
     lang: string,
-    fraq: FrequencyMap
+    freq: FrequencyMap
 }
 type LanguagesArray = LanguageFrequency[];
 
@@ -49,6 +49,7 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
         if (font) {
             fontInfos = {
                 fullName: font.fullName,
+                postscriptName: font.postscriptName,
                 familyName: font.familyName,
                 type: type,
                 size: getFontSize(size),
@@ -191,7 +192,7 @@ const getSizeAdjust = async (font: Font.Font, fbInfos: FbFont, lang: string) => 
     }
 }
 
-// returns percentages (with 3 digits precision)
+// returns percentages (with 2 digits precision)
 // Math.abs() is necessary as `descent` value is negative
 // whereas `descent-override` is a percentage
-const formatForCSS = (x:number) => `${parseFloat(Math.abs(x * 100).toFixed(3))}%`;
+const formatForCSS = (x:number) => `${parseFloat(Math.abs(x * 100).toFixed(2))}%`;
