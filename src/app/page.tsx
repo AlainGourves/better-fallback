@@ -177,11 +177,12 @@ export default function Home() {
     console.log("overrides", overrides)
     const loadFallBackFont = async (overrides: FontOverrides) => {
       try {
-        setFallbackFamilyName(`"fallback for ${fontInfos.fullName} (${fallbackFontValue})"`);
+        const name = `"fallback for ${fontInfos.fullName} (${fallbackFontValue})"`;
+        setFallbackFamilyName(name);
         const path = encodeURI(`/${overrides.file}`);
-        console.log(fallbackFamilyName, path, `url("${path}")`)
+        console.log(name, path, `url("${path}")`)
         const fbFont = new FontFace(
-          fallbackFamilyName as string,
+          name,
           `url("${path}")`,
           {
             "ascentOverride": overrides.ascent,
@@ -192,9 +193,9 @@ export default function Home() {
         );
         await fbFont.load();
         document.fonts.add(fbFont);
-        document.body.style.setProperty('--fallback-family', fallbackFamilyName);
+        document.body.style.setProperty('--fallback-family', name);
 
-        console.log(">>>>>>>>>>>>> Fallback loaded & added")
+        console.log(">>>> Fallback loaded & added")
       } catch (err) {
         console.error(err);
       }
@@ -202,7 +203,7 @@ export default function Home() {
     if (overrides && overrides.fullName) {
       loadFallBackFont(overrides);
     }
-  }, [overridesFormState])
+  }, [overridesFormState, fallbackFontValue, fontInfos])
 
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     // Load the font & add it to the document
@@ -212,9 +213,7 @@ export default function Home() {
       if (fontURL) {
         fontName = getFontName(fontURL);
         if (!fontName) fontName = 'Web font';
-        console.log("TuRL", fontName, fontURL)
         theFont = new FontFace(fontName, `url(${fontURL})`);
-        console.log("theFont", theFont)
         await theFont.load();
       }
       if (fontFile) {
@@ -225,8 +224,8 @@ export default function Home() {
       }
       // load the font in the document
       if (theFont) {
+        console.log("theFont", theFont)
         document.fonts.add(theFont);
-        console.log("yo!", fontURL, theFont)
       }
       if (temoinRef.current) {
         temoinRef.current.style.fontFamily = `'${fontName}'`;

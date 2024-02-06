@@ -43,3 +43,14 @@ export const listAcceptable = (arr: FontTypes[])=>{
     const ext = arr.map(val => `.${val.replace(regex, "$1")}`);
     return [...arr, ...ext].join(',');
 }
+
+
+export const copyToClipboard =async (txt: string)=>{
+    if (navigator.clipboard) {
+        if (txt) {
+            await navigator.clipboard.writeText(txt);
+        }
+    } else {
+        alert("You'll have to manually copy the code 😢")
+    }
+}

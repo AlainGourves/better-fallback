@@ -40,9 +40,9 @@ export default function TextTools(props: any) {
     }, [fontSizeSlider])
 
     // Overrides' Switch -------------
-    useEffect(() => {
-        document.body.style.setProperty('--fmo', `${fontSizeSlider}px`)
-    }, [FMOSwitch])
+    // useEffect(() => {
+    //     document.body.style.setProperty('--fmo', `${fontSizeSlider}px`)
+    // }, [FMOSwitch])
 
     return (
         <div className={textToolsStyles['text-tools-container']}>

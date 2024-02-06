@@ -1,7 +1,6 @@
 'use server';
 
 import { readFileSync } from 'fs';
-import path from 'path';
 import Font, * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
 
@@ -89,10 +88,8 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
         if (myFont) {
             const fallbackFontInfos = getFallbackInfos(fallbackFont);
             const sizeAdjust = await getSizeAdjust(myFont, fallbackFontInfos, lang);
-            console.log("sizeAdjust", sizeAdjust)
             const upm = myFont.unitsPerEm
             const ascent = formatForCSS(myFont.ascent / (upm * sizeAdjust));
-            console.log('97', myFont.descent)
             const descent = formatForCSS(myFont.descent / (upm * sizeAdjust));
             const lineGap = formatForCSS(myFont.lineGap / (upm * sizeAdjust));
             fontOverrides = {
