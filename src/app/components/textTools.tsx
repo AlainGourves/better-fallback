@@ -1,14 +1,43 @@
+'use client'
 import { useEffect, useState } from 'react';
 import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
+import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
 
-const defaultAlpha = .75;
+const defaultAlpha = .8;
 const defaultFontSize = 24;
 
-export default function TextTools(props: any) {
-    const [alphaSlider, setAlphaSlider] = useState(defaultAlpha);
-    const [fontSizeSlider, setFontSizeSlider] = useState(defaultFontSize);
+const isLocalStorage:boolean = supportsLocalStorage();
+
+type TextToolsProps = {
+    checked: boolean,
+    onChange(event: React.ChangeEvent<HTMLInputElement>): void,
+}
+
+type UserSettingsType = {
+    opacity: string,
+    fontSize: string,
+}
+type JSONValue =
+    | string
+    | number
+    | boolean
+    | { [x: string]: JSONValue }
+    | Array<JSONValue>;
+
+
+    export default function TextTools({ checked, onChange }: TextToolsProps) {
+
+    let userSettings:UserSettingsType|null= null;
+
+    if (isLocalStorage) {
+        const data = getLocalStorage('userSettings');
+        if (data) userSettings = data as UserSettingsType;
+    }
+
+    const [alphaSlider, setAlphaSlider] = useState(userSettings ? parseFloat(userSettings.opacity) : defaultAlpha);
+    const [fontSizeSlider, setFontSizeSlider] = useState(userSettings ? parseInt(userSettings.fontSize) : defaultFontSize);
 
     const handleAlphaSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setAlphaSlider(parseFloat(ev.target.value));
@@ -26,12 +55,22 @@ export default function TextTools(props: any) {
 
     // Fallback font's Alpha -------------
     useEffect(() => {
-        document.body.style.setProperty('--fallback-opacity', alphaSlider.toString())
+        document.body.style.setProperty('--fallback-opacity', alphaSlider.toString());
+
+        if (isLocalStorage && userSettings) {
+            userSettings.opacity = alphaSlider.toString();
+            saveToLocalStorage('userSettings', userSettings);
+        }
     }, [alphaSlider])
 
     // Fallback font's Family -------------
     useEffect(() => {
-        document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`)
+        document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
+
+        if (isLocalStorage && userSettings) {
+            userSettings.fontSize = fontSizeSlider.toString();
+            saveToLocalStorage('userSettings', userSettings);
+        }
     }, [fontSizeSlider])
 
 
@@ -65,8 +104,8 @@ export default function TextTools(props: any) {
                     id='switch-edit'
                     label={'Edit text'}
                     title='Font Metrics Overrides'
-                    checked={props.checked}
-                    onChange={props.onChange}
+                    checked={checked}
+                    onChange={onChange}
                 />
                 <span className={textToolsStyles.divider}></span>
                 <button

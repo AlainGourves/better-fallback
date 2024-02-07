@@ -11,7 +11,7 @@
     overflow-y: auto;
     margin-inline: auto;
     line-height: 1.5;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: var(--tested-font, 'Times New Roman', Times, serif);
     font-size: var(--temoin-fs, 24px);
     text-rendering: optimizeSpeed; // Important ! Somes shiftings without it in Chrome and Safari
     overscroll-behavior-y: contain; // prevent scroll chaining

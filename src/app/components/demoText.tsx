@@ -1,7 +1,7 @@
 'use client'
 // localStorage only exists in browser !
 
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect } from "react";
 import TextTools from "./textTools";
 import { dummyText } from '../_lib/dummyText';
 import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
@@ -9,21 +9,18 @@ import styles from './demoText.module.scss';
 import { LanguagesType } from '../page';
 
 
-// To get rid of Typescript errors
-// cf: https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forward_and_create_ref/
-
 type Props = { lang: LanguagesType };
 
-const DemoText = forwardRef<HTMLDivElement, Props>(function DemoText(props: Props, ref) {
+export default function DemoText(props: Props) {
 
   const [editSwitch, setEditSwitch] = useState(false);
 
   const lang = props.lang;
   const text = dummyText[(lang as keyof typeof dummyText)];
-  let userText = undefined;
+  let userText:string|null = null;
 
   if (supportsLocalStorage()) {
-    userText = getLocalStorage('userText');
+    userText = getLocalStorage('userText') as string;
   }
 
   const handleEditSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +60,6 @@ const DemoText = forwardRef<HTMLDivElement, Props>(function DemoText(props: Prop
         onChange={handleEditSwitch}
       />
       <div
-        ref={ref}
         className={styles.temoin}
         data-txt={!editSwitch ? text : ''}
         contentEditable={editSwitch}
@@ -76,6 +72,4 @@ const DemoText = forwardRef<HTMLDivElement, Props>(function DemoText(props: Prop
       </div>
     </div>
   );
-});
-
-export default DemoText;
+};

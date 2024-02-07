@@ -182,11 +182,8 @@ export default function Home() {
 
       // Load the font
       loadFontInDocument();
-      // Update demo text
-      if (temoinRef.current) {
-        temoinRef.current.style.fontFamily = `'${fontInfos.postscriptName}'`;
-        console.log('témoin-> done something')
-      }
+      // Update demo text font
+      document.body.style.setProperty('--tested-font', `'${fontInfos.postscriptName}'`);
     };
   }, [fontInfos]);
 
@@ -373,7 +370,6 @@ export default function Home() {
       </form>
 
       <DynamicDemoText
-        ref={temoinRef}
         lang={targetedLanguage as LanguagesType}
       />
 
