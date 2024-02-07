@@ -12,7 +12,14 @@ import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
-import DemoText from './components/demoText';
+
+// To make sure that the component only loads on the client (as it uses localStorage)
+// cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
+import dynamic from 'next/dynamic';
+const DynamicDemoText = dynamic(() => import('./components/demoText'), {
+  ssr: false,
+  loading: ()=><p>Loading...</p>
+});
 
 // See: https://stackoverflow.com/questions/52085454/typescript-define-a-union-type-from-an-array-of-strings
 const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'] as const;
@@ -365,7 +372,7 @@ export default function Home() {
         </div>
       </form>
 
-      <DemoText
+      <DynamicDemoText
         ref={temoinRef}
         lang={targetedLanguage as LanguagesType}
       />
