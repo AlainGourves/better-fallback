@@ -31,7 +31,7 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
 }
 
 const fallbackFonts = ['arial', 'roboto', 'times'] as const;
-type FallbackFontsType = typeof fallbackFonts[number];
+export type FallbackFontsType = typeof fallbackFonts[number];
 
 const languages = ['en', 'fr'] as const;
 export type LanguagesType = typeof languages[number];
