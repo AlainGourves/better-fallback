@@ -3,12 +3,10 @@ import { useEffect, useState } from 'react';
 import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
-import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
+import { useUserData,useUserDataDispatch } from './userDataBis';
 
 const defaultAlpha = .8;
 const defaultFontSize = 24;
-
-const isLocalStorage:boolean = supportsLocalStorage();
 
 type TextToolsProps = {
     checked: boolean,
@@ -27,20 +25,23 @@ type JSONValue =
     | Array<JSONValue>;
 
 
-    export default function TextTools({ checked, onChange }: TextToolsProps) {
+export default function TextTools({ checked, onChange }: TextToolsProps) {
 
-    let userSettings:UserSettingsType|null= null;
+    const userData = useUserData();
+    const dispatch = useUserDataDispatch();
+    console.log('yo!!', userData)
 
-    if (isLocalStorage) {
-        const data = getLocalStorage('userSettings');
-        if (data) userSettings = data as UserSettingsType;
-    }
-
-    const [alphaSlider, setAlphaSlider] = useState(userSettings ? parseFloat(userSettings.opacity) : defaultAlpha);
-    const [fontSizeSlider, setFontSizeSlider] = useState(userSettings ? parseInt(userSettings.fontSize) : defaultFontSize);
+    const [alphaSlider, setAlphaSlider] = useState(parseFloat(userData.opacity));
+    const [fontSizeSlider, setFontSizeSlider] = useState(parseInt(userData.fontSize));
 
     const handleAlphaSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setAlphaSlider(parseFloat(ev.target.value));
+        dispatch({
+            type: 'changeOpacity',
+            payload:{
+                value: ev.target.value,
+            }
+        })
     }
 
     const handleFontSizeSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,24 +57,12 @@ type JSONValue =
     // Fallback font's Alpha -------------
     useEffect(() => {
         document.body.style.setProperty('--fallback-opacity', alphaSlider.toString());
-
-        if (isLocalStorage && userSettings) {
-            userSettings.opacity = alphaSlider.toString();
-            saveToLocalStorage('userSettings', userSettings);
-        }
-    }, [alphaSlider])
+    }, [alphaSlider]);
 
     // Fallback font's Family -------------
     useEffect(() => {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
-
-        if (isLocalStorage && userSettings) {
-            userSettings.fontSize = fontSizeSlider.toString();
-            saveToLocalStorage('userSettings', userSettings);
-        }
-    }, [fontSizeSlider])
-
-
+    }, [fontSizeSlider]);
 
     return (
         <div className={textToolsStyles['text-tools-container']}>

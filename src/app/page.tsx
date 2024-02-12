@@ -12,13 +12,14 @@ import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
+import { UserDataProvider, useUserData, defaultUserData } from './components/userData';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
-  loading: ()=><p>Loading...</p>
+  loading: () => <p>Loading...</p>
 });
 
 // See: https://stackoverflow.com/questions/52085454/typescript-define-a-union-type-from-an-array-of-strings
@@ -67,7 +68,6 @@ export default function Home() {
   const [fontFile, setFontFile] = useState<File | null>(null);
   const [fallbackFamilyName, setFallbackFamilyName] = useState<string | null>(null);
   const urlRef = useRef<HTMLInputElement>(null);
-  const temoinRef = useRef<HTMLDivElement>(null);
   const fontInfosDiv = useRef<HTMLDivElement>(null);
 
   // Error handling
@@ -242,143 +242,160 @@ export default function Home() {
     }
   }, [overridesFormState, fallbackFontValue, fontInfos])
 
-  return (
-    <main className={styles.main}>
-      <form
-        id="select-font"
-        className={styles["select-font"]}
-        action={loadFormAction}
-      >
+  const userData = useUserData();
 
-        <div>
-          <Image
-            src="/letter.svg"
-            width={256}
-            height={256}
-            alt="Letter capital A"
-            priority={true}
-          />
-          <div className={styles["drop-instructions"]}>
-            <span>Drop a font here</span>
-            <span>OR</span>
-            <label htmlFor='font-upload'>
-              Browse
-              <input
-                type="file"
-                id="font-upload"
-                name="font-upload"
-                accept={listAcceptable([...fontTypes])}
-                onChange={handleFontFile}
-              />
-            </label>
-            {fontFile && (
-              <FontFile
-                name={fontFile.name}
-                onClick={handleRemoveFontFile}
-              />
-            )}
-          </div>
-        </div>
-        <div>OR</div>
-        <div>
-          <TextInput
-            ref={urlRef}
-            id={'fontUrl'}
-            type={'url'}
-            value={fontURL}
-            placeholder={'Paste a font URL'}
-            onChange={handleFontURL}
-            title='Erase field'
-            onClick={eraseTextInput}
-          />
-          <SubmitButton
-            id="select-font-submit"
-            text={'Load the font'}
-            classAdd={'outlined'}
-            disabled={!fontURL && !fontFile}
-          />
-        </div>
-        {!loadFormState.success && loadFormState.message && (
-          <div className={styles['error-msg-container']}>
-            <div className={styles['error-msg']}>
-              <h3>A problem occurred!</h3>
-              {loadFormState.message}
+  useEffect(() => {
+    // Load user settings from localStorage
+
+    // Before unmounting component: save user settings to localStorage
+    return () => {
+      if ('localStorage' in window) {
+        localStorage.setItem('userSettings', JSON.stringify(userData));
+      }
+    }
+  }, [])
+
+  return (
+    <UserDataProvider value={userData}>
+
+      <main className={styles.main}>
+        <form
+          id="select-font"
+          className={styles["select-font"]}
+          action={loadFormAction}
+        >
+
+          <div>
+            <Image
+              src="/letter.svg"
+              width={256}
+              height={256}
+              alt="Letter capital A"
+              priority={true}
+            />
+            <div className={styles["drop-instructions"]}>
+              <span>Drop a font here</span>
+              <span>OR</span>
+              <label htmlFor='font-upload'>
+                Browse
+                <input
+                  type="file"
+                  id="font-upload"
+                  name="font-upload"
+                  accept={listAcceptable([...fontTypes])}
+                  onChange={handleFontFile}
+                />
+              </label>
+              {fontFile && (
+                <FontFile
+                  name={fontFile.name}
+                  onClick={handleRemoveFontFile}
+                />
+              )}
             </div>
           </div>
-        )}
-      </form>
-
-      <form
-        className={styles['font-settings']}
-        action={overridesFormAction}
-      >
-        <div
-          className={styles['font-infos']}
-          ref={fontInfosDiv}
-          onAnimationEnd={e => {
-            const target = e.target as HTMLElement;
-            if (target.classList.contains('glow')) target.classList.remove('glow');
-          }}
-        >
-          <h3>Selected Font</h3>
+          <div>OR</div>
           <div>
-            <dl>
-              <dt>Name</dt>
-              <dd>{fontInfos.fullName && fontInfos.fullName}</dd>
-            </dl>
-            <dl>
-              <dt>Family</dt>
-              <dd>{fontInfos.familyName && fontInfos.familyName}</dd>
-            </dl>
-            <dl>
-              <dt>Type</dt>
-              <dd>{fontInfos.type && fontInfos.type}</dd>
-            </dl>
-            <dl>
-              <dt>Size</dt>
-              <dd>{fontInfos.size && fontInfos.size}</dd>
-            </dl>
+            <TextInput
+              ref={urlRef}
+              id={'fontUrl'}
+              type={'url'}
+              value={fontURL}
+              placeholder={'Paste a font URL'}
+              onChange={handleFontURL}
+              title='Erase field'
+              onClick={eraseTextInput}
+            />
+            <SubmitButton
+              id="select-font-submit"
+              text={'Load the font'}
+              classAdd={'outlined'}
+              disabled={!fontURL && !fontFile}
+            />
           </div>
-        </div>
+          {!loadFormState.success && loadFormState.message && (
+            <div className={styles['error-msg-container']}>
+              <div className={styles['error-msg']}>
+                <h3>A problem occurred!</h3>
+                {loadFormState.message}
+              </div>
+            </div>
+          )}
+        </form>
 
-        <div className={styles['fallback-font']}>
-          <h3>Fallback Font</h3>
-          <Select
-            id='fallbackFontSelect'
-            label='Family'
-            options={fallbackFontsOptions}
-            defaultValue={fallbackFontDefault}
-            onChange={handleFallbackSelect}
-          />
+        <form
+          className={styles['font-settings']}
+          action={overridesFormAction}
+        >
+          <div
+            className={styles['font-infos']}
+            ref={fontInfosDiv}
+            onAnimationEnd={e => {
+              const target = e.target as HTMLElement;
+              if (target.classList.contains('glow')) target.classList.remove('glow');
+            }}
+          >
+            <h3>Selected Font</h3>
+            <div>
+              <dl>
+                <dt>Name</dt>
+                <dd>{fontInfos.fullName && fontInfos.fullName}</dd>
+              </dl>
+              <dl>
+                <dt>Family</dt>
+                <dd>{fontInfos.familyName && fontInfos.familyName}</dd>
+              </dl>
+              <dl>
+                <dt>Type</dt>
+                <dd>{fontInfos.type && fontInfos.type}</dd>
+              </dl>
+              <dl>
+                <dt>Size</dt>
+                <dd>{fontInfos.size && fontInfos.size}</dd>
+              </dl>
+            </div>
+          </div>
 
-          <RadioGroup
-            groupName='targetLanguage'
-            defaultValue={languageOptionsDefault}
-            radios={languageOptions}
-            onInput={handleLanguageChoice}
-            label='Lang.'
-          />
-        </div>
+          <div className={styles['fallback-font']}>
+            <h3>Fallback Font</h3>
+            <Select
+              id='fallbackFontSelect'
+              label='Family'
+              options={fallbackFontsOptions}
+              defaultValue={fallbackFontDefault}
+              onChange={handleFallbackSelect}
+            />
 
-        <div>
-          <SubmitButton
-            id="proceed"
-            text='Proceed'
-            disabled={!fontInfos}
-          />
-        </div>
-      </form>
+            <RadioGroup
+              groupName='targetLanguage'
+              defaultValue={languageOptionsDefault}
+              radios={languageOptions}
+              onInput={handleLanguageChoice}
+              label='Lang.'
+            />
+          </div>
 
-      <DynamicDemoText
-        lang={targetedLanguage as LanguagesType}
-      />
+          <div>
+            <SubmitButton
+              id="proceed"
+              text='Proceed'
+              disabled={!fontInfos}
+            />
+          </div>
+        </form>
 
-      {fallbackFamilyName && (
-        <SectionCode
-          fallbackName={fallbackFamilyName}
-          overrides={overridesFormState?.message}
+        <DynamicDemoText
+          lang={targetedLanguage as LanguagesType}
         />
-      )}
-    </main>
+
+        {fallbackFamilyName && (
+          <SectionCode
+            fallbackName={fallbackFamilyName}
+            overrides={overridesFormState?.message}
+          />
+        )}
+      </main>
+    </UserDataProvider>
+
   )
 }

@@ -7,17 +7,20 @@ import { dummyText } from '../_lib/dummyText';
 import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
 import styles from './demoText.module.scss';
 import { LanguagesType } from '../page';
+import { useUserData } from "./userData";
 
 
 type Props = { lang: LanguagesType };
 
 export default function DemoText(props: Props) {
 
+  const userData = useUserData();
+  let userText = userData.userText;
+
   const [editSwitch, setEditSwitch] = useState(false);
 
   const lang = props.lang;
   const text = dummyText[(lang as keyof typeof dummyText)];
-  let userText:string|null = null;
 
   if (supportsLocalStorage()) {
     userText = getLocalStorage('userText') as string;
