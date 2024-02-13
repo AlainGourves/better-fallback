@@ -18,6 +18,7 @@ import { FontTypes, FallbackFontsType, LanguagesType, FontOverridesType, FontInf
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
+import OverridesForm from './components/overridesForm';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
   loading: () => <p>Loading...</p>
@@ -43,7 +44,6 @@ export default function Home() {
   const [fontFile, setFontFile] = useState<File | null>(null);
   const [fallbackFamilyName, setFallbackFamilyName] = useState<string | null>(null);
   const urlRef = useRef<HTMLInputElement>(null);
-  const fontInfosDiv = useRef<HTMLDivElement>(null);
 
   // Error handling
   const [error, setError] = useState(false);
@@ -53,40 +53,7 @@ export default function Home() {
     if (!error) setErrorMessage('');
   }, [error]);
 
-
-  // `Select` for choosing fallback font
-  const fallbackFontsOptions = {
-    "times": {
-      "text": "Times New Roman",
-      "style": "'Times New Roman', TimesNewRomanPSMT, times"
-    },
-    "arial": {
-      "text": "Arial",
-      "style": "Arial, ArialMT"
-    },
-    "roboto": {
-      "text": "Roboto",
-      "style": "'Roboto Regular', Roboto-Regular, Roboto"
-    }
-  };
-  let fallbackFontDefault = 'times';
-  const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
-  const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-    if (ev.target.value) setFallbackFontValue(ev.target.value);
-  }
-
-  useEffect(() => {
-    const family = fallbackFontsOptions[fallbackFontValue as FallbackFontsType].style;
-    if (family) {
-      document.body.style.setProperty('--fallback-family', family);
-    }
-  }, [fallbackFontValue])
-
   // `RadioGroup` for choosing the target language
-  const languageOptions = [
-    { id: 'lang-en', label: 'English', value: 'en' },
-    { id: 'lang-fr', label: 'French', value: 'fr' }
-  ]
   const languageOptionsDefault = 'en';
   const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
   const handleLanguageChoice = (ev: React.FormEvent<HTMLFieldSetElement>) => {
@@ -151,10 +118,6 @@ export default function Home() {
         }
       }
 
-      if (fontInfosDiv.current) {
-        fontInfosDiv.current.classList.add('glow');
-      }
-
       // Load the font
       loadFontInDocument();
       // Update demo text font
@@ -215,7 +178,7 @@ export default function Home() {
     if (overrides && overrides.fullName) {
       loadFallBackFont(overrides);
     }
-  }, [overridesFormState, fallbackFontValue, fontInfos])
+  }, [overridesFormState, fontInfos])
 
   const userData = useUserData();
   const dispatch = useUserDataDispatch();
@@ -317,66 +280,11 @@ export default function Home() {
           )}
         </form>
 
-        <form
-          className={styles['font-settings']}
-          action={overridesFormAction}
-        >
-          <div
-            className={styles['font-infos']}
-            ref={fontInfosDiv}
-            onAnimationEnd={e => {
-              const target = e.target as HTMLElement;
-              if (target.classList.contains('glow')) target.classList.remove('glow');
-            }}
-          >
-            <h3>Selected Font</h3>
-            <div>
-              <dl>
-                <dt>Name</dt>
-                <dd>{fontInfos.fullName && fontInfos.fullName}</dd>
-              </dl>
-              <dl>
-                <dt>Family</dt>
-                <dd>{fontInfos.familyName && fontInfos.familyName}</dd>
-              </dl>
-              <dl>
-                <dt>Type</dt>
-                <dd>{fontInfos.type && fontInfos.type}</dd>
-              </dl>
-              <dl>
-                <dt>Size</dt>
-                <dd>{fontInfos.size && fontInfos.size}</dd>
-              </dl>
-            </div>
-          </div>
-
-          <div className={styles['fallback-font']}>
-            <h3>Fallback Font</h3>
-            <Select
-              id='fallbackFontSelect'
-              label='Family'
-              options={fallbackFontsOptions}
-              defaultValue={fallbackFontDefault}
-              onChange={handleFallbackSelect}
-            />
-
-            <RadioGroup
-              groupName='targetLanguage'
-              defaultValue={languageOptionsDefault}
-              radios={languageOptions}
-              onInput={handleLanguageChoice}
-              label='Lang.'
-            />
-          </div>
-
-          <div>
-            <SubmitButton
-              id="proceed"
-              text='Proceed'
-              disabled={!fontInfos}
-            />
-          </div>
-        </form>
+        <OverridesForm
+          fontInfos={fontInfos}
+          formAction={overridesFormAction}
+          inputLang={handleLanguageChoice}
+          />
 
         <DynamicDemoText
           lang={targetedLanguage as LanguagesType}

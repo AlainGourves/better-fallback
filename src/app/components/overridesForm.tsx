@@ -8,10 +8,11 @@ import { FontInfosType, FallbackFontsType, LanguagesType } from '../_lib/types';
 
 type OverridesFormProps = {
     fontInfos: FontInfosType,
-    formAction: string | ((formData: FormData) => void) | undefined
+    formAction: string | ((formData: FormData) => void) | undefined,
+    inputLang:any
 }
 
-export default function OverridesForm({ fontInfos, formAction }: OverridesFormProps) {
+export default function OverridesForm({ fontInfos, formAction, inputLang }: OverridesFormProps) {
 
     const fontInfosDiv = useRef<HTMLDivElement>(null);
 
@@ -44,20 +45,18 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
         }
     }, [fallbackFontValue])
 
-// `RadioGroup` for choosing the target language
-const languageOptions = [
-    { id: 'lang-en', label: 'English', value: 'en' },
-    { id: 'lang-fr', label: 'French', value: 'fr' }
-  ]
-  const languageOptionsDefault = 'en';
-  const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
-  const handleLanguageChoice = (ev: React.FormEvent<HTMLFieldSetElement>) => {
-    const field = ev.currentTarget;
-    const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
-    if (selected) {
-      setTargetedLanguage(selected.value as LanguagesType);
-    }
-  }
+    // `RadioGroup` for choosing the target language
+    const languageOptions = [
+        { id: 'lang-en', label: 'English', value: 'en' },
+        { id: 'lang-fr', label: 'French', value: 'fr' }
+    ]
+    const languageOptionsDefault = 'en';
+
+    useEffect(() => {
+        if (fontInfos.fullName && fontInfosDiv.current) {
+            fontInfosDiv.current.classList.add('glow');
+        }
+    }, [fontInfos])
 
     return (
         <form
@@ -107,7 +106,7 @@ const languageOptions = [
                     groupName='targetLanguage'
                     defaultValue={languageOptionsDefault}
                     radios={languageOptions}
-                    onInput={handleLanguageChoice}
+                    onInput={inputLang}
                     label='Lang.'
                 />
             </div>
