@@ -4,38 +4,51 @@ import Select from './form-components/select/select';
 import RadioGroup from './form-components/radioGroup/radioGroup';
 import SubmitButton from './submitButton';
 import { FontInfosType, FallbackFontsType, LanguagesType } from '../_lib/types';
-
+import { useUserData, useUserDataDispatch } from '@/app/context/userData';
 
 type OverridesFormProps = {
     fontInfos: FontInfosType,
     formAction: string | ((formData: FormData) => void) | undefined,
-    inputLang:any
+    inputLang(event: React.FormEvent<HTMLFieldSetElement>): void
 }
+
+const fallbackFontsOptions = {
+    "times": {
+        "text": "Times New Roman",
+        "style": "'Times New Roman', TimesNewRomanPSMT, times"
+    },
+    "arial": {
+        "text": "Arial",
+        "style": "Arial, ArialMT"
+    },
+    "roboto": {
+        "text": "Roboto",
+        "style": "'Roboto Regular', Roboto-Regular, Roboto"
+    }
+};
+
 
 export default function OverridesForm({ fontInfos, formAction, inputLang }: OverridesFormProps) {
 
+    const userData = useUserData();
+    const dispatch = useUserDataDispatch();
+    console.log('userData overridesForm', userData)
+
     const fontInfosDiv = useRef<HTMLDivElement>(null);
 
-
     // `Select` for choosing fallback font
-    const fallbackFontsOptions = {
-        "times": {
-            "text": "Times New Roman",
-            "style": "'Times New Roman', TimesNewRomanPSMT, times"
-        },
-        "arial": {
-            "text": "Arial",
-            "style": "Arial, ArialMT"
-        },
-        "roboto": {
-            "text": "Roboto",
-            "style": "'Roboto Regular', Roboto-Regular, Roboto"
-        }
-    };
-    let fallbackFontDefault = 'times';
+    let fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'arial' as FallbackFontsType;
+
     const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
+
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-        if (ev.target.value) setFallbackFontValue(ev.target.value);
+        if (ev.target.value) setFallbackFontValue(ev.target.value  as FallbackFontsType);
+        dispatch({
+            type: 'changeFontFamily',
+            payload: {
+                value: ev.target.value as FallbackFontsType
+            }
+        });
     }
 
     useEffect(() => {
@@ -50,7 +63,7 @@ export default function OverridesForm({ fontInfos, formAction, inputLang }: Over
         { id: 'lang-en', label: 'English', value: 'en' },
         { id: 'lang-fr', label: 'French', value: 'fr' }
     ]
-    const languageOptionsDefault = 'en';
+    const languageOptionsDefault = userData.language ? userData.language : 'en' as LanguagesType;
 
     useEffect(() => {
         if (fontInfos.fullName && fontInfosDiv.current) {

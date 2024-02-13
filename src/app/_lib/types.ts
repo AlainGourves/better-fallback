@@ -27,3 +27,12 @@ export type FontOverridesType = {
     type: FontTypes | null,
     size: string | null,
   }
+
+
+export type UserDataType = {
+  userText: string | undefined,
+  language: LanguagesType,
+  fallbackFont: FallbackFontsType,
+  fontSize: string,
+  opacity: string,
+}

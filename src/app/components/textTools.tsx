@@ -29,7 +29,6 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
 
     const userData = useUserData();
     const dispatch = useUserDataDispatch();
-    console.log('userData texttools', userData)
 
     const [alphaSlider, setAlphaSlider] = useState(parseFloat(userData.opacity));
     const [fontSizeSlider, setFontSizeSlider] = useState(parseInt(userData.fontSize));
@@ -71,7 +70,6 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
     }, [fontSizeSlider]);
 
     useEffect(() => {
-        console.log("texttools effect", userData)
         // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
         if ('localStorage' in window) {
             localStorage.setItem('userSettings', JSON.stringify(userData));

@@ -7,8 +7,6 @@ import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
 import Image from 'next/image';
 import TextInput from './components/form-components/textInput/textInput';
-import Select from './components/form-components/select/select';
-import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
@@ -61,6 +59,10 @@ export default function Home() {
     const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
     if (selected) {
       setTargetedLanguage(selected.value as LanguagesType);
+      dispatch({
+        type: 'changeLanguage',
+        payload: { value: selected.value as LanguagesType}
+      })
     }
   }
 

@@ -52,7 +52,7 @@ export default function DemoText(props: Props) {
   // Edit Switch -------------
   useEffect(() => {
     // Make the demo text DIV editable
-    console.log(editSwitch ? "j'édite" : "j'édite pas")
+    // console.log(editSwitch ? "j'édite" : "j'édite pas")
   }, [editSwitch])
 
 

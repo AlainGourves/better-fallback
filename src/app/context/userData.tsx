@@ -1,15 +1,8 @@
 'use client';
 
 import { createContext, useReducer, useContext, ReactNode } from "react";
-import { FallbackFontsType, LanguagesType } from "@/app/_lib/types";
+import { FallbackFontsType, LanguagesType, UserDataType } from "@/app/_lib/types";
 
-export type UserDataType = {
-    userText: string | undefined,
-    language: LanguagesType,
-    fallbackFont: FallbackFontsType,
-    fontSize: string,
-    opacity: string,
-}
 
 export const defaultUserData = {
     userText: '',
@@ -53,8 +46,8 @@ export function UserDataProvider({ value, children }: { value: UserDataType, chi
     )
 }
 
-const userDataReducer = (userData: UserDataType, action: Action) => {
-    const { type, payload } = action;
+const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
+    console.log("-------->", type)
     switch (type) {
         case 'changeOpacity': {
             console.log("changeOpacity", payload)
@@ -73,6 +66,7 @@ const userDataReducer = (userData: UserDataType, action: Action) => {
         }
 
         case 'changeLanguage': {
+            console.log("changeLanguage", payload)
             return {
                 ...userData,
                 language: payload.value as LanguagesType
@@ -80,6 +74,7 @@ const userDataReducer = (userData: UserDataType, action: Action) => {
         }
 
         case 'changeFontFamily': {
+            console.log("changeFontFamily", payload)
             return {
                 ...userData,
                 fallbackFont: payload.value as FallbackFontsType
