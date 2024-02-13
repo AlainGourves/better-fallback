@@ -69,14 +69,15 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
     }, [fontSizeSlider]);
 
-    useEffect(() => {
-        // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
-        if ('localStorage' in window) {
-            localStorage.setItem('userSettings', JSON.stringify(userData));
-        }
-        // }
+    // useEffect(() => {
+    //     // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
+    //         console.log("save to localStorage from textTools !!!")
+    //     if ('localStorage' in window) {
+    //         localStorage.setItem('userSettings', JSON.stringify(userData));
+    //     }
+    //     // }
 
-    }, [userData]);
+    // }, [userData]);
 
 
     return (

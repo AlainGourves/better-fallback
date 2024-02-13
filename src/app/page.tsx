@@ -168,26 +168,26 @@ export default function Home() {
   }, [overridesFormState, fontInfos])
 
   const userData = useUserData();
-  const dispatch = useUserDataDispatch();
-  console.log('dispatch page', dispatch)
+  // const dispatch = useUserDataDispatch();
+  // console.log('dispatch page', dispatch)
 
 
-  useEffect(() => {
-    // Load user settings from localStorage
-    if ('localStorage' in window) {
-      console.log("in useEffect", dispatch)
+  // useEffect(() => {
+  //   // Load user settings from localStorage
+  //   if ('localStorage' in window) {
+  //     console.log("in useEffect", dispatch)
 
-      const storage = localStorage.getItem('userSettings');
-      if (storage) {
-        const settings = JSON.parse(storage);
-        console.log(">>>>>settings", settings, dispatch)
-        dispatch({
-          type: "changeAll",
-          payload: settings
-        });
-      }
-    }
-  }, [dispatch]);
+  //     const storage = localStorage.getItem('userSettings');
+  //     if (storage) {
+  //       const settings = JSON.parse(storage);
+  //       console.log(">>>>>settings", settings, dispatch)
+  //       dispatch({
+  //         type: "changeAll",
+  //         payload: settings
+  //       });
+  //     }
+  //   }
+  // }, [dispatch]);
 
   // useEffect(() => {
   //   console.log("koukou", userData)
@@ -213,7 +213,6 @@ export default function Home() {
 
 
   return (
-    <UserDataProvider value={userData}>
       <main className={styles.main}>
         <form
           id="select-font"
@@ -295,6 +294,5 @@ export default function Home() {
           />
         )}
       </main>
-    </UserDataProvider>
   )
 }
