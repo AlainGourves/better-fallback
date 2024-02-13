@@ -6,8 +6,8 @@ import TextTools from "./textTools";
 import { dummyText } from '../_lib/dummyText';
 import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
 import styles from './demoText.module.scss';
-import { LanguagesType } from '../page';
-import { useUserData } from "./userData";
+import { LanguagesType } from '@/app/_lib/types';
+import { useUserData } from "../context/userData";
 
 
 type Props = { lang: LanguagesType };

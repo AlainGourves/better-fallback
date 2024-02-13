@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
-import { useUserData,useUserDataDispatch } from './userDataBis';
+import { useUserData, useUserDataDispatch } from '@/app/context/userData';
 
 const defaultAlpha = .8;
 const defaultFontSize = 24;
@@ -29,7 +29,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
 
     const userData = useUserData();
     const dispatch = useUserDataDispatch();
-    console.log('yo!!', userData)
+    console.log('userData texttools', userData)
 
     const [alphaSlider, setAlphaSlider] = useState(parseFloat(userData.opacity));
     const [fontSizeSlider, setFontSizeSlider] = useState(parseInt(userData.fontSize));
@@ -38,14 +38,20 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
         setAlphaSlider(parseFloat(ev.target.value));
         dispatch({
             type: 'changeOpacity',
-            payload:{
+            payload: {
                 value: ev.target.value,
             }
-        })
+        });
     }
 
     const handleFontSizeSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setFontSizeSlider(parseInt(ev.target.value));
+        dispatch({
+            type: 'changeFontSize',
+            payload: {
+                value: ev.target.value,
+            }
+        });
     }
 
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
@@ -63,6 +69,17 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
     useEffect(() => {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
     }, [fontSizeSlider]);
+
+    useEffect(() => {
+        console.log("texttools effect", userData)
+        // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
+        if ('localStorage' in window) {
+            localStorage.setItem('userSettings', JSON.stringify(userData));
+        }
+        // }
+
+    }, [userData]);
+
 
     return (
         <div className={textToolsStyles['text-tools-container']}>

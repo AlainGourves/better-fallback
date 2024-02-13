@@ -12,7 +12,8 @@ import RadioGroup from './components/form-components/radioGroup/radioGroup';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
-import { UserDataProvider, useUserData, defaultUserData } from './components/userData';
+import { UserDataProvider, useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { FontTypes, FallbackFontsType, LanguagesType } from './_lib/types';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
@@ -22,20 +23,12 @@ const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   loading: () => <p>Loading...</p>
 });
 
-// See: https://stackoverflow.com/questions/52085454/typescript-define-a-union-type-from-an-array-of-strings
-const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'] as const;
-export type FontTypes = typeof fontTypes[number];
+const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
 
 // In the current state (02 2024), Typescript interface for FontFace descriptor doesn't have the `sizeAdjust` property
 interface MyFontFaceDescriptors extends FontFaceDescriptors {
   sizeAdjust?: string
 }
-
-const fallbackFonts = ['arial', 'roboto', 'times'] as const;
-export type FallbackFontsType = typeof fallbackFonts[number];
-
-const languages = ['en', 'fr'] as const;
-export type LanguagesType = typeof languages[number];
 
 export type FontOverrides = {
   fullName: string,
@@ -185,7 +178,7 @@ export default function Home() {
       // Update demo text font
       document.body.style.setProperty('--tested-font', `'${fontInfos.postscriptName}'`);
     };
-  }, [fontInfos]);
+  }, [fontInfos, fontFile, fontURL]);
 
   // Server actions
   const initialState = {
@@ -243,21 +236,40 @@ export default function Home() {
   }, [overridesFormState, fallbackFontValue, fontInfos])
 
   const userData = useUserData();
+  const dispatch = useUserDataDispatch();
+  console.log('dispatch page', dispatch)
+
 
   useEffect(() => {
     // Load user settings from localStorage
+    if ('localStorage' in window) {
+      console.log("in useEffect", dispatch)
 
-    // Before unmounting component: save user settings to localStorage
-    return () => {
-      if ('localStorage' in window) {
-        localStorage.setItem('userSettings', JSON.stringify(userData));
+      const storage = localStorage.getItem('userSettings');
+      if (storage) {
+        const settings = JSON.parse(storage);
+        console.log(">>>>>settings", settings, userData, dispatch)
+        dispatch({
+          type: "changeAll",
+          payload: settings
+        });
       }
     }
-  }, [])
+  }, [dispatch]);
+
+  // useEffect(() => {
+  //   console.log("koukou", userData)
+  //   // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
+  //     if ('localStorage' in window) {
+  //       localStorage.setItem('userSettings', JSON.stringify(userData));
+  //       console.log("koukou 2")
+  //     }
+  //   // }
+
+  // }, [userData]);
 
   return (
     <UserDataProvider value={userData}>
-
       <main className={styles.main}>
         <form
           id="select-font"
@@ -282,7 +294,7 @@ export default function Home() {
                   type="file"
                   id="font-upload"
                   name="font-upload"
-                  accept={listAcceptable([...fontTypes])}
+                  accept={listAcceptable([...fontTypes] as FontTypes[])}
                   onChange={handleFontFile}
                 />
               </label>
@@ -396,6 +408,5 @@ export default function Home() {
         )}
       </main>
     </UserDataProvider>
-
   )
 }

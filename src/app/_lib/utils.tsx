@@ -33,7 +33,7 @@ element.setCustomValidity('')
 
 */
 
-import type {FontTypes} from '../page'
+import type {FontTypes} from '@/app/_lib/types'
 // Returns acceptable file types for input[type=file]
 // arr: array of mimes types
 // MacOS recognizes "font/ttf" or ".woff2", but not "font/woff2" for eg.
