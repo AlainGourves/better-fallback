@@ -35,11 +35,11 @@ export function useUserDataDispatch() {
 
 export function UserDataProvider({ value, children }: { value: UserDataType, children: ReactNode }) {
 
-    const [userData, dispatch] = useReducer(userDataReducer, defaultUserData)
+    const [state, dispatch] = useReducer(userDataReducer, defaultUserData)
 
     return (
         <UserDataDispatchContext.Provider value={dispatch}>
-            <UserDataContext.Provider value={userData}>
+            <UserDataContext.Provider value={state}>
                 {children}
             </UserDataContext.Provider>
         </UserDataDispatchContext.Provider>

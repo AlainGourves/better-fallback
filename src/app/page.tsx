@@ -51,21 +51,6 @@ export default function Home() {
     if (!error) setErrorMessage('');
   }, [error]);
 
-  // `RadioGroup` for choosing the target language
-  const languageOptionsDefault = 'en';
-  const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
-  const handleLanguageChoice = (ev: React.FormEvent<HTMLFieldSetElement>) => {
-    const field = ev.currentTarget;
-    const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
-    if (selected) {
-      setTargetedLanguage(selected.value as LanguagesType);
-      dispatch({
-        type: 'changeLanguage',
-        payload: { value: selected.value as LanguagesType}
-      })
-    }
-  }
-
   // Input[File] for selecting a font
   const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
     if (!ev.target.files) return;
@@ -195,7 +180,7 @@ export default function Home() {
       const storage = localStorage.getItem('userSettings');
       if (storage) {
         const settings = JSON.parse(storage);
-        console.log(">>>>>settings", settings, userData, dispatch)
+        console.log(">>>>>settings", settings, dispatch)
         dispatch({
           type: "changeAll",
           payload: settings
@@ -214,6 +199,18 @@ export default function Home() {
   //   // }
 
   // }, [userData]);
+
+
+  useEffect(() => {
+    // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
+        console.log("save to localStorage from page !!!")
+    if ('localStorage' in window) {
+        localStorage.setItem('userSettings', JSON.stringify(userData));
+    }
+    // }
+
+}, [userData]);
+
 
   return (
     <UserDataProvider value={userData}>
@@ -285,11 +282,10 @@ export default function Home() {
         <OverridesForm
           fontInfos={fontInfos}
           formAction={overridesFormAction}
-          inputLang={handleLanguageChoice}
           />
 
         <DynamicDemoText
-          lang={targetedLanguage as LanguagesType}
+          lang={userData.language}
         />
 
         {fallbackFamilyName && (
