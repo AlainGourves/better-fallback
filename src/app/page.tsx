@@ -13,7 +13,7 @@ import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
 import { UserDataProvider, useUserData, useUserDataDispatch } from '@/app/context/userData';
-import { FontTypes, FallbackFontsType, LanguagesType } from './_lib/types';
+import { FontTypes, FallbackFontsType, LanguagesType, FontOverridesType, FontInfosType } from './_lib/types';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
@@ -30,26 +30,8 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
   sizeAdjust?: string
 }
 
-export type FontOverrides = {
-  fullName: string,
-  postscriptName: string,
-  file: string,
-  ascent: string,
-  descent: string,
-  lineGap: string,
-  sizeAdjust: string,
-}
-
-type FontInfos = {
-  fullName: string | null,
-  postscriptName: string | null,
-  familyName: string | null,
-  type: FontTypes | null,
-  size: string | null,
-}
-
 export default function Home() {
-  const [fontInfos, setFontInfos] = useState<FontInfos>({
+  const [fontInfos, setFontInfos] = useState<FontInfosType>({
     fullName: null,
     postscriptName: null,
     familyName: null,
@@ -205,7 +187,7 @@ export default function Home() {
   useEffect(() => {
     const overrides = overridesFormState.message;
     console.log("overrides", overrides)
-    const loadFallBackFont = async (overrides: FontOverrides) => {
+    const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
         const name = `fallback for ${fontInfos.postscriptName}`;
         setFallbackFamilyName(name);

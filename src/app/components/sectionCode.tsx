@@ -1,14 +1,14 @@
 import Prism from 'prismjs';
 import "prismjs/themes/prism-tomorrow.css";
 import sectionStyles from './sectionCode.module.scss';
-import type { FontOverrides } from '../page';
+import type { FontOverridesType} from '@/app/_lib/types'
 import { useEffect, useRef } from 'react';
 import Button from './form-components/button/button';
 import {copyToClipboard} from '../_lib/utils';
 
 type SectionCodeType = {
     fallbackName: string,
-    overrides: FontOverrides
+    overrides: FontOverridesType
 }
 
 export default function SectionCode(props: SectionCodeType) {
