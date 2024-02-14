@@ -3,19 +3,21 @@ export type RadioType = {
     label: string,
     groupName?: string,
     value: string,
-    defaultChecked?: boolean | undefined,
+    checked?: boolean,
 }
 
-export default function Radio(props:RadioType) {
+export default function Radio(props: RadioType) {
 
     return (
         <label htmlFor={props.id}>{props.label}
-        <input type="radio"
+            <input type="radio"
                 name={props.groupName}
                 id={props.id}
                 value={props.value}
-                defaultChecked={props.defaultChecked}
-                />
-      </label>
+                checked={props.checked}
+                // onChange: empty function to please React and not get a warning
+                onChange={(e) => { }}
+            />
+        </label>
     )
 }

@@ -47,7 +47,6 @@ export function UserDataProvider({ value, children }: { value: UserDataType, chi
 }
 
 const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
-    console.log("-------->", type)
     switch (type) {
         case 'changeOpacity': {
             return {

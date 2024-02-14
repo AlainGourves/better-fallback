@@ -61,19 +61,15 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
         { id: 'lang-en', label: 'English', value: 'en' },
         { id: 'lang-fr', label: 'French', value: 'fr' }
     ]
-    const languageOptionsDefault = userData.language ? userData.language : 'en' as LanguagesType;
-    // `RadioGroup` for choosing the target language
-    const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
 
     const handleLanguageChoice = (ev: React.ChangeEvent<HTMLFieldSetElement>) => {
         const field = ev.currentTarget;
         const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
         if (selected) {
-            setTargetedLanguage(selected.value as LanguagesType);
             dispatch({
                 type: 'changeLanguage',
                 payload: { value: selected.value as LanguagesType }
-            })
+            });
         }
     }
 
@@ -129,7 +125,7 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
 
                 <RadioGroup
                     groupName='targetLanguage'
-                    value={targetedLanguage}
+                    selected={userData.language}
                     radios={languageOptions}
                     onChange={handleLanguageChoice}
                     label='Lang.'
@@ -140,7 +136,7 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
                 <SubmitButton
                     id="proceed"
                     text='Proceed'
-                    disabled={!fontInfos}
+                    disabled={!fontInfos.fullName}
                 />
             </div>
         </form>

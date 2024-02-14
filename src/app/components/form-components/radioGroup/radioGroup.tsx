@@ -1,4 +1,3 @@
-import { useState } from "react";
 import '../component-global.scss';
 import radioGroupStyles from './radioGroup.module.scss';
 import Radio from "./radio";
@@ -7,7 +6,7 @@ import { getClassName } from '../utils'
 
 type RadioGroupProps = {
     radios: RadioType[],
-    value: string,
+    selected: string,
     groupName: string,
     onChange(event: React.ChangeEvent<HTMLFieldSetElement>): void,
     label?: string | null,
@@ -50,7 +49,7 @@ export default function RadioGroup(props: RadioGroupProps) {
                                 label={radio.label}
                                 value={radio.value}
                                 groupName={props.groupName}
-                                defaultChecked={(radio.value === props.value) ? true : undefined}
+                                checked={(props.selected === radio.value) ? true : false}
                             />
                         )
                     })
