@@ -50,7 +50,6 @@ const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
     console.log("-------->", type)
     switch (type) {
         case 'changeOpacity': {
-            console.log("changeOpacity", payload)
             return {
                 ...userData,
                 opacity: payload.value
@@ -58,7 +57,6 @@ const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
         }
 
         case 'changeFontSize': {
-            console.log("changefontSize", payload)
             return {
                 ...userData,
                 fontSize: payload.value.toString()
@@ -66,7 +64,6 @@ const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
         }
 
         case 'changeLanguage': {
-            console.log("changeLanguage", payload)
             return {
                 ...userData,
                 language: payload.value as LanguagesType
@@ -74,7 +71,6 @@ const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
         }
 
         case 'changeFontFamily': {
-            console.log("changeFontFamily", payload)
             return {
                 ...userData,
                 fallbackFont: payload.value as FallbackFontsType
@@ -89,7 +85,6 @@ const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
         }
 
         case 'changeAll': {
-            console.log("changeAll", payload)
             return {
                 ...userData,
                 userText: payload.userText,

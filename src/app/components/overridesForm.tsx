@@ -31,17 +31,16 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
 
     const userData = useUserData();
     const dispatch = useUserDataDispatch();
-    console.log('userData overridesForm', userData)
 
     const fontInfosDiv = useRef<HTMLDivElement>(null);
 
     // `Select` for choosing fallback font
-    let fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'arial' as FallbackFontsType;
+    let fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
 
     const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
 
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-        if (ev.target.value) setFallbackFontValue(ev.target.value  as FallbackFontsType);
+        if (ev.target.value) setFallbackFontValue(ev.target.value as FallbackFontsType);
         dispatch({
             type: 'changeFontFamily',
             payload: {
@@ -51,11 +50,11 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
     }
 
     useEffect(() => {
-        const family = fallbackFontsOptions[fallbackFontValue as FallbackFontsType].style;
-        if (family) {
+        const family = fallbackFontsOptions[userData.fallbackFont as FallbackFontsType].style;
+        if (family && 'document' in window) {
             document.body.style.setProperty('--fallback-family', family);
         }
-    }, [fallbackFontValue])
+    }, [fallbackFontValue, userData])
 
     // `RadioGroup` for choosing the target language
     const languageOptions = [
@@ -63,19 +62,20 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
         { id: 'lang-fr', label: 'French', value: 'fr' }
     ]
     const languageOptionsDefault = userData.language ? userData.language : 'en' as LanguagesType;
-     // `RadioGroup` for choosing the target language
-  const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
-  const handleLanguageChoice = (ev: React.FormEvent<HTMLFieldSetElement>) => {
-    const field = ev.currentTarget;
-    const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
-    if (selected) {
-      setTargetedLanguage(selected.value as LanguagesType);
-      dispatch({
-        type: 'changeLanguage',
-        payload: { value: selected.value as LanguagesType}
-      })
+    // `RadioGroup` for choosing the target language
+    const [targetedLanguage, setTargetedLanguage] = useState<LanguagesType>(languageOptionsDefault);
+
+    const handleLanguageChoice = (ev: React.ChangeEvent<HTMLFieldSetElement>) => {
+        const field = ev.currentTarget;
+        const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
+        if (selected) {
+            setTargetedLanguage(selected.value as LanguagesType);
+            dispatch({
+                type: 'changeLanguage',
+                payload: { value: selected.value as LanguagesType }
+            })
+        }
     }
-  }
 
     useEffect(() => {
         if (fontInfos.fullName && fontInfosDiv.current) {
@@ -123,15 +123,15 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
                     id='fallbackFontSelect'
                     label='Family'
                     options={fallbackFontsOptions}
-                    defaultValue={fallbackFontDefault}
+                    value={fallbackFontDefault}
                     onChange={handleFallbackSelect}
                 />
 
                 <RadioGroup
                     groupName='targetLanguage'
-                    defaultValue={languageOptionsDefault}
+                    value={targetedLanguage}
                     radios={languageOptions}
-                    onInput={handleLanguageChoice}
+                    onChange={handleLanguageChoice}
                     label='Lang.'
                 />
             </div>

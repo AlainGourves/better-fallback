@@ -3,7 +3,7 @@ export type RadioType = {
     label: string,
     groupName?: string,
     value: string,
-    checked?: boolean | undefined,
+    defaultChecked?: boolean | undefined,
 }
 
 export default function Radio(props:RadioType) {
@@ -14,7 +14,7 @@ export default function Radio(props:RadioType) {
                 name={props.groupName}
                 id={props.id}
                 value={props.value}
-                defaultChecked={props.checked}
+                defaultChecked={props.defaultChecked}
                 />
       </label>
     )

@@ -7,9 +7,9 @@ import { getClassName } from '../utils'
 
 type RadioGroupProps = {
     radios: RadioType[],
-    defaultValue: string,
+    value: string,
     groupName: string,
-    onInput(event: React.FormEvent<HTMLFieldSetElement>): void,
+    onChange(event: React.ChangeEvent<HTMLFieldSetElement>): void,
     label?: string | null,
     labelPosition?: 'top' | 'right' | 'bottom' | 'left',
     disabled?: boolean | undefined,
@@ -34,7 +34,7 @@ export default function RadioGroup(props: RadioGroupProps) {
     return (
         <fieldset
             className={className}
-            onInput={props.onInput}
+            onChange={props.onChange}
             disabled={props.disabled && true}
         >
             {props.label && (
@@ -50,7 +50,7 @@ export default function RadioGroup(props: RadioGroupProps) {
                                 label={radio.label}
                                 value={radio.value}
                                 groupName={props.groupName}
-                                checked={(radio.value === props.defaultValue) ?? true}
+                                defaultChecked={(radio.value === props.value) ? true : undefined}
                             />
                         )
                     })

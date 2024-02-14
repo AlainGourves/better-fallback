@@ -10,7 +10,7 @@ import TextInput from './components/form-components/textInput/textInput';
 import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
-import { UserDataProvider, useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { useUserData, useUserDataDispatch } from '@/app/context/userData';
 import { FontTypes, FallbackFontsType, LanguagesType, FontOverridesType, FontInfosType } from './_lib/types';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
@@ -142,7 +142,6 @@ export default function Home() {
         const name = `fallback for ${fontInfos.postscriptName}`;
         setFallbackFamilyName(name);
         const path = encodeURI(`/${overrides.file}`);
-        console.log(name, path, `url("${path}")`)
         const fbFont = new FontFace(
           name,
           `url("${path}")`,
@@ -156,8 +155,6 @@ export default function Home() {
         await fbFont.load();
         document.fonts.add(fbFont);
         document.body.style.setProperty('--fallback-family', name);
-
-        console.log(">>>> Fallback loaded & added")
       } catch (err) {
         console.error(err);
       }
@@ -167,132 +164,120 @@ export default function Home() {
     }
   }, [overridesFormState, fontInfos])
 
+
+  const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
   const userData = useUserData();
-  // const dispatch = useUserDataDispatch();
-  // console.log('dispatch page', dispatch)
-
-
-  // useEffect(() => {
-  //   // Load user settings from localStorage
-  //   if ('localStorage' in window) {
-  //     console.log("in useEffect", dispatch)
-
-  //     const storage = localStorage.getItem('userSettings');
-  //     if (storage) {
-  //       const settings = JSON.parse(storage);
-  //       console.log(">>>>>settings", settings, dispatch)
-  //       dispatch({
-  //         type: "changeAll",
-  //         payload: settings
-  //       });
-  //     }
-  //   }
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   console.log("koukou", userData)
-  //   // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
-  //     if ('localStorage' in window) {
-  //       localStorage.setItem('userSettings', JSON.stringify(userData));
-  //       console.log("koukou 2")
-  //     }
-  //   // }
-
-  // }, [userData]);
-
+  const dispatch = useUserDataDispatch();
 
   useEffect(() => {
-    // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
-        console.log("save to localStorage from page !!!")
+    // Load user settings from localStorage
     if ('localStorage' in window) {
-        localStorage.setItem('userSettings', JSON.stringify(userData));
-    }
-    // }
 
-}, [userData]);
+      const storage = localStorage.getItem('userSettings');
+      if (storage) {
+        const settings = JSON.parse(storage);
+        dispatch({
+          type: "changeAll",
+          payload: settings
+        });
+      }
+      // localStorage has been read, even if it was empty
+      setIsLocalStorageRead(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isLocalStorageRead) {
+      console.log("save to localStorage from page !!!")
+      if ('localStorage' in window) {
+        localStorage.setItem('userSettings', JSON.stringify(userData));
+      }
+    }
+
+  }, [userData]);
 
 
   return (
-      <main className={styles.main}>
-        <form
-          id="select-font"
-          className={styles["select-font"]}
-          action={loadFormAction}
-        >
+    <main className={styles.main}>
+      <form
+        id="select-font"
+        className={styles["select-font"]}
+        action={loadFormAction}
+      >
 
-          <div>
-            <Image
-              src="/letter.svg"
-              width={256}
-              height={256}
-              alt="Letter capital A"
-              priority={true}
-            />
-            <div className={styles["drop-instructions"]}>
-              <span>Drop a font here</span>
-              <span>OR</span>
-              <label htmlFor='font-upload'>
-                Browse
-                <input
-                  type="file"
-                  id="font-upload"
-                  name="font-upload"
-                  accept={listAcceptable([...fontTypes] as FontTypes[])}
-                  onChange={handleFontFile}
-                />
-              </label>
-              {fontFile && (
-                <FontFile
-                  name={fontFile.name}
-                  onClick={handleRemoveFontFile}
-                />
-              )}
+        <div>
+          <Image
+            src="/letter.svg"
+            width={256}
+            height={256}
+            alt="Letter capital A"
+            priority={true}
+          />
+          <div className={styles["drop-instructions"]}>
+            <span>Drop a font here</span>
+            <span>OR</span>
+            <label htmlFor='font-upload'>
+              Browse
+              <input
+                type="file"
+                id="font-upload"
+                name="font-upload"
+                accept={listAcceptable([...fontTypes] as FontTypes[])}
+                onChange={handleFontFile}
+              />
+            </label>
+            {fontFile && (
+              <FontFile
+                name={fontFile.name}
+                onClick={handleRemoveFontFile}
+              />
+            )}
+          </div>
+        </div>
+        <div>OR</div>
+        <div>
+          <TextInput
+            ref={urlRef}
+            id={'fontUrl'}
+            type={'url'}
+            value={fontURL}
+            placeholder={'Paste a font URL'}
+            onChange={handleFontURL}
+            title='Erase field'
+            onClick={eraseTextInput}
+          />
+          <SubmitButton
+            id="select-font-submit"
+            text={'Load the font'}
+            classAdd={'outlined'}
+            disabled={!fontURL && !fontFile}
+          />
+        </div>
+        {!loadFormState.success && loadFormState.message && (
+          <div className={styles['error-msg-container']}>
+            <div className={styles['error-msg']}>
+              <h3>A problem occurred!</h3>
+              {loadFormState.message}
             </div>
           </div>
-          <div>OR</div>
-          <div>
-            <TextInput
-              ref={urlRef}
-              id={'fontUrl'}
-              type={'url'}
-              value={fontURL}
-              placeholder={'Paste a font URL'}
-              onChange={handleFontURL}
-              title='Erase field'
-              onClick={eraseTextInput}
-            />
-            <SubmitButton
-              id="select-font-submit"
-              text={'Load the font'}
-              classAdd={'outlined'}
-              disabled={!fontURL && !fontFile}
-            />
-          </div>
-          {!loadFormState.success && loadFormState.message && (
-            <div className={styles['error-msg-container']}>
-              <div className={styles['error-msg']}>
-                <h3>A problem occurred!</h3>
-                {loadFormState.message}
-              </div>
-            </div>
-          )}
-        </form>
-
-        <OverridesForm
-          fontInfos={fontInfos}
-          formAction={overridesFormAction}
-          />
-
-        <DynamicDemoText
-          lang={userData.language}
-        />
-
-        {fallbackFamilyName && (
-          <SectionCode
-            fallbackName={fallbackFamilyName}
-            overrides={overridesFormState?.message}
-          />
         )}
-      </main>
+      </form>
+
+      <OverridesForm
+        fontInfos={fontInfos}
+        formAction={overridesFormAction}
+      />
+
+      <DynamicDemoText
+        lang={userData.language}
+      />
+
+      {fallbackFamilyName && (
+        <SectionCode
+          fallbackName={fallbackFamilyName}
+          overrides={overridesFormState?.message}
+        />
+      )}
+    </main>
   )
 }
