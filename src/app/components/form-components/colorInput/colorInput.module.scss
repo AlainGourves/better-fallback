@@ -1,0 +1,37 @@
+.agf-colorinput {
+    // ----------------------------- Layout
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem; // distance between Swith & Label
+    line-height: 1;
+    
+    & input[type="color"] {
+        --w: 1.5rem;
+        --bdr-rad: .5rem;
+        width: var(--w);
+        height: var(--w);
+
+        appearance: none;
+        cursor: pointer;
+        border: 0;
+        border-radius: var(--bdr-rad);
+        background-color: transparent;
+        box-shadow: 0 0 0 transparent;
+        transition: box-shadow 0.25s ease-in-out;
+
+        &::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+            border: 0;
+            border-radius: var(--bdr-rad);
+        }
+
+        &::-moz-color-swatch {
+            border: 0;
+            border-radius: var(--bdr-rad);
+        }
+    }
+}

@@ -5,6 +5,7 @@ import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
 import { defaultUserData } from '@/app/context/userData';
+import ColorInput from './form-components/colorInput/colorInput';
 
 const defaultAlpha = parseFloat(defaultUserData.opacity);
 const defaultFontSize = parseInt(defaultUserData.fontSize);
@@ -21,6 +22,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
 
     const [alphaSlider, setAlphaSlider] = useState(parseFloat(userData.opacity));
     const [fontSizeSlider, setFontSizeSlider] = useState(parseInt(userData.fontSize));
+    const [fallbackColor, setFallbackColor] = useState(userData.color);
 
     const handleAlphaSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setAlphaSlider(parseFloat(ev.target.value));
@@ -36,6 +38,16 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
         setFontSizeSlider(parseInt(ev.target.value));
         dispatch({
             type: 'changeFontSize',
+            payload: {
+                value: ev.target.value,
+            }
+        });
+    }
+
+    const handleFallbackColor = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        setFallbackColor(ev.target.value);
+        dispatch({
+            type: 'changeColor',
             payload: {
                 value: ev.target.value,
             }
@@ -60,6 +72,11 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
     useEffect(() => {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
     }, [fontSizeSlider]);
+
+    // Fallback font's Color -------------
+    useEffect(() => {
+        document.body.style.setProperty('--fallback-color', `${fallbackColor}`);
+    }, [fallbackColor]);
 
 
     return (
@@ -87,10 +104,16 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                     isOutput={true}
                 />
                 <span className={textToolsStyles.divider}></span>
+                <ColorInput
+                    id='fallback-color'
+                    value={fallbackColor}
+                    onChange={handleFallbackColor}
+                />
+                <span className={textToolsStyles.divider}></span>
                 <Switch
                     id='switch-edit'
                     label={'Edit text'}
-                    title='Font Metrics Overrides'
+                    title='Provide your own text'
                     checked={checked}
                     onChange={onChange}
                 />

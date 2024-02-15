@@ -9,13 +9,15 @@ export const defaultUserData = {
     language: "en" as LanguagesType,
     fallbackFont: 'times' as FallbackFontsType,
     fontSize: '24',
-    opacity: '0.8'
+    opacity: '0.8',
+    color: '#ff0000'
 }
 
 type Action =
     | { type: 'changeDemoText'; payload: { value: string } }
     | { type: 'changeFontSize'; payload: { value: string } }
     | { type: 'changeOpacity'; payload: { value: string } }
+    | { type: 'changeColor'; payload: { value: string } }
     | { type: 'changeFontFamily'; payload: { value: FallbackFontsType } }
     | { type: 'changeLanguage'; payload: { value: LanguagesType } }
     | { type: 'changeAll'; payload: UserDataType }
@@ -53,6 +55,12 @@ const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
             return {
                 ...userData,
                 opacity: payload.value
+            }
+        }
+        case 'changeColor': {
+            return {
+                ...userData,
+                color: payload.value
             }
         }
 

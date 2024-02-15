@@ -34,5 +34,6 @@ export type UserDataType = {
   language: LanguagesType,
   fallbackFont: FallbackFontsType,
   fontSize: string,
+  color: string,
   opacity: string,
 }

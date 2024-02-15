@@ -30,7 +30,7 @@
 
   &::before {
     content: attr(data-txt);
-    color: red;
+    color: var(--fallback-color, red);
     font-family: var(--fallback-family);
     opacity: var(--fallback-opacity, .75);
   }
