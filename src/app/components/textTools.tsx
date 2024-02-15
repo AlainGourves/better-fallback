@@ -9,6 +9,7 @@ import ColorInput from './form-components/colorInput/colorInput';
 
 const defaultAlpha = parseFloat(defaultUserData.opacity);
 const defaultFontSize = parseInt(defaultUserData.fontSize);
+const defaultColor = defaultUserData.color;
 
 type TextToolsProps = {
     checked: boolean,
@@ -57,6 +58,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
         setFontSizeSlider(defaultFontSize);
         setAlphaSlider(defaultAlpha);
+        setFallbackColor(defaultColor);
         dispatch({
             type: 'reset',
             payload: null

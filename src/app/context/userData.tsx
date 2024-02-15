@@ -100,6 +100,7 @@ const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
                 fontSize: payload.fontSize,
                 language: payload.language,
                 opacity: payload.opacity,
+                color: payload.color,
             }
         }
 

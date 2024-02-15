@@ -10,17 +10,8 @@ type ColorInputType = {
 }
 
 export default function ColorInput(props: ColorInputType) {
-    const [color, setColor] = useState('#ff0000');
 
     const className = getClassName(colorStyles['agf-colorinput'], undefined);
-
-    const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        setColor(ev.target.value);
-    }
-
-    useEffect(() => {
-        document.body.style.setProperty('--fallback-color', `${color}`);
-    }, [color]);
 
     return (
         <label

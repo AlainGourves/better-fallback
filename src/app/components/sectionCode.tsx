@@ -21,7 +21,7 @@ export default function SectionCode(props: SectionCodeType) {
 
     let code = `
     @font-face {
-        font-family: ${name};
+        font-family: "${name}";
         src: local("${overrrides.fullName}"),
              local("${overrrides.postscriptName}");
         size-adjust: ${overrrides.sizeAdjust};
