@@ -11,7 +11,7 @@ import FontFile from './components/fontFile';
 import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
-import { FontTypes, FallbackFontsType, LanguagesType, FontOverridesType, FontInfosType } from './_lib/types';
+import { FontTypes, FontOverridesType, FontInfosType } from './_lib/types';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
@@ -188,7 +188,6 @@ export default function Home() {
 
   useEffect(() => {
     if (isLocalStorageRead) {
-      console.log("save to localStorage from page !!!")
       if ('localStorage' in window) {
         localStorage.setItem('userSettings', JSON.stringify(userData));
       }

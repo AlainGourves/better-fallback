@@ -4,26 +4,15 @@ import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { defaultUserData } from '@/app/context/userData';
 
-const defaultAlpha = .8;
-const defaultFontSize = 24;
+const defaultAlpha = parseFloat(defaultUserData.opacity);
+const defaultFontSize = parseInt(defaultUserData.fontSize);
 
 type TextToolsProps = {
     checked: boolean,
     onChange(event: React.ChangeEvent<HTMLInputElement>): void,
 }
-
-type UserSettingsType = {
-    opacity: string,
-    fontSize: string,
-}
-type JSONValue =
-    | string
-    | number
-    | boolean
-    | { [x: string]: JSONValue }
-    | Array<JSONValue>;
-
 
 export default function TextTools({ checked, onChange }: TextToolsProps) {
 
@@ -56,7 +45,10 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
         setFontSizeSlider(defaultFontSize);
         setAlphaSlider(defaultAlpha);
-        // setEditSwitch(true);
+        dispatch({
+            type: 'reset',
+            payload: null
+        });
     }
 
     // Fallback font's Alpha -------------
@@ -68,16 +60,6 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
     useEffect(() => {
         document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
     }, [fontSizeSlider]);
-
-    // useEffect(() => {
-    //     // if (JSON.stringify(userData) !== JSON.stringify(defaultUserData)) {
-    //         console.log("save to localStorage from textTools !!!")
-    //     if ('localStorage' in window) {
-    //         localStorage.setItem('userSettings', JSON.stringify(userData));
-    //     }
-    //     // }
-
-    // }, [userData]);
 
 
     return (

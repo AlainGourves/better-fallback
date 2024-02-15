@@ -18,7 +18,8 @@ type Action =
     | { type: 'changeOpacity'; payload: { value: string } }
     | { type: 'changeFontFamily'; payload: { value: FallbackFontsType } }
     | { type: 'changeLanguage'; payload: { value: LanguagesType } }
-    | { type: 'changeAll'; payload: UserDataType };
+    | { type: 'changeAll'; payload: UserDataType }
+    | { type: 'reset'; payload: null };
 
 // Provides the current state of userData
 export const UserDataContext = createContext<UserDataType>(defaultUserData);
@@ -46,7 +47,7 @@ export function UserDataProvider({ value, children }: { value: UserDataType, chi
     )
 }
 
-const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
+const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
     switch (type) {
         case 'changeOpacity': {
             return {
@@ -91,7 +92,11 @@ const userDataReducer = (userData: UserDataType, { type, payload }: Action) => {
                 fontSize: payload.fontSize,
                 language: payload.language,
                 opacity: payload.opacity,
-            };
+            }
+        }
+
+        case 'reset': {
+            return defaultUserData
         }
 
         default: {
