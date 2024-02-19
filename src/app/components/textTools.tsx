@@ -121,13 +121,13 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                 />
                 <span className={textToolsStyles.divider}></span>
                 <button
-                    className={textToolsStyles['reset-btn']}
+                    className={`agf-component ${textToolsStyles['reset-btn']}`}
                     onClick={handleReset}
                     title='Reset'
                 >
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">
-                        <path fill="currentColor" d="M17.96 5v1.65a8 8 0 1 0 1.29 8.8 1 1 0 0 0-.9-1.44c-.37 0-.73.2-.88.53A6 6 0 1 1 17.22 9h-3.25c-.55 0-1 .45-1 1s.45 1 1 1h5a1 1 0 0 0 1-1V5c0-.55-.45-1-1-1s-1 .45-1 1z" />
+                        viewBox="0 0 102 102" preserveAspectRatio="xMidYMid meet">
+                        <path stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" d="M7.502 67.603a46 46 0 1 0 0-35.206m0-26v26h26" />
                     </svg>
                 </button>
             </div>

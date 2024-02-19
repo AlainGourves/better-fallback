@@ -5,6 +5,7 @@ import { FallbackFontsType, LanguagesType, UserDataType } from "@/app/_lib/types
 
 
 export const defaultUserData = {
+    showUserText: false,
     userText: '',
     language: "en" as LanguagesType,
     fallbackFont: 'times' as FallbackFontsType,
@@ -14,6 +15,7 @@ export const defaultUserData = {
 }
 
 type Action =
+    | { type: 'showDemoText'; payload: { value: boolean } }
     | { type: 'changeDemoText'; payload: { value: string } }
     | { type: 'changeFontSize'; payload: { value: string } }
     | { type: 'changeOpacity'; payload: { value: string } }
@@ -92,9 +94,17 @@ const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
             }
         }
 
+        case 'showDemoText': {
+            return {
+                ...userData,
+                showUserText: payload.value
+            }
+        }
+
         case 'changeAll': {
             return {
                 ...userData,
+                showUserText: payload.showUserText,
                 userText: payload.userText,
                 fallbackFont: payload.fallbackFont,
                 fontSize: payload.fontSize,

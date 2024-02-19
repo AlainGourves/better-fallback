@@ -30,6 +30,7 @@ export type FontOverridesType = {
 
 
 export type UserDataType = {
+  showUserText: boolean,
   userText: string | undefined,
   language: LanguagesType,
   fallbackFont: FallbackFontsType,

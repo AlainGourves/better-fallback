@@ -17,25 +17,26 @@
     margin-block-end: .5rem;
 
 
-    & input[type=range]{
+    & input[type=range] {
         min-width: 8em;
     }
 }
 
-.divider{
+.divider {
     display: block;
     width: 1px;
     height: 2rem;
     background: var(--clr-active-200);
 }
+
 /* Check for Houdini support & register property */
 @supports (background: paint(something)) {
     @property --gradPoint {
-      syntax: '<percentage>';
-      inherits: false;
-      initial-value: 0%;
+        syntax: '<percentage>';
+        inherits: false;
+        initial-value: 0%;
     }
-  }
+}
 
 .reset-btn {
     appearance: none;
@@ -49,11 +50,21 @@
     background-image: radial-gradient(var(--clr-highlight) var(--gradPoint), transparent 0);
     border-radius: 50%;
     color: var(--clr-active);
+    box-shadow: 0 0 0 0 transparent;
+    transition: box-shadow var(--anim-dur) var(--anim-fn),
+        --gradPoint .25s;
 
     cursor: pointer;
-    transition: --gradPoint .25s;
 
-    &:hover{
+    &:hover {
         --gradPoint: 100%;
+    }
+
+    & svg{
+        width: 1.3rem;
+        height: 1.3rem;
+        stroke-width: 8px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 }

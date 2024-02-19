@@ -33,6 +33,13 @@
     color: var(--fallback-color, red);
     font-family: var(--fallback-family);
     opacity: var(--fallback-opacity, .75);
+
+  }
+
+  &:focus-visible::before {
+    // TODO
+    // fallback text is not visible while the text is edited
+    content: '';
   }
 
   &:empty::after{

@@ -103,7 +103,7 @@ $shades: (
         }
 
         &:focus-visible {
-            box-shadow: 0 0 0 var(--outline-width) var(--clr-outline);
+            box-shadow: 0 0 0 var(--outline-width) var(--clr-outline) !important;
             outline-style: none;
             outline-width: 0;
         }

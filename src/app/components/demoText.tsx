@@ -7,7 +7,7 @@ import { dummyText } from '../_lib/dummyText';
 import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
 import styles from './demoText.module.scss';
 import { LanguagesType } from '@/app/_lib/types';
-import { useUserData } from "../context/userData";
+import { useUserDataDispatch, useUserData } from "../context/userData";
 
 
 type Props = { lang: LanguagesType };
@@ -16,25 +16,33 @@ export default function DemoText(props: Props) {
 
   const userData = useUserData();
   let userText = userData.userText;
+  const dispatch = useUserDataDispatch();
 
-  const [editSwitch, setEditSwitch] = useState(false);
+  const [showUserTextSwitch, setShowUserTextSwitch] = useState(userData.showUserText);
 
   const lang = props.lang;
   const text = dummyText[(lang as keyof typeof dummyText)];
 
-  if (supportsLocalStorage()) {
-    userText = getLocalStorage('userText') as string;
-  }
+  // if (supportsLocalStorage()) {
+  //   userText = getLocalStorage('userText') as string;
+  // }
 
-  const handleEditSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    setEditSwitch(ev.target?.checked);
+  const handleShowUserTextSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setShowUserTextSwitch(ev.target?.checked);
+    dispatch({
+      type: 'showDemoText',
+      payload: {
+        value: ev.target?.checked,
+      }
+    });
   }
 
   const saveUserText = (ev: React.FocusEvent<HTMLDivElement, Element>) => {
-    const newText = ev.currentTarget.textContent;
-    if (newText) {
-      saveToLocalStorage('userText', newText);
-    }
+    const newText = (ev.currentTarget.textContent) ? ev.currentTarget.textContent : '';
+    dispatch({
+      type: 'changeDemoText',
+      payload: { value: newText }
+    });
   }
 
   const pasteUserText = (ev: React.ClipboardEvent<HTMLDivElement>) => {
@@ -52,26 +60,26 @@ export default function DemoText(props: Props) {
   // Edit Switch -------------
   useEffect(() => {
     // Make the demo text DIV editable
-    // console.log(editSwitch ? "j'édite" : "j'édite pas")
-  }, [editSwitch])
+    // console.log(showUserTextSwitch ? "j'édite" : "j'édite pas")
+  }, [showUserTextSwitch])
 
 
   return (
     <div className={styles['text-container']}>
       <TextTools
-        checked={editSwitch}
-        onChange={handleEditSwitch}
+        checked={showUserTextSwitch}
+        onChange={handleShowUserTextSwitch}
       />
       <div
         className={styles.temoin}
-        data-txt={!editSwitch ? text : ''}
-        contentEditable={editSwitch}
+        data-txt={showUserTextSwitch ? userText : text}
+        contentEditable={showUserTextSwitch}
         suppressContentEditableWarning={true}
         onBlur={saveUserText}
         onPaste={pasteUserText}
       >
-        {!editSwitch && text}
-        {(editSwitch && userText) && userText}
+        {!showUserTextSwitch && text}
+        {(showUserTextSwitch && userText) && userText}
       </div>
     </div>
   );
