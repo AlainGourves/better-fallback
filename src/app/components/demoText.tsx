@@ -74,7 +74,11 @@ export default function DemoText(props: Props) {
         className={styles.temoin}
         data-txt={showUserTextSwitch ? userText : text}
         contentEditable={showUserTextSwitch}
+        role={showUserTextSwitch ? 'textbox' : ''}
+        aria-multiline={showUserTextSwitch ? true : false}
+        tabIndex={showUserTextSwitch ? 0 : -1}
         suppressContentEditableWarning={true}
+        onInput={(e)=> console.log(e.currentTarget.innerText)}
         onBlur={saveUserText}
         onPaste={pasteUserText}
       >

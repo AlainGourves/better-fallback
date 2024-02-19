@@ -75,7 +75,7 @@ export default function Home() {
     }
     setFontURL(ev.target.value);
   };
-  // button with an 'X' to erase TextInpu
+  // button with an 'X' to erase TextInput
   const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
     setFontURL('');
     if (error === true) setError(false);
