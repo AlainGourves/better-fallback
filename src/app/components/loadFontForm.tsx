@@ -8,15 +8,11 @@ import TextInput from './form-components/textInput/textInput';
 import SubmitButton from './submitButton';
 import { URLValidator, listAcceptable } from '../_lib/utils';
 import { fontTypes, FontTypes, FontInfosType } from '@/app/_lib/types'
+import { useFontInfos, useFontInfosDispatch } from '../context/fontContext';
 
-type LoadFormType = {
-    fontInfos: FontInfosType,
-    formAction: string | ((formData: FormData) => void) | undefined,
-}
-
-export default function LoadFontForm(props: LoadFormType) {
-    const [fontURL, setFontURL] = useState('');
-    const [fontFile, setFontFile] = useState<File | null>(null);
+export default function LoadFontForm() {
+    const fontInfos = useFontInfos();
+    const dispatchFontInfos = useFontInfosDispatch();
 
     // Error handling
     const [error, setError] = useState(false);
@@ -24,17 +20,30 @@ export default function LoadFontForm(props: LoadFormType) {
 
     const urlRef = useRef<HTMLInputElement>(null);
 
-
     // Input[File] for selecting a font
     const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
         if (!ev.target.files) return;
-        setFontURL(''); // get rid of an eventual URL
-        setFontFile(ev.target.files[0]);
+        // get rid of an eventual URL
+        // TODO: tout faire en une seule action
+        // (dans le reducer ?)
+        dispatchFontInfos({
+            type: "eraseURL",
+            payload: null
+        });
+        dispatchFontInfos({
+            type: "setFile",
+            payload: {
+                value: ev.target.files[0]
+            }
+        })
     }
 
     // 'X' button to remove previously selected font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        setFontFile(null);
+        dispatchFontInfos({
+            type: "eraseFile",
+            payload: null
+        });
         if (error === true) setError(false);
     }
 
@@ -44,14 +53,27 @@ export default function LoadFontForm(props: LoadFormType) {
         if (URLValidator(val) || val === '') {
             urlRef.current?.setCustomValidity(''); // remove :invalid state if present
         }
-        if (fontFile) {
-            setFontFile(null); // fontFile and fontURL are exclusives
+        if (fontInfos.file) {
+            // font File and font URL are exclusives
+            // TODO: faire les 2 actions d'un coup dans le reducer ?
+            dispatchFontInfos({
+                type: "eraseFile",
+                payload: null
+            });
         }
-        setFontURL(ev.target.value);
+        dispatchFontInfos({
+            type: "setURL",
+            payload: {
+                value: ev.target.value
+            }
+        });
     };
     // button with an 'X' to erase TextInput
     const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        setFontURL('');
+        dispatchFontInfos({
+            type: "eraseURL",
+            payload: null
+        });
         if (error === true) setError(false);
     }
 
@@ -63,11 +85,33 @@ export default function LoadFontForm(props: LoadFormType) {
     }
     const [loadFormState, loadFormAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
+    // UseEffects ---------------
+    useEffect(() => {
+        if (loadFormState.success) {
+            dispatchFontInfos({
+                type: 'setInfos',
+                payload: {
+                    fullName: loadFormState.message?.fullName,
+                    postscriptName: loadFormState.message?.postscriptName,
+                    familyName: loadFormState.message?.familyName,
+                    type: loadFormState.message?.type,
+                    size: loadFormState.message?.size
+                }
+            });
+        }
+    }, [loadFormState]);
+
+
+    useEffect(() => {
+        if (!error) setErrorMessage('');
+    }, [error]);
+
+
     return (
         <form
             id="select-font"
             className={formStyles["select-font"]}
-            action={props.formAction}
+            action={loadFormAction}
         >
 
             <div>
@@ -91,9 +135,9 @@ export default function LoadFontForm(props: LoadFormType) {
                             onChange={handleFontFile}
                         />
                     </label>
-                    {fontFile && (
+                    {fontInfos.file && (
                         <FontFile
-                            name={fontFile.name}
+                            name={fontInfos.file.name}
                             onClick={handleRemoveFontFile}
                         />
                     )}
@@ -105,7 +149,7 @@ export default function LoadFontForm(props: LoadFormType) {
                     ref={urlRef}
                     id={'fontUrl'}
                     type={'url'}
-                    value={fontURL}
+                    value={fontInfos.url ? fontInfos.url : ''}
                     placeholder={'Paste a font URL'}
                     onChange={handleFontURL}
                     title='Erase field'
@@ -115,7 +159,7 @@ export default function LoadFontForm(props: LoadFormType) {
                     id="select-font-submit"
                     text={'Load the font'}
                     classAdd={'outlined'}
-                    disabled={!fontURL && !fontFile}
+                    disabled={!fontInfos.url && !fontInfos.file}
                 />
             </div>
             {!loadFormState.success && loadFormState.message && (

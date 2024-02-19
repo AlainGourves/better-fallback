@@ -11,22 +11,24 @@ const languages = ['en', 'fr'] as const;
 export type LanguagesType = typeof languages[number];
 
 export type FontOverridesType = {
-    fullName: string,
-    postscriptName: string,
-    file: string,
-    ascent: string,
-    descent: string,
-    lineGap: string,
-    sizeAdjust: string,
-  }
+  fullName: string,
+  postscriptName: string,
+  file: string,
+  ascent: string,
+  descent: string,
+  lineGap: string,
+  sizeAdjust: string,
+}
 
- export type FontInfosType = {
-    fullName: string | null,
-    postscriptName: string | null,
-    familyName: string | null,
-    type: FontTypes | null,
-    size: string | null,
-  }
+export type FontInfosType = {
+  file: File | null,
+  url: string | null,
+  fullName: string | null,
+  postscriptName: string | null,
+  familyName: string | null,
+  type: FontTypes | null,
+  size: string | null,
+}
 
 
 export type UserDataType = {

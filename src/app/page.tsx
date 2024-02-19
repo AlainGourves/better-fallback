@@ -1,28 +1,23 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormState } from "react-dom";
-import { getFontInfos, getFontOverrides } from './api/actions';
+import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
-import { URLValidator, listAcceptable } from './_lib/utils';
 import styles from './page.module.scss'
-import Image from 'next/image';
-import TextInput from './components/form-components/textInput/textInput';
-import FontFile from './components/fontFile';
-import SubmitButton from './components/submitButton';
 import SectionCode from './components/sectionCode';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
-import { FontTypes, FontOverridesType, FontInfosType } from './_lib/types';
+import { useFontInfos, useFontInfosDispatch } from './context/fontContext';
+import { FontOverridesType } from './_lib/types';
+import OverridesForm from './components/overridesForm';
+import LoadFontForm from './components/loadFontForm';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
-import OverridesForm from './components/overridesForm';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
   loading: () => <p>Loading...</p>
 });
-
-const fontTypes = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
 
 // In the current state (02 2024), Typescript interface for FontFace descriptor doesn't have the `sizeAdjust` property
 interface MyFontFaceDescriptors extends FontFaceDescriptors {
@@ -30,56 +25,11 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
 }
 
 export default function Home() {
-  const [fontInfos, setFontInfos] = useState<FontInfosType>({
-    fullName: null,
-    postscriptName: null,
-    familyName: null,
-    type: null,
-    size: null,
-  });
 
-  const [fontURL, setFontURL] = useState('');
-  const [fontFile, setFontFile] = useState<File | null>(null);
+  const fontInfos = useFontInfos();
+  const dispatchFontInfos = useFontInfosDispatch();
+
   const [fallbackFamilyName, setFallbackFamilyName] = useState<string | null>(null);
-  const urlRef = useRef<HTMLInputElement>(null);
-
-  // Error handling
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    if (!error) setErrorMessage('');
-  }, [error]);
-
-  // Input[File] for selecting a font
-  const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    if (!ev.target.files) return;
-    setFontURL(''); // get rid of an eventual URL
-    setFontFile(ev.target.files[0]);
-  }
-
-  // 'X' button to remove previously selected font file
-  const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
-    setFontFile(null);
-    if (error === true) setError(false);
-  }
-
-  // Input[text] for font URL
-  const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const val = ev.target.value;
-    if (URLValidator(val) || val === '') {
-      urlRef.current?.setCustomValidity(''); // remove :invalid state if present
-    }
-    if (fontFile) {
-      setFontFile(null); // fontFile and fontURL are exclusives
-    }
-    setFontURL(ev.target.value);
-  };
-  // button with an 'X' to erase TextInput
-  const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
-    setFontURL('');
-    if (error === true) setError(false);
-  }
 
   useEffect(() => {
     if (fontInfos.postscriptName) {
@@ -88,10 +38,10 @@ export default function Home() {
       const loadFontInDocument = async () => {
         try {
           let theFile: null | File;
-          if (fontURL) {
-            theFile = await fetchFont(fontURL, fontInfos.postscriptName as string);
+          if (fontInfos.url) {
+            theFile = await fetchFont(fontInfos.url, fontInfos.postscriptName as string);
           } else {
-            theFile = fontFile;
+            theFile = fontInfos.file;
           }
           if (theFile) {
             const buff = await theFile.arrayBuffer();
@@ -110,33 +60,19 @@ export default function Home() {
       // Update demo text font
       document.body.style.setProperty('--tested-font', `'${fontInfos.postscriptName}'`);
     };
-  }, [fontInfos, fontFile, fontURL]);
+  }, [fontInfos]);
 
   // Server actions
   const initialState = {
     success: false,
     message: null,
   }
-  const [loadFormState, loadFormAction] = useFormState<any, FormData>(getFontInfos, initialState);
-
-  useEffect(() => {
-    if (loadFormState.success) {
-      setFontInfos((fontInfos) => ({
-        ...fontInfos,
-        fullName: loadFormState.message?.fullName,
-        postscriptName: loadFormState.message?.postscriptName,
-        familyName: loadFormState.message?.familyName,
-        type: loadFormState.message?.type,
-        size: loadFormState.message?.size
-      }));
-    }
-  }, [loadFormState]);
 
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
     const overrides = overridesFormState.message;
-    console.log("overrides", overrides)
+    // console.log("overrides", overrides)
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
         const name = `fallback for ${fontInfos.postscriptName}`;
@@ -167,7 +103,7 @@ export default function Home() {
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
   const userData = useUserData();
-  const dispatch = useUserDataDispatch();
+  const dispatchUserData = useUserDataDispatch();
 
   useEffect(() => {
     // Load user settings from localStorage
@@ -176,7 +112,7 @@ export default function Home() {
       const storage = localStorage.getItem('userSettings');
       if (storage) {
         const settings = JSON.parse(storage);
-        dispatch({
+        dispatchUserData({
           type: "changeAll",
           payload: settings
         });
@@ -198,69 +134,8 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <form
-        id="select-font"
-        className={styles["select-font"]}
-        action={loadFormAction}
-      >
 
-        <div>
-          <Image
-            src="/letter.svg"
-            width={256}
-            height={256}
-            alt="Letter capital A"
-            priority={true}
-          />
-          <div className={styles["drop-instructions"]}>
-            <span>Drop a font here</span>
-            <span>OR</span>
-            <label htmlFor='font-upload'>
-              Browse
-              <input
-                type="file"
-                id="font-upload"
-                name="font-upload"
-                accept={listAcceptable([...fontTypes] as FontTypes[])}
-                onChange={handleFontFile}
-              />
-            </label>
-            {fontFile && (
-              <FontFile
-                name={fontFile.name}
-                onClick={handleRemoveFontFile}
-              />
-            )}
-          </div>
-        </div>
-        <div>OR</div>
-        <div>
-          <TextInput
-            ref={urlRef}
-            id={'fontUrl'}
-            type={'url'}
-            value={fontURL}
-            placeholder={'Paste a font URL'}
-            onChange={handleFontURL}
-            title='Erase field'
-            onClick={eraseTextInput}
-          />
-          <SubmitButton
-            id="select-font-submit"
-            text={'Load the font'}
-            classAdd={'outlined'}
-            disabled={!fontURL && !fontFile}
-          />
-        </div>
-        {!loadFormState.success && loadFormState.message && (
-          <div className={styles['error-msg-container']}>
-            <div className={styles['error-msg']}>
-              <h3>A problem occurred!</h3>
-              {loadFormState.message}
-            </div>
-          </div>
-        )}
-      </form>
+      <LoadFontForm />
 
       <OverridesForm
         fontInfos={fontInfos}
