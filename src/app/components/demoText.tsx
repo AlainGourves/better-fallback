@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from "react";
 import TextTools from "./textTools";
 import { dummyText } from '../_lib/dummyText';
-import { supportsLocalStorage, saveToLocalStorage, getLocalStorage } from '@/app/_lib/localstorage';
 import styles from './demoText.module.scss';
 import { LanguagesType } from '@/app/_lib/types';
 import { useUserDataDispatch, useUserData } from "../context/userData";
@@ -22,10 +21,6 @@ export default function DemoText(props: Props) {
 
   const lang = props.lang;
   const text = dummyText[(lang as keyof typeof dummyText)];
-
-  // if (supportsLocalStorage()) {
-  //   userText = getLocalStorage('userText') as string;
-  // }
 
   const handleShowUserTextSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setShowUserTextSwitch(ev.target?.checked);
