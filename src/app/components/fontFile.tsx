@@ -1,4 +1,3 @@
-import styles from '../page.module.scss';
 import FontFileStyles from './fontFile.module.scss';
 import CloseBtn from './form-components/closeBtn/closeBtn';
 import FontFileIcon from './svg/fontFileIcon';

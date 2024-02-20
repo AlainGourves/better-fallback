@@ -33,7 +33,7 @@ export default function Home() {
 
   useEffect(() => {
     if (fontInfos.postscriptName) {
-      console.log(fontInfos)
+      console.log("useEffect 36", fontInfos)
 
       const loadFontInDocument = async () => {
         try {
@@ -61,6 +61,15 @@ export default function Home() {
       document.body.style.setProperty('--tested-font', `'${fontInfos.postscriptName}'`);
     };
   }, [fontInfos]);
+
+  useEffect(() => {
+    if (!fontInfos.url && !fontInfos.file) {
+      // reset fontInfos to default values
+      dispatchFontInfos({
+        type: 'reset', payload: null
+      });
+    }
+  }, [fontInfos, dispatchFontInfos]);
 
   // Server actions
   const initialState = {
@@ -120,7 +129,7 @@ export default function Home() {
       // localStorage has been read, even if it was empty
       setIsLocalStorageRead(true);
     }
-  }, []);
+  }, [dispatchUserData]);
 
   useEffect(() => {
     if (isLocalStorageRead) {
@@ -129,7 +138,7 @@ export default function Home() {
       }
     }
 
-  }, [userData]);
+  }, [userData, isLocalStorageRead]);
 
 
   return (

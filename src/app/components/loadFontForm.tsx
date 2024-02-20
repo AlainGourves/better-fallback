@@ -23,13 +23,6 @@ export default function LoadFontForm() {
     // Input[File] for selecting a font
     const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
         if (!ev.target.files) return;
-        // get rid of an eventual URL
-        // TODO: tout faire en une seule action
-        // (dans le reducer ?)
-        dispatchFontInfos({
-            type: "eraseURL",
-            payload: null
-        });
         dispatchFontInfos({
             type: "setFile",
             payload: {
@@ -53,14 +46,6 @@ export default function LoadFontForm() {
         if (URLValidator(val) || val === '') {
             urlRef.current?.setCustomValidity(''); // remove :invalid state if present
         }
-        if (fontInfos.file) {
-            // font File and font URL are exclusives
-            // TODO: faire les 2 actions d'un coup dans le reducer ?
-            dispatchFontInfos({
-                type: "eraseFile",
-                payload: null
-            });
-        }
         dispatchFontInfos({
             type: "setURL",
             payload: {
@@ -68,7 +53,8 @@ export default function LoadFontForm() {
             }
         });
     };
-    // button with an 'X' to erase TextInput
+
+    // 'X' button to erase TextInput
     const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
         dispatchFontInfos({
             type: "eraseURL",
@@ -78,7 +64,7 @@ export default function LoadFontForm() {
     }
 
 
-    // Server actions
+    // Server actions --------------------------------
     const initialState = {
         success: false,
         message: null,
@@ -102,6 +88,7 @@ export default function LoadFontForm() {
     }, [loadFormState]);
 
 
+    // Error handling ---------------
     useEffect(() => {
         if (!error) setErrorMessage('');
     }, [error]);

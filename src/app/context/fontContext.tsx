@@ -46,11 +46,13 @@ export function FontInfosProvider({ value, children }: { value: FontInfosType, c
 
 const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) => {
     console.log("---------->", type)
+    // 'file' & 'url' are mutually exclusive : if one is set, the other must be null
     switch (type) {
         case 'setFile': {
             return {
                 ...fontInfos,
-                file: payload.value
+                file: payload.value,
+                url: null
             }
         }
 
@@ -64,6 +66,7 @@ const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) =>
         case 'setURL': {
             return {
                 ...fontInfos,
+                file: null,
                 url: payload.value
             }
         }
