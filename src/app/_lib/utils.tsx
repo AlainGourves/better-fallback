@@ -54,3 +54,8 @@ export const copyToClipboard =async (txt: string)=>{
         alert("You'll have to manually copy the code 😢")
     }
 }
+
+export const updateCustomProperty = (name:string, val:string|undefined)=> {
+    const value = val ? val : ' ';
+    document.body.style.setProperty(`${name}`, `${value}`);
+}

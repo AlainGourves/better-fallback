@@ -34,7 +34,7 @@ export default function LoadFontForm() {
     // 'X' button to remove previously selected font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
         dispatchFontInfos({
-            type: "eraseFile",
+            type: "reset",
             payload: null
         });
         if (error === true) setError(false);
@@ -57,7 +57,7 @@ export default function LoadFontForm() {
     // 'X' button to erase TextInput
     const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
         dispatchFontInfos({
-            type: "eraseURL",
+            type: "reset",
             payload: null
         });
         if (error === true) setError(false);

@@ -1,4 +1,5 @@
 'use client';
+import { forwardRef } from 'react';
 import '../component-global.scss';
 import buttonStyle from './button.module.scss';
 
@@ -17,7 +18,9 @@ type ButtonPropsSubmit = ButtonPropsBase & {
 }
 type ButtonProps = ButtonPropsButton | ButtonPropsSubmit;
 
-export default function Button(props: ButtonProps) {
+type Ref = HTMLButtonElement;
+
+const Button = forwardRef<Ref, ButtonProps>((props, ref) => {
 
     let className = `agf-component ${buttonStyle['agf-btn']} `;
     const {classAdd, ...rest} = props;
@@ -33,6 +36,7 @@ export default function Button(props: ButtonProps) {
 
     return (
         <button
+            ref={ref ? ref: null}
             className={className}
             disabled={props.disabled}
             {...rest}
@@ -40,4 +44,6 @@ export default function Button(props: ButtonProps) {
             {props.text}
         </button>
     )
-}
+});
+
+export default Button;

@@ -1,9 +1,11 @@
 'use client'
-
+import { forwardRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import Button from './form-components/button/button';
 
-export default function SubmitButton(props: any) {
+type Ref= HTMLButtonElement;
+
+const SubmitButton = forwardRef<Ref, any>((props, ref) => {
     const { pending } = useFormStatus();
 
     const {id, text, ...rest} = props;
@@ -11,10 +13,13 @@ export default function SubmitButton(props: any) {
     return (
 
             <Button
+                ref={ref}
                 id={id}
                 type="submit"
                 text={pending ? 'Loading...' : text}
                 {...rest}
             />
     )
-}
+});
+
+export default SubmitButton;

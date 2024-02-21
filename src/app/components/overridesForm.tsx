@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef } from 'react';
 import formStyles from './overridesForm.module.scss';
 import Select from './form-components/select/select';
 import RadioGroup from './form-components/radioGroup/radioGroup';
@@ -10,6 +10,8 @@ type OverridesFormProps = {
     fontInfos: FontInfosType,
     formAction: string | ((formData: FormData) => void) | undefined,
 }
+
+type Ref = HTMLButtonElement;
 
 const fallbackFontsOptions = {
     "times": {
@@ -27,7 +29,7 @@ const fallbackFontsOptions = {
 };
 
 
-export default function OverridesForm({ fontInfos, formAction }: OverridesFormProps) {
+const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ fontInfos, formAction }, overridesSubmitRef) => {
 
     const userData = useUserData();
     const dispatch = useUserDataDispatch();
@@ -134,6 +136,7 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
 
             <div>
                 <SubmitButton
+                    ref={overridesSubmitRef}
                     id="proceed"
                     text='Proceed'
                     disabled={!fontInfos.fullName}
@@ -141,4 +144,6 @@ export default function OverridesForm({ fontInfos, formAction }: OverridesFormPr
             </div>
         </form>
     )
-}
+});
+
+export default OverridesForm;

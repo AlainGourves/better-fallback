@@ -31,7 +31,7 @@
   &::before {
     content: attr(data-txt);
     color: var(--fallback-color, red);
-    font-family: var(--fallback-family);
+    font-family: var(--fallback-family); // TODO: fallback value
     opacity: var(--fallback-opacity, .75);
 
   }

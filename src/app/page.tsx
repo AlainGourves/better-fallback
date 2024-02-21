@@ -31,6 +31,9 @@ export default function Home() {
 
   const [fallbackFamilyName, setFallbackFamilyName] = useState<string | null>(null);
 
+  const overridesSubmitRef = useRef<HTMLButtonElement>(null);
+
+
   useEffect(() => {
     if (fontInfos.postscriptName) {
       console.log("useEffect 36", fontInfos)
@@ -104,11 +107,24 @@ export default function Home() {
         console.error(err);
       }
     }
+    console.log('useEffect page:', fontInfos)
     if (overrides && overrides.fullName) {
       loadFallBackFont(overrides);
+      // Scroll demo text into view
+      if (fontInfos.url && fontInfos.fullName) {
+        const btn = overridesSubmitRef.current;
+        if (btn) {
+          const rect = btn.getBoundingClientRect();
+          const y = window.scrollY + rect.y - 16;
+          window.scrollTo({
+            top: y,
+            behavior: "auto"
+          });
+          console.log('yé!')
+        }
+      }
     }
   }, [overridesFormState, fontInfos])
-
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
   const userData = useUserData();
@@ -140,13 +156,13 @@ export default function Home() {
 
   }, [userData, isLocalStorageRead]);
 
-
   return (
     <main className={styles.main}>
 
       <LoadFontForm />
 
       <OverridesForm
+        ref={overridesSubmitRef}
         fontInfos={fontInfos}
         formAction={overridesFormAction}
       />
