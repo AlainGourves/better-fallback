@@ -14,6 +14,7 @@ import LoadFontForm from './components/loadFontForm';
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
+import { updateCustomProperty } from './_lib/utils';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
   loading: () => <p>Loading...</p>
@@ -50,7 +51,7 @@ export default function Home() {
             const buff = await theFile.arrayBuffer();
             const font = new FontFace(fontInfos.postscriptName as string, buff);
             await font.load();
-            document.fonts.add(font)
+            document.fonts.add(font);
           }
 
         } catch (err) {
@@ -61,7 +62,7 @@ export default function Home() {
       // Load the font
       loadFontInDocument();
       // Update demo text font
-      document.body.style.setProperty('--tested-font', `'${fontInfos.postscriptName}'`);
+      updateCustomProperty('--tested-font', `${fontInfos.postscriptName}`);
     };
   }, [fontInfos]);
 
@@ -84,7 +85,8 @@ export default function Home() {
 
   useEffect(() => {
     const overrides = overridesFormState.message;
-    // console.log("overrides", overrides)
+    console.log("overrides", overrides)
+    console.log("fontInfos", fontInfos)
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
         const name = `fallback for ${fontInfos.postscriptName}`;
@@ -102,25 +104,26 @@ export default function Home() {
         );
         await fbFont.load();
         document.fonts.add(fbFont);
-        document.body.style.setProperty('--fallback-family', name);
+        updateCustomProperty('--fallback-family', name);
       } catch (err) {
         console.error(err);
       }
     }
-    console.log('useEffect page:', fontInfos)
     if (overrides && overrides.fullName) {
       loadFallBackFont(overrides);
       // Scroll demo text into view
-      if (fontInfos.url && fontInfos.fullName) {
+      if (fontInfos.fullName) {
         const btn = overridesSubmitRef.current;
         if (btn) {
           const rect = btn.getBoundingClientRect();
-          const y = window.scrollY + rect.y - 16;
-          window.scrollTo({
-            top: y,
-            behavior: "auto"
-          });
-          console.log('yé!')
+          setTimeout(() => {
+            const y = window.scrollY + rect.y - 16;
+            window.scrollTo({
+              top: y,
+              behavior: "auto"
+            });
+            console.log('yo!')
+          }, 250); // without this delay, scroll doesn't stop  in the right position (probably by React haven't finished reconstructing the DOM)
         }
       }
     }

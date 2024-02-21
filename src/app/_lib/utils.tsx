@@ -33,19 +33,19 @@ element.setCustomValidity('')
 
 */
 
-import type {FontTypes} from '@/app/_lib/types'
+import type { FontTypes } from '@/app/_lib/types'
 // Returns acceptable file types for input[type=file]
 // arr: array of mimes types
 // MacOS recognizes "font/ttf" or ".woff2", but not "font/woff2" for eg.
 // hence the need to extract extensions from mime types
-export const listAcceptable = (arr: FontTypes[])=>{
-    const regex =/font\/(.+)/; // to get file extensions
+export const listAcceptable = (arr: FontTypes[]) => {
+    const regex = /font\/(.+)/; // to get file extensions
     const ext = arr.map(val => `.${val.replace(regex, "$1")}`);
     return [...arr, ...ext].join(',');
 }
 
 
-export const copyToClipboard =async (txt: string)=>{
+export const copyToClipboard = async (txt: string) => {
     if (navigator.clipboard) {
         if (txt) {
             await navigator.clipboard.writeText(txt);
@@ -55,7 +55,8 @@ export const copyToClipboard =async (txt: string)=>{
     }
 }
 
-export const updateCustomProperty = (name:string, val:string|undefined)=> {
-    const value = val ? val : ' ';
+export const updateCustomProperty = (name: string, val?: string | undefined) => {
+    // if val is undefined, puts an empty string to force the default value of custom properties
+    const value = val ? val : '';
     document.body.style.setProperty(`${name}`, `${value}`);
 }

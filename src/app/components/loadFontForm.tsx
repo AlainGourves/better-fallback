@@ -31,7 +31,7 @@ export default function LoadFontForm() {
         })
     }
 
-    // 'X' button to remove previously selected font file
+    // 'X' button to remove font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
         dispatchFontInfos({
             type: "reset",

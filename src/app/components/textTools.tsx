@@ -6,6 +6,7 @@ import Switch from './form-components/switch/switch';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
 import { defaultUserData } from '@/app/context/userData';
 import ColorInput from './form-components/colorInput/colorInput';
+import { updateCustomProperty } from '../_lib/utils';
 
 const defaultAlpha = parseFloat(defaultUserData.opacity);
 const defaultFontSize = parseInt(defaultUserData.fontSize);
@@ -67,17 +68,17 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
 
     // Fallback font's Alpha -------------
     useEffect(() => {
-        document.body.style.setProperty('--fallback-opacity', alphaSlider.toString());
+        updateCustomProperty('--fallback-opacity', alphaSlider.toString());
     }, [alphaSlider]);
 
     // Fallback font's Family -------------
     useEffect(() => {
-        document.body.style.setProperty('--temoin-fs', `${fontSizeSlider}px`);
+        updateCustomProperty('--temoin-fs', `${fontSizeSlider}px`);
     }, [fontSizeSlider]);
 
     // Fallback font's Color -------------
     useEffect(() => {
-        document.body.style.setProperty('--fallback-color', `${fallbackColor}`);
+        updateCustomProperty('--fallback-color', `${fallbackColor}`);
     }, [fallbackColor]);
 
 

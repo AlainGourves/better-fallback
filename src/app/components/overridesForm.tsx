@@ -5,6 +5,7 @@ import RadioGroup from './form-components/radioGroup/radioGroup';
 import SubmitButton from './submitButton';
 import { FontInfosType, FallbackFontsType, LanguagesType } from '../_lib/types';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { updateCustomProperty } from '../_lib/utils';
 
 type OverridesFormProps = {
     fontInfos: FontInfosType,
@@ -54,7 +55,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ fontInfos, formActi
     useEffect(() => {
         const family = fallbackFontsOptions[userData.fallbackFont as FallbackFontsType].style;
         if (family && 'document' in window) {
-            document.body.style.setProperty('--fallback-family', family);
+            updateCustomProperty('--fallback-family', family);
         }
     }, [fallbackFontValue, userData])
 

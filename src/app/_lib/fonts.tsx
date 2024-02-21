@@ -1,7 +1,6 @@
 import Font, * as fontkit from 'fontkit';
-import { buffer } from 'stream/consumers';
 
-export const fetchFont = async (url: string, name:string): Promise<File> => {
+export const fetchFont = async (url: string, name: string): Promise<File> => {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText}`)
@@ -21,6 +20,24 @@ export const loadFont = async (fontName: string, file: File) => {
     }
 }
 
+export const unloadFont = (psName: string) => {
+    // font's postscriptName
+    try {
+        let theFont = null;
+        document.fonts.forEach((fnt) => {
+            if (fnt.family === psName) {
+                theFont = fnt;
+                console.log('Victoire --->', fnt.family)
+            }
+        });
+        if (theFont) {
+            document.fonts.delete(theFont);
+        }
+    } catch (err) {
+        throw new Error(`Problem unloading fonts from document: ${err}`)
+    }
+}
+
 export const fontKitLoad = async (file: File) => {
     const buff = await file.arrayBuffer();
     return fontkit.create(new Uint8Array(buff) as Buffer);
@@ -30,7 +47,7 @@ export const getFontType = async (file: File) => {
     // Check the file type (accepts only OTF, TTF, WOFF, WOFF2)
     // Returns the font type or null
     const fontFormats = ['font/otf', 'font/ttf', 'font/woff2', 'font/woff'];
-    let type= null;
+    let type = null;
     if (!file.type || !fontFormats.includes(file.type)) {
         // Reads the 4 first bytes of the file to get the font type
         const start = file.slice(0, 4) // Blob
@@ -59,8 +76,8 @@ export const getFontType = async (file: File) => {
 // Formats fonts size
 // n: number (size in bytes)
 // returns :string (size in ko, ex: '21.2ko')
-export const getFontSize = (n: number)=>{
-    let size:number|string = Math.round(n / 100) / 10;
+export const getFontSize = (n: number) => {
+    let size: number | string = Math.round(n / 100) / 10;
     if (!Number.isInteger(size)) {
         size = size.toFixed(1);
     }

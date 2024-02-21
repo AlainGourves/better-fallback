@@ -1,5 +1,7 @@
 import { createContext, useContext, ReactNode, useReducer } from "react";
 import { FontInfosType } from "@/app/_lib/types";
+import { unloadFont } from "../_lib/fonts";
+import { updateCustomProperty } from "../_lib/utils";
 
 export const defaultFontInfos = {
     url: null,
@@ -85,6 +87,12 @@ const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) =>
         }
 
         case 'reset': {
+            // delete FontFace from document.fonts & reset CSS custom prop
+            if (fontInfos.postscriptName){
+                unloadFont(fontInfos.postscriptName);
+                updateCustomProperty('--tested-font');
+                console.log("CouCou!")
+            }
             return defaultFontInfos
         }
 
