@@ -6,9 +6,9 @@ import SubmitButton from './submitButton';
 import { FontInfosType, FallbackFontsType, LanguagesType } from '../_lib/types';
 import { useUserData, useUserDataDispatch } from '@/app/context/userData';
 import { updateCustomProperty } from '../_lib/utils';
+import { useFontInfos } from '../context/fontContext';
 
 type OverridesFormProps = {
-    fontInfos: FontInfosType,
     formAction: string | ((formData: FormData) => void) | undefined,
 }
 
@@ -30,10 +30,12 @@ const fallbackFontsOptions = {
 };
 
 
-const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ fontInfos, formAction }, overridesSubmitRef) => {
+const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, overridesSubmitRef) => {
 
     const userData = useUserData();
     const dispatch = useUserDataDispatch();
+
+    const fontInfos = useFontInfos();
 
     const fontInfosDiv = useRef<HTMLDivElement>(null);
 
