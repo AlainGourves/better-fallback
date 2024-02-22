@@ -18,6 +18,8 @@ export type FontOverridesType = {
   descent: string,
   lineGap: string,
   sizeAdjust: string,
+  isActive: boolean,
+  overridesName: string,
 }
 
 export type FontInfosType = {

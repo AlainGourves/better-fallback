@@ -1,20 +1,20 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { useFormState } from "react-dom";
+import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
-import styles from './page.module.scss'
-import SectionCode from './components/sectionCode';
-import { useUserData, useUserDataDispatch } from '@/app/context/userData';
-import { useFontInfos, useFontInfosDispatch } from './context/fontContext';
+import { updateCustomProperty } from './_lib/utils';
 import { FontOverridesType } from './_lib/types';
+import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
+import { useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
-import { updateCustomProperty } from './_lib/utils';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
   loading: () => <p>Loading...</p>
@@ -89,7 +89,7 @@ export default function Home() {
     console.log("fontInfos", fontInfos)
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
-        const name = `fallback for ${fontInfos.postscriptName}`;
+        const name = overrides.overridesName;
         setFallbackFamilyName(name);
         const path = encodeURI(`/${overrides.file}`);
         const fbFont = new FontFace(
@@ -104,6 +104,7 @@ export default function Home() {
         );
         await fbFont.load();
         document.fonts.add(fbFont);
+        overrides.isActive = true;// TODO: set state
         updateCustomProperty('--fallback-family', name);
       } catch (err) {
         console.error(err);

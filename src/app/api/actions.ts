@@ -3,6 +3,7 @@
 import { readFileSync } from 'fs';
 import Font, * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
+import { FontOverridesType } from '../_lib/types';
 
 
 type FrequencyMap = {
@@ -41,6 +42,18 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
     // let font: Font.Font;
     let fontInfos = {};
 
+    const overridesObj: FontOverridesType = {
+        fullName: '',
+        postscriptName: '',
+        file: '',
+        ascent: '',
+        descent: '',
+        lineGap: '',
+        sizeAdjust: '',
+        isActive: false,
+        overridesName: '',
+    }
+
     const url = formData.get('fontUrl') as string;
     const file = formData.get('font-upload') as File;
     try {
@@ -77,8 +90,6 @@ const fallbacks = JSON.parse(rawdata);
 
 
 export async function getFontOverrides(prevState: ResponseType, formData: FormData) {
-
-
     console.log("hello from server");
 
     const fallbackFont = formData.get('fallbackFontSelect') as string;
@@ -101,6 +112,8 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
                 'descent': descent,
                 'lineGap': lineGap,
                 'sizeAdjust': formatForCSS(sizeAdjust),
+                'isActive': false,
+                'overridesName': `fallback for ${fallbackFontInfos.postscriptName}`
             }
         } else {
             throw new Error("I've lost the font! 😭");
@@ -187,7 +200,7 @@ const getSizeAdjust = async (font: Font.Font, fbInfos: FbFont, lang: string) => 
     if (avgWidthFallback) {
         const sizeAdjust = (avgWidthFont / avgWidthFallback) * (fallbackUPM / fontUPM);
         return sizeAdjust;
-    }else{
+    } else {
         throw new Error(`Impossible to get average width for ${fbInfos.fullName}`)
     }
 }
@@ -195,4 +208,4 @@ const getSizeAdjust = async (font: Font.Font, fbInfos: FbFont, lang: string) => 
 // returns percentages (with 2 digits precision)
 // Math.abs() is necessary as `descent` value is negative
 // whereas `descent-override` is a percentage
-const formatForCSS = (x:number) => `${parseFloat(Math.abs(x * 100).toFixed(2))}%`;
+const formatForCSS = (x: number) => `${parseFloat(Math.abs(x * 100).toFixed(2))}%`;
