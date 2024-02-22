@@ -2,11 +2,12 @@
 // localStorage only exists in browser !
 
 import React, { useState, useEffect } from "react";
-import TextTools from "./textTools";
-import { dummyText } from '../_lib/dummyText';
 import styles from './demoText.module.scss';
+import TextTools from "./textTools";
+import { dummyText } from '@/app/_lib/dummyText';
 import { LanguagesType } from '@/app/_lib/types';
-import { useUserDataDispatch, useUserData } from "../context/userData";
+import { useUserDataDispatch, useUserData } from "@/app/context/userData";
+import Switch from "./form-components/switch/switch";
 
 
 type Props = { lang: LanguagesType };
@@ -40,6 +41,8 @@ export default function DemoText(props: Props) {
     });
   }
 
+
+  // TODO:
   const pasteUserText = (ev: React.ClipboardEvent<HTMLDivElement>) => {
     // Captures the `paste` event to only get plain text instead of HTML rich content
     ev.preventDefault();
@@ -58,6 +61,11 @@ export default function DemoText(props: Props) {
     // console.log(showUserTextSwitch ? "j'édite" : "j'édite pas")
   }, [showUserTextSwitch])
 
+  // Handle wether the text is displayed with or without Fonts Metrics Overrides
+  const [displayFMO, setDisplayFMO] = useState(false);
+  const handleSwitchFMO = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setDisplayFMO(ev.target.checked);
+  }
 
   return (
     <div className={styles['text-container']}>
@@ -65,6 +73,14 @@ export default function DemoText(props: Props) {
         checked={showUserTextSwitch}
         onChange={handleShowUserTextSwitch}
       />
+      <div className={styles['sticker']}>
+        <Switch
+          id='apply-overrides'
+          label="Apply FMO"
+          checked={displayFMO}
+          onChange={handleSwitchFMO}
+        />
+      </div>
       <div
         className={styles.temoin}
         data-txt={showUserTextSwitch ? userText : text}
@@ -73,7 +89,7 @@ export default function DemoText(props: Props) {
         aria-multiline={showUserTextSwitch ? true : false}
         tabIndex={showUserTextSwitch ? 0 : -1}
         suppressContentEditableWarning={true}
-        onInput={(e)=> console.log(e.currentTarget.innerText)}
+        onInput={(e) => console.log(e.currentTarget.innerText)}
         onBlur={saveUserText}
         onPaste={pasteUserText}
       >
