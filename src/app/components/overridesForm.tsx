@@ -4,9 +4,10 @@ import Select from './form-components/select/select';
 import RadioGroup from './form-components/radioGroup/radioGroup';
 import SubmitButton from './submitButton';
 import { FontInfosType, FallbackFontsType, LanguagesType } from '../_lib/types';
-import { useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
 import { updateCustomProperty } from '../_lib/utils';
 import { useFontInfos } from '../context/fontContext';
+import { useOverrides, useOverridesDispatch } from '../context/overridesContext';
 
 type OverridesFormProps = {
     formAction: string | ((formData: FormData) => void) | undefined,
@@ -30,14 +31,16 @@ const fallbackFontsOptions = {
 };
 
 
-const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, overridesSubmitRef) => {
+const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overridesSubmitRef) => {
 
     const userData = useUserData();
-    const dispatch = useUserDataDispatch();
+    const dispatchUserData = useUserDataDispatch();
 
     const fontInfos = useFontInfos();
-
     const fontInfosDiv = useRef<HTMLDivElement>(null);
+
+    const overrides = useOverrides();
+    const dispatchOverrides = useOverridesDispatch();
 
     // `Select` for choosing fallback font
     const fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
@@ -45,13 +48,22 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, over
     let fallbackFontValue = fallbackFontDefault;
 
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-        if (ev.target.value) fallbackFontValue =ev.target.value as FallbackFontsType;
-        dispatch({
-            type: 'changeFontFamily',
-            payload: {
-                value: ev.target.value as FallbackFontsType
+        if (ev.target.value) {
+            const prev = fallbackFontDefault;
+            fallbackFontValue = ev.target.value as FallbackFontsType;
+            if (fallbackFontValue !== prev) {
+                // if the font changed, overrides need to be recomputed
+                dispatchOverrides({
+                    type: 'reset', payload: null
+                })
+                dispatchUserData({
+                    type: 'changeFontFamily',
+                    payload: {
+                        value: ev.target.value as FallbackFontsType
+                    }
+                });
             }
-        });
+        }
     }
 
     useEffect(() => {
@@ -72,7 +84,11 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, over
         const field = ev.currentTarget;
         const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
         if (selected) {
-            dispatch({
+            // if language changes, overrides need to be recomputed, so we start by resetting overrides
+            dispatchOverrides({
+                type: 'reset', payload: null
+            });
+            dispatchUserData({
                 type: 'changeLanguage',
                 payload: { value: selected.value as LanguagesType }
             });
@@ -152,6 +168,6 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, over
 
 // To prevent eslint errors
 // cf. https://stackoverflow.com/questions/67992894/component-definition-is-missing-display-name-for-forwardref
-OverridesForm.displayName='OverridesForm';
+OverridesForm.displayName = 'OverridesForm';
 
 export default OverridesForm;

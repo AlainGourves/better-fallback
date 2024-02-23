@@ -1,37 +1,36 @@
 'use client'
 // localStorage only exists in browser !
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from './demoText.module.scss';
 import TextTools from "./textTools";
 import { dummyText } from '@/app/_lib/dummyText';
-import { LanguagesType, FontOverridesType } from '@/app/_lib/types';
-import { useUserDataDispatch, useUserData } from "@/app/context/userData";
+import { useUserDataDispatch, useUserData } from "@/app/context/userDataContext";
 import Switch from "./form-components/switch/switch";
 import { updateCustomProperty } from "../_lib/utils";
+import { useOverrides, useOverridesDispatch } from "../context/overridesContext";
 
+export default function DemoText() {
 
-type Props = {
-  lang: LanguagesType,
-  overrides: FontOverridesType,
-};
-
-export default function DemoText(props: Props) {
+  const demoText = useRef<HTMLDivElement | null>(null);
 
   const userData = useUserData();
-  let userText = userData.userText;
-  const dispatch = useUserDataDispatch();
+  let userText = (userData.userText) ? userData.userText : '';
+  const dispatchUserData = useUserDataDispatch();
+
+  const overrides = useOverrides();
 
   const [showUserTextSwitch, setShowUserTextSwitch] = useState(userData.showUserText);
 
-  const lang = props.lang;
+  const lang = userData.language ? userData.language : 'en';
   const text = dummyText[(lang as keyof typeof dummyText)];
 
-  const overrides = props.overrides;
+  // To know when DemoText is edited by the user
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleShowUserTextSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setShowUserTextSwitch(ev.target?.checked);
-    dispatch({
+    dispatchUserData({
       type: 'showDemoText',
       payload: {
         value: ev.target?.checked,
@@ -40,8 +39,9 @@ export default function DemoText(props: Props) {
   }
 
   const saveUserText = (ev: React.FocusEvent<HTMLDivElement, Element>) => {
-    const newText = (ev.currentTarget.textContent) ? ev.currentTarget.textContent : '';
-    dispatch({
+    setIsEditing(false);
+    const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText : '';
+    dispatchUserData({
       type: 'changeDemoText',
       payload: { value: newText }
     });
@@ -69,12 +69,16 @@ export default function DemoText(props: Props) {
 
   useEffect(() => {
     setDisplayFMO(overrides.isActive);
-  }, [overrides]);
+  }, [overrides.isActive]);
 
   useEffect(() => {
     const val = displayFMO ? overrides.overridesName : overrides.postscriptName;
     updateCustomProperty('--fallback-family', val);
   }, [displayFMO, overrides]);
+
+  const handleInput = (ev: React.FormEvent<HTMLDivElement>) => {
+    setIsEditing(true);
+  }
 
   return (
     <div className={styles['text-container']}>
@@ -83,17 +87,18 @@ export default function DemoText(props: Props) {
         onChange={handleShowUserTextSwitch}
       />
 
-      {overrides.overridesName !== '' &&
+      {(overrides.overridesName !== '' && !isEditing) &&
         <div className={styles['sticker']}>
           <Switch
             id='apply-overrides'
-            label="Apply FMO"
+            label="FMO"
             checked={displayFMO}
             onChange={handleSwitchFMO}
           />
         </div>
       }
       <div
+        ref={demoText}
         className={styles.temoin}
         data-txt={showUserTextSwitch ? userText : text}
         contentEditable={showUserTextSwitch}
@@ -103,9 +108,9 @@ export default function DemoText(props: Props) {
         suppressContentEditableWarning={true}
         onBlur={saveUserText}
         onPaste={pasteUserText}
+        onInput={handleInput}
       >
-        {!showUserTextSwitch && text}
-        {(showUserTextSwitch && userText) && userText}
+        {(showUserTextSwitch) ? userText : text}
       </div>
     </div>
   );

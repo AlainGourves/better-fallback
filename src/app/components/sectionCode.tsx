@@ -5,17 +5,20 @@ import type { FontOverridesType} from '@/app/_lib/types'
 import { useEffect, useRef } from 'react';
 import Button from './form-components/button/button';
 import {copyToClipboard} from '../_lib/utils';
+import { useOverrides } from '../context/overridesContext';
 
 type CodeProps={
     overrides: FontOverridesType
 }
 
-export default function SectionCode({overrides}:CodeProps) {
+export default function SectionCode() {
     const codeRef = useRef<null|HTMLElement>(null);
 
     const className = `code ${sectionStyles['code-container']}`;
 
-    let code = `
+    const overrides = useOverrides();
+
+    const code = `
     @font-face {
         font-family: "${overrides.overridesName}";
         src: local("${overrides.fullName}"),

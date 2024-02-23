@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
-import { useUserData, useUserDataDispatch } from '@/app/context/userData';
-import { defaultUserData } from '@/app/context/userData';
+import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
+import { defaultUserData } from '@/app/context/userDataContext';
 import ColorInput from './form-components/colorInput/colorInput';
 import { updateCustomProperty } from '../_lib/utils';
 

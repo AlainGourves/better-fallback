@@ -9,8 +9,9 @@ import { FontOverridesType, overridesDefault } from './_lib/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
-import { useUserData, useUserDataDispatch } from '@/app/context/userData';
+import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
 import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
+import { useOverrides, useOverridesDispatch } from '@/app/context/overridesContext';
 
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
@@ -38,7 +39,8 @@ export default function Home() {
 
   const overridesSubmitRef = useRef<HTMLButtonElement>(null);
 
-  const [overrides, setOverrides] = useState(overridesDefault);
+  const overrides = useOverrides();
+  const dispatchOverrides = useOverridesDispatch();
 
   useEffect(() => {
     if (fontInfos.postscriptName) {
@@ -69,18 +71,20 @@ export default function Home() {
       // Update demo text font
       updateCustomProperty('--tested-font', `${fontInfos.postscriptName}`);
     };
-  }, [fontInfos.postscriptName]);
+  }, [fontInfos]);
 
   useEffect(() => {
     if (!fontInfos.url && !fontInfos.file) {
       // reset overrides
-      setOverrides(overridesDefault);
+      dispatchOverrides({
+        type: 'reset', payload: null
+      })
       // reset fontInfos to default values
       dispatchFontInfos({
         type: 'reset', payload: null
       });
     }
-  }, [fontInfos, dispatchFontInfos]);
+  }, [fontInfos, dispatchFontInfos, dispatchOverrides]);
 
   useEffect(() => {
     console.log("Page", overrides)
@@ -96,7 +100,13 @@ export default function Home() {
       console.warn("There was an error", overridesFormState.message)
       return;
     }
-    setOverrides(overridesFormState.message)
+    dispatchOverrides({
+      type: 'setInfos',
+      payload: overridesFormState.message
+    })
+  }, [overridesFormState, dispatchOverrides]);
+
+  useEffect(() => {
     console.log("overrides page", overrides)
     // console.log("fontInfos", fontInfos)
     const loadFallBackFont = async (overrides: FontOverridesType) => {
@@ -135,7 +145,7 @@ export default function Home() {
         }, 250); // without this delay, scroll doesn't stop  in the right position (probably by React haven't finished reconstructing the DOM)
       }
     }
-  }, [overridesFormState, overrides])
+  }, [overrides])
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
   const userData = useUserData();
@@ -177,15 +187,10 @@ export default function Home() {
         formAction={overridesFormAction}
       />
 
-      <DynamicDemoText
-        lang={userData.language}
-        overrides={{ ...overrides }}
-      />
+      <DynamicDemoText />
 
       {overrides.overridesName !== '' && (
-        <SectionCode
-          overrides={{ ...overrides }}
-        />
+        <SectionCode />
       )}
     </main>
   )
