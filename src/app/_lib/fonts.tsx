@@ -27,7 +27,6 @@ export const unloadFont = (psName: string) => {
         document.fonts.forEach((fnt) => {
             if (fnt.family === psName) {
                 theFont = fnt;
-                console.log('Victoire --->', fnt.family)
             }
         });
         if (theFont) {

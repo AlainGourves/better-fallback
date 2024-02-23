@@ -46,4 +46,8 @@ const Button = forwardRef<Ref, ButtonProps>((props, ref) => {
     )
 });
 
+// To prevent eslint errors
+Button.displayName='Button';
+
+
 export default Button;

@@ -7,8 +7,8 @@ import FontFile from './fontFile';
 import TextInput from './form-components/textInput/textInput';
 import SubmitButton from './submitButton';
 import { URLValidator, listAcceptable } from '../_lib/utils';
-import { fontTypes, FontTypes, FontInfosType } from '@/app/_lib/types'
-import { useFontInfos, useFontInfosDispatch } from '../context/fontContext';
+import { fontTypes, FontTypes } from '@/app/_lib/types'
+import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 
 export default function LoadFontForm() {
     const fontInfos = useFontInfos();
@@ -85,7 +85,7 @@ export default function LoadFontForm() {
                 }
             });
         }
-    }, [loadFormState]);
+    }, [loadFormState,dispatchFontInfos]);
 
 
     // Error handling ---------------

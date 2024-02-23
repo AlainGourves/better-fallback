@@ -6,30 +6,27 @@ import { useEffect, useRef } from 'react';
 import Button from './form-components/button/button';
 import {copyToClipboard} from '../_lib/utils';
 
-type SectionCodeType = {
-    fallbackName: string,
+type CodeProps={
     overrides: FontOverridesType
 }
 
-export default function SectionCode(props: SectionCodeType) {
+export default function SectionCode({overrides}:CodeProps) {
     const codeRef = useRef<null|HTMLElement>(null);
-
-    const name = props.fallbackName
-    const overrrides = props.overrides;
 
     const className = `code ${sectionStyles['code-container']}`;
 
     let code = `
     @font-face {
-        font-family: "${name}";
-        src: local("${overrrides.fullName}"),
-             local("${overrrides.postscriptName}");
-        size-adjust: ${overrrides.sizeAdjust};
-        ascent-override: ${overrrides.ascent};
-        descent-override: ${overrrides.descent};
-        line-gap-override: ${overrrides.lineGap};
+        font-family: "${overrides.overridesName}";
+        src: local("${overrides.fullName}"),
+             local("${overrides.postscriptName}");
+        size-adjust: ${overrides.sizeAdjust};
+        ascent-override: ${overrides.ascent};
+        descent-override: ${overrides.descent};
+        line-gap-override: ${overrides.lineGap};
     }`;
 
+    // TODO: signaler que c'est copié (autrement qu'avec un console!)
     const handleClick = (ev:React.MouseEvent<HTMLButtonElement, MouseEvent>)=>{
         if (codeRef.current){
             let css = codeRef.current.dataset.css;

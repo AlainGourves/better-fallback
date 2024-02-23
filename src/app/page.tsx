@@ -5,7 +5,7 @@ import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
 import { updateCustomProperty } from './_lib/utils';
-import { FontOverridesType } from './_lib/types';
+import { FontOverridesType, overridesDefault } from './_lib/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
@@ -25,19 +25,24 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
   sizeAdjust?: string
 }
 
+// for server actions
+const initialState = {
+  success: false,
+  message: null,
+}
+
 export default function Home() {
 
   const fontInfos = useFontInfos();
   const dispatchFontInfos = useFontInfosDispatch();
 
-  const [fallbackFamilyName, setFallbackFamilyName] = useState<string | null>(null);
-
   const overridesSubmitRef = useRef<HTMLButtonElement>(null);
 
+  const [overrides, setOverrides] = useState(overridesDefault);
 
   useEffect(() => {
     if (fontInfos.postscriptName) {
-      console.log("useEffect 36", fontInfos)
+      // console.log("useEffect 52", fontInfos)
 
       const loadFontInDocument = async () => {
         try {
@@ -64,10 +69,12 @@ export default function Home() {
       // Update demo text font
       updateCustomProperty('--tested-font', `${fontInfos.postscriptName}`);
     };
-  }, [fontInfos]);
+  }, [fontInfos.postscriptName]);
 
   useEffect(() => {
     if (!fontInfos.url && !fontInfos.file) {
+      // reset overrides
+      setOverrides(overridesDefault);
       // reset fontInfos to default values
       dispatchFontInfos({
         type: 'reset', payload: null
@@ -75,22 +82,26 @@ export default function Home() {
     }
   }, [fontInfos, dispatchFontInfos]);
 
-  // Server actions
-  const initialState = {
-    success: false,
-    message: null,
-  }
+  useEffect(() => {
+    console.log("Page", overrides)
+  }, [overrides])
 
+  // Server actions
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
-    const overrides = overridesFormState.message;
-    console.log("overrides", overrides)
-    console.log("fontInfos", fontInfos)
+    if (!overridesFormState.message) return;
+    if (!overridesFormState.success && overridesFormState.message) {
+      // TODO: gestion erreur en fonction de `.message`
+      console.warn("There was an error", overridesFormState.message)
+      return;
+    }
+    setOverrides(overridesFormState.message)
+    console.log("overrides page", overrides)
+    // console.log("fontInfos", fontInfos)
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
         const name = overrides.overridesName;
-        setFallbackFamilyName(name);
         const path = encodeURI(`/${overrides.file}`);
         const fbFont = new FontFace(
           name,
@@ -104,31 +115,27 @@ export default function Home() {
         );
         await fbFont.load();
         document.fonts.add(fbFont);
-        overrides.isActive = true;// TODO: set state
         updateCustomProperty('--fallback-family', name);
       } catch (err) {
         console.error(err);
       }
     }
-    if (overrides && overrides.fullName) {
+    if (overrides.fullName !== '') {
       loadFallBackFont(overrides);
       // Scroll demo text into view
-      if (fontInfos.fullName) {
-        const btn = overridesSubmitRef.current;
-        if (btn) {
-          const rect = btn.getBoundingClientRect();
-          setTimeout(() => {
-            const y = window.scrollY + rect.y - 16;
-            window.scrollTo({
-              top: y,
-              behavior: "auto"
-            });
-            console.log('yo!')
-          }, 250); // without this delay, scroll doesn't stop  in the right position (probably by React haven't finished reconstructing the DOM)
-        }
+      const btn = overridesSubmitRef.current;
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        setTimeout(() => {
+          const y = window.scrollY + rect.y - 16;
+          window.scrollTo({
+            top: y,
+            behavior: "auto"
+          });
+        }, 250); // without this delay, scroll doesn't stop  in the right position (probably by React haven't finished reconstructing the DOM)
       }
     }
-  }, [overridesFormState, fontInfos])
+  }, [overridesFormState, overrides])
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
   const userData = useUserData();
@@ -167,18 +174,17 @@ export default function Home() {
 
       <OverridesForm
         ref={overridesSubmitRef}
-        fontInfos={fontInfos}
         formAction={overridesFormAction}
       />
 
       <DynamicDemoText
         lang={userData.language}
+        overrides={{ ...overrides }}
       />
 
-      {fallbackFamilyName && (
+      {overrides.overridesName !== '' && (
         <SectionCode
-          fallbackName={fallbackFamilyName}
-          overrides={overridesFormState?.message}
+          overrides={{ ...overrides }}
         />
       )}
     </main>

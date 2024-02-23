@@ -15,9 +15,7 @@ export const defaultFontInfos = {
 
 type Action =
     | { type: 'setFile', payload: { value: File } }
-    | { type: 'eraseFile', payload: null }
     | { type: 'setURL', payload: { value: string } }
-    | { type: 'eraseURL', payload: null }
     | { type: 'setInfos', payload: object }
     | { type: 'reset'; payload: null };
 
@@ -51,31 +49,15 @@ const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) =>
     switch (type) {
         case 'setFile': {
             return {
-                ...fontInfos,
+                ...defaultFontInfos,
                 file: payload.value,
-                url: null
-            }
-        }
-
-        case 'eraseFile': {
-            return {
-                ...fontInfos,
-                file: null
             }
         }
 
         case 'setURL': {
             return {
-                ...fontInfos,
-                file: null,
+                ...defaultFontInfos,
                 url: payload.value
-            }
-        }
-
-        case 'eraseURL': {
-            return{
-                ...fontInfos,
-                url: null
             }
         }
 
@@ -91,7 +73,6 @@ const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) =>
             if (fontInfos.postscriptName){
                 unloadFont(fontInfos.postscriptName);
                 updateCustomProperty('--tested-font');
-                console.log("CouCou!")
             }
             return defaultFontInfos
         }

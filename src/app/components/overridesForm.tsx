@@ -40,12 +40,12 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, over
     const fontInfosDiv = useRef<HTMLDivElement>(null);
 
     // `Select` for choosing fallback font
-    let fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
+    const fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
 
-    const [fallbackFontValue, setFallbackFontValue] = useState(fallbackFontDefault);
+    let fallbackFontValue = fallbackFontDefault;
 
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-        if (ev.target.value) setFallbackFontValue(ev.target.value as FallbackFontsType);
+        if (ev.target.value) fallbackFontValue =ev.target.value as FallbackFontsType;
         dispatch({
             type: 'changeFontFamily',
             payload: {
@@ -55,11 +55,12 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, over
     }
 
     useEffect(() => {
-        const family = fallbackFontsOptions[userData.fallbackFont as FallbackFontsType].style;
+        const font = (userData.fallbackFont) ? userData.fallbackFont : fallbackFontValue;
+        const family = fallbackFontsOptions[font as FallbackFontsType]?.style;
         if (family && 'document' in window) {
             updateCustomProperty('--fallback-family', family);
         }
-    }, [fallbackFontValue, userData])
+    }, [fallbackFontValue, userData.fallbackFont])
 
     // `RadioGroup` for choosing the target language
     const languageOptions = [
@@ -148,5 +149,9 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({  formAction }, over
         </form>
     )
 });
+
+// To prevent eslint errors
+// cf. https://stackoverflow.com/questions/67992894/component-definition-is-missing-display-name-for-forwardref
+OverridesForm.displayName='OverridesForm';
 
 export default OverridesForm;

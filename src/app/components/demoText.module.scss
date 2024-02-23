@@ -15,7 +15,7 @@
   font-size: var(--temoin-fs, 24px);
   text-rendering: optimizeSpeed; // Important ! Somes shiftings without it in Chrome and Safari
   overscroll-behavior-y: contain; // prevent scroll chaining
-  scrollbar-gutter: stable both-edges;
+  // scrollbar-gutter: stable both-edges;
   text-wrap: pretty;
   white-space: pre-line;
   position: relative;
@@ -43,7 +43,7 @@
     content: '';
   }
 
-  &:empty::after{
+  &:empty::after {
     // pseudo placeholder for when the user wants to edit demo text & the DIV is empty
     content: "Type your text...";
     font-style: italic;
@@ -53,7 +53,7 @@
   }
 }
 
-.sticker{
+.sticker {
   background: hsl(70 84% 10% /.85);
   color: #fff;
   width: 12ch;

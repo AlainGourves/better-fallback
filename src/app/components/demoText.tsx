@@ -5,12 +5,16 @@ import React, { useState, useEffect } from "react";
 import styles from './demoText.module.scss';
 import TextTools from "./textTools";
 import { dummyText } from '@/app/_lib/dummyText';
-import { LanguagesType } from '@/app/_lib/types';
+import { LanguagesType, FontOverridesType } from '@/app/_lib/types';
 import { useUserDataDispatch, useUserData } from "@/app/context/userData";
 import Switch from "./form-components/switch/switch";
+import { updateCustomProperty } from "../_lib/utils";
 
 
-type Props = { lang: LanguagesType };
+type Props = {
+  lang: LanguagesType,
+  overrides: FontOverridesType,
+};
 
 export default function DemoText(props: Props) {
 
@@ -22,6 +26,8 @@ export default function DemoText(props: Props) {
 
   const lang = props.lang;
   const text = dummyText[(lang as keyof typeof dummyText)];
+
+  const overrides = props.overrides;
 
   const handleShowUserTextSwitch = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setShowUserTextSwitch(ev.target?.checked);
@@ -55,17 +61,20 @@ export default function DemoText(props: Props) {
     selection.collapseToEnd();
   }
 
-  // Edit Switch -------------
-  useEffect(() => {
-    // Make the demo text DIV editable
-    // console.log(showUserTextSwitch ? "j'édite" : "j'édite pas")
-  }, [showUserTextSwitch])
-
   // Handle wether the text is displayed with or without Fonts Metrics Overrides
   const [displayFMO, setDisplayFMO] = useState(false);
   const handleSwitchFMO = (ev: React.ChangeEvent<HTMLInputElement>) => {
     setDisplayFMO(ev.target.checked);
   }
+
+  useEffect(() => {
+    setDisplayFMO(overrides.isActive);
+  }, [overrides]);
+
+  useEffect(() => {
+    const val = displayFMO ? overrides.overridesName : overrides.postscriptName;
+    updateCustomProperty('--fallback-family', val);
+  }, [displayFMO, overrides]);
 
   return (
     <div className={styles['text-container']}>
@@ -73,14 +82,17 @@ export default function DemoText(props: Props) {
         checked={showUserTextSwitch}
         onChange={handleShowUserTextSwitch}
       />
-      <div className={styles['sticker']}>
-        <Switch
-          id='apply-overrides'
-          label="Apply FMO"
-          checked={displayFMO}
-          onChange={handleSwitchFMO}
-        />
-      </div>
+
+      {overrides.overridesName !== '' &&
+        <div className={styles['sticker']}>
+          <Switch
+            id='apply-overrides'
+            label="Apply FMO"
+            checked={displayFMO}
+            onChange={handleSwitchFMO}
+          />
+        </div>
+      }
       <div
         className={styles.temoin}
         data-txt={showUserTextSwitch ? userText : text}
@@ -89,7 +101,6 @@ export default function DemoText(props: Props) {
         aria-multiline={showUserTextSwitch ? true : false}
         tabIndex={showUserTextSwitch ? 0 : -1}
         suppressContentEditableWarning={true}
-        onInput={(e) => console.log(e.currentTarget.innerText)}
         onBlur={saveUserText}
         onPaste={pasteUserText}
       >

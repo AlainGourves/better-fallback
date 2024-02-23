@@ -13,13 +13,25 @@ export type LanguagesType = typeof languages[number];
 export type FontOverridesType = {
   fullName: string,
   postscriptName: string,
-  file: string,
+  file: string, // path to the fallback fonts in /public
   ascent: string,
   descent: string,
   lineGap: string,
   sizeAdjust: string,
   isActive: boolean,
   overridesName: string,
+}
+
+export const overridesDefault = {
+  fullName: '',
+  postscriptName: '',
+  file: '',
+  ascent: '',
+  descent: '',
+  lineGap: '',
+  sizeAdjust: '',
+  isActive: false,
+  overridesName: ''
 }
 
 export type FontInfosType = {

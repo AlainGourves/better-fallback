@@ -3,7 +3,7 @@
 import { readFileSync } from 'fs';
 import Font, * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
-import { FontOverridesType } from '../_lib/types';
+import { FontOverridesType, overridesDefault } from '../_lib/types';
 
 
 type FrequencyMap = {
@@ -41,18 +41,6 @@ let myFont: Font.Font | undefined;
 export async function getFontInfos(prevState: ResponseType, formData: FormData) {
     // let font: Font.Font;
     let fontInfos = {};
-
-    const overridesObj: FontOverridesType = {
-        fullName: '',
-        postscriptName: '',
-        file: '',
-        ascent: '',
-        descent: '',
-        lineGap: '',
-        sizeAdjust: '',
-        isActive: false,
-        overridesName: '',
-    }
 
     const url = formData.get('fontUrl') as string;
     const file = formData.get('font-upload') as File;
@@ -95,7 +83,7 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
     const fallbackFont = formData.get('fallbackFontSelect') as string;
     const lang = formData.get('targetLanguage') as string;
 
-    let fontOverrides = {};
+    let fontOverrides = overridesDefault;
     try {
         if (myFont) {
             const fallbackFontInfos = getFallbackInfos(fallbackFont);
@@ -112,8 +100,8 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
                 'descent': descent,
                 'lineGap': lineGap,
                 'sizeAdjust': formatForCSS(sizeAdjust),
-                'isActive': false,
-                'overridesName': `fallback for ${fallbackFontInfos.postscriptName}`
+                'isActive': true,
+                'overridesName': `fallback for ${myFont.postscriptName}`
             }
         } else {
             throw new Error("I've lost the font! 😭");
