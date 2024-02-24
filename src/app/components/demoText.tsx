@@ -40,11 +40,15 @@ export default function DemoText() {
 
   const saveUserText = (ev: React.FocusEvent<HTMLDivElement, Element>) => {
     setIsEditing(false);
-    const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText : '';
-    dispatchUserData({
-      type: 'changeDemoText',
-      payload: { value: newText }
-    });
+    // Important ! contentEditable attribute is an enumerated one and not a Boolean one
+    // its value is a string, not a bool
+    if (demoText.current?.contentEditable==='true') {
+      const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText : '';
+      dispatchUserData({
+        type: 'changeDemoText',
+        payload: { value: newText }
+      });
+    }
   }
 
 
