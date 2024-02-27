@@ -86,9 +86,9 @@ export default function Home() {
     }
   }, [fontInfos, dispatchFontInfos, dispatchOverrides]);
 
-  useEffect(() => {
-    console.log("Page", overrides)
-  }, [overrides])
+  // useEffect(() => {
+  //   console.log("Page", overrides)
+  // }, [overrides])
 
   // Server actions
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
@@ -107,7 +107,7 @@ export default function Home() {
   }, [overridesFormState, dispatchOverrides]);
 
   useEffect(() => {
-    console.log("overrides page", overrides)
+    // console.log("overrides page", overrides)
     // console.log("fontInfos", fontInfos)
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {

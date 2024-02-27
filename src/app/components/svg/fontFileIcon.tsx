@@ -1,4 +1,5 @@
-const FontFileIcon = (props:any) => (
+import { SVGProps } from "react"
+const FontFileIcon = (props:SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" {...props}>
     <path
       fill="#c1c4ba"

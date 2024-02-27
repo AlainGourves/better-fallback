@@ -120,11 +120,12 @@ svg{
   0%,
   100% {
     box-shadow: 0 0 0 #fff;
+    scale: 1;
   }
 
   25%,
   75% {
-    box-shadow: 0 0 0 2px #fff,
+    box-shadow: 0 0 0 1px #fff,
       0 0 0 #fff;
   }
 
@@ -135,14 +136,15 @@ svg{
 
   50%,
   60% {
-    box-shadow: 0 0 0 2px #fff,
+    box-shadow: 0 0 0 1px #fff,
       0 0 1em #fff;
     background-color: #ffffff54;
+    scale: 1.05;
   }
 }
 
 .glow{
-  animation: glow .5s linear 2;
+  animation: glow .35s linear 2;
   // animation-delay: .5s;
   border-radius: .5em;
 }

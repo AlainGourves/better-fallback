@@ -6,6 +6,8 @@ import { useEffect, useRef } from 'react';
 import Button from './form-components/button/button';
 import {copyToClipboard} from '../_lib/utils';
 import { useOverrides } from '../context/overridesContext';
+import { useFontInfos } from '../context/fontContext';
+import { fontKitLoad } from '../_lib/fonts';
 
 type CodeProps={
     overrides: FontOverridesType
@@ -16,6 +18,7 @@ export default function SectionCode() {
 
     const className = `code ${sectionStyles['code-container']}`;
 
+    const fontInfos = useFontInfos();
     const overrides = useOverrides();
 
     const code = `
@@ -27,6 +30,11 @@ export default function SectionCode() {
         ascent-override: ${overrides.ascent};
         descent-override: ${overrides.descent};
         line-gap-override: ${overrides.lineGap};
+    }
+
+    /* Usage: */
+    body {
+        font-family: "${fontInfos.fullName}", "${overrides.overridesName}";
     }`;
 
     // TODO: signaler que c'est copié (autrement qu'avec un console!)

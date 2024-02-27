@@ -42,7 +42,7 @@ export default function DemoText() {
     setIsEditing(false);
     // Important ! contentEditable attribute is an enumerated one and not a Boolean one
     // its value is a string, not a bool
-    if (demoText.current?.contentEditable==='true') {
+    if (demoText.current?.contentEditable === 'true') {
       const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText : '';
       dispatchUserData({
         type: 'changeDemoText',
@@ -76,8 +76,10 @@ export default function DemoText() {
   }, [overrides.isActive]);
 
   useEffect(() => {
-    const val = displayFMO ? overrides.overridesName : overrides.postscriptName;
-    updateCustomProperty('--fallback-family', val);
+    if (overrides.overridesName || overrides.postscriptName) {
+      const val = displayFMO ? overrides.overridesName : overrides.postscriptName;
+      updateCustomProperty('--fallback-family', val);
+    }
   }, [displayFMO, overrides]);
 
   const handleInput = (ev: React.FormEvent<HTMLDivElement>) => {
