@@ -93,7 +93,6 @@ export default function LoadFontForm() {
 
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
-            console.log("yes, mama!")
             dispatchFontInfos({
                 type: "setFile",
                 payload: {
@@ -235,9 +234,9 @@ export default function LoadFontForm() {
                                     onClick={open}
                                 >Browse</button>
                             </span>
-                            {fontInfos.fullName && (
+                            {fontInfos.file && (
                                 <FontFile
-                                    name={fontInfos.fullName}
+                                    name={fontInfos.file.name}
                                     onClick={handleRemoveFontFile}
                                 />
                             )}
