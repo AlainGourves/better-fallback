@@ -1,5 +1,5 @@
 import FontFileStyles from './fontFile.module.scss';
-import CloseBtn from './closeBtn/closeBtn';
+import CloseBtn from './form-components/closeBtn/closeBtn';
 import { Icon } from './Icon';
 
 type FontFileProps = {

@@ -3,7 +3,6 @@ import { useFormState } from 'react-dom';
 import formStyles from './loadFontForm.module.scss';
 import clsx from 'clsx';
 import { getFontInfos } from '@/app/api/actions';
-import Image from 'next/image';
 import FontFile from './fontFile';
 import TextInput from './form-components/textInput/textInput';
 import SubmitButton from './submitButton';
@@ -93,10 +92,11 @@ export default function LoadFontForm() {
 
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
-            setFontInfos({
-                ...fontInfos,
-                file: acceptedFiles[0],
-                name: acceptedFiles[0].name,
+            dispatchFontInfos({
+                type: "setFile",
+                payload: {
+                    value: acceptedFiles[0]
+                }
             })
         }
         if (fileRejections.length) {
@@ -233,9 +233,9 @@ export default function LoadFontForm() {
                                     onClick={open}
                                 >Browse</button>
                             </span>
-                            {fontInfos.name && (
+                            {fontInfos.fullName && (
                                 <FontFile
-                                    name={fontInfos.name}
+                                    fullName={fontInfos.name}
                                     onClick={handleRemoveFontFile}
                                 />
                             )}
