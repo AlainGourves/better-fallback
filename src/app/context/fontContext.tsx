@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useReducer } from "react";
-import { FontInfosType } from "@/app/_lib/types";
+import { FontInfosType } from "../../../types/types";
 import { unloadFont } from "../_lib/fonts";
 import { updateCustomProperty } from "../_lib/utils";
 

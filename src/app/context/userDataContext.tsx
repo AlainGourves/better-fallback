@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useReducer, useContext, ReactNode } from "react";
-import { FallbackFontsType, LanguagesType, UserDataType } from "@/app/_lib/types";
+import { FallbackFontsType, LanguagesType, UserDataType } from "../../../types/types";
 
 
 export const defaultUserData = {

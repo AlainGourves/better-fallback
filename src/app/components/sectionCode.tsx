@@ -1,7 +1,7 @@
 import Prism from 'prismjs';
 import "prismjs/themes/prism-tomorrow.css";
 import sectionStyles from './sectionCode.module.scss';
-import type { FontOverridesType} from '@/app/_lib/types'
+import type { FontOverridesType} from '../../../types/types'
 import { useEffect, useRef } from 'react';
 import Button from './form-components/button/button';
 import {copyToClipboard} from '../_lib/utils';

@@ -3,7 +3,7 @@ import formStyles from './overridesForm.module.scss';
 import Select from './form-components/select/select';
 import RadioGroup from './form-components/radioGroup/radioGroup';
 import SubmitButton from './submitButton';
-import { FallbackFontsType, LanguagesType } from '../_lib/types';
+import { FallbackFontsType, LanguagesType } from '../../../types/types';
 import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
 import { updateCustomProperty } from '../_lib/utils';
 import { useFontInfos } from '../context/fontContext';

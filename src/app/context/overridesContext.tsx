@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useReducer } from "react";
-import { FontOverridesType, overridesDefault } from "../_lib/types";
+import { FontOverridesType, overridesDefault } from "../../../types/types";
 
 type Action =
     | { type: 'setInfos', payload: object }

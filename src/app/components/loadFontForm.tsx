@@ -7,7 +7,7 @@ import FontFile from './fontFile';
 import TextInput from './form-components/textInput/textInput';
 import SubmitButton from './submitButton';
 import { URLValidator, listAcceptable } from '../_lib/utils';
-import { fontTypes, FontTypes } from '@/app/_lib/types'
+import { fontTypes, FontTypes } from '../../../types/types'
 import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 import { useDropzone, FileRejection } from 'react-dropzone';
 import { Icon } from './Icon';
@@ -31,6 +31,7 @@ export default function LoadFontForm() {
 
     // Input[File] for selecting a font
     const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("handleFontFile")
         if (!ev.target.files) return;
         dispatchFontInfos({
             type: "setFile",
@@ -92,12 +93,13 @@ export default function LoadFontForm() {
 
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
+            console.log("yes, mama!")
             dispatchFontInfos({
                 type: "setFile",
                 payload: {
                     value: acceptedFiles[0]
                 }
-            })
+            });
         }
         if (fileRejections.length) {
             setError(true);
@@ -235,7 +237,7 @@ export default function LoadFontForm() {
                             </span>
                             {fontInfos.fullName && (
                                 <FontFile
-                                    fullName={fontInfos.name}
+                                    name={fontInfos.fullName}
                                     onClick={handleRemoveFontFile}
                                 />
                             )}
@@ -247,10 +249,11 @@ export default function LoadFontForm() {
                             ref={urlRef}
                             id={'fontUrl'}
                             type={'url'}
-                            value=''
+                            value={fontInfos.url ? fontInfos.url : ''}
                             placeholder={'Paste a font URL'}
-                            onChange={(e) => console.log(e.target.value)}
+                            onChange={handleFontURL}
                             title='Erase field'
+                            onClick={eraseTextInput}
                         />
                         <SubmitButton
                             id="select-font-submit"

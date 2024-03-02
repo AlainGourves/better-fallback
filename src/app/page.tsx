@@ -5,7 +5,7 @@ import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
 import { updateCustomProperty } from './_lib/utils';
-import { FontOverridesType, overridesDefault } from './_lib/types';
+import { FontOverridesType, overridesDefault } from '../../types/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';

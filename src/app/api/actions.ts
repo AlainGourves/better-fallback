@@ -3,7 +3,7 @@
 import { readFileSync } from 'fs';
 import Font, * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
-import { FontOverridesType, overridesDefault } from '../_lib/types';
+import { FontOverridesType, overridesDefault } from '../../../types/types';
 
 
 type FrequencyMap = {
