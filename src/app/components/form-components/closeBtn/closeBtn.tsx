@@ -1,4 +1,4 @@
-import CloseIcon from '../../svg/closeIcon';
+import { Icon } from '../../Icon';
 import closeBtnStyles from './closeBtn.module.scss';
 
 type CloseBtnProps = {
@@ -16,7 +16,7 @@ export default function CloseBtn(props: CloseBtnProps) {
             tabIndex={-1} // button is not focusable
             onClick={props.onClick}
         >
-            <CloseIcon  />
+            <Icon name={'x-circle'} />
         </button>
     )
 }

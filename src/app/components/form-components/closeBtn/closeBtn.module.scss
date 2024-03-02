@@ -1,6 +1,6 @@
 // Button with a 'X' icon
 .close-btn {
-    --__w: .8rem;
+    --__w: 1.25em;
     appearance: none;
     border: none;
     width: var(--__w);
@@ -8,14 +8,19 @@
     background-color: rgb(255 255 255 / .25);
     border-radius: calc(var(--__w)/2);
     display: grid;
-    color: rgb(0 0 0 / .6);
+    color: rgb(0 0 0 / .55);
     place-content: center;
     transition: background-color var(--anim-dur) linear,
             color var(--anim-dur) linear;
     cursor: pointer;
 
     &:hover {
-        color: rgb(0 0 0 );
-        background-color: rgb(255 255 255 / .75);
+        color: #fff;
+        background-color: rgb(255 255 255 / .35);
+    }
+
+    & svg{
+        width: var(--__w);
+        height: var(--__w);
     }
   }

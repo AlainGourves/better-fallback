@@ -1,15 +1,32 @@
-.font-file{
-    display:grid;
+.font-file {
+    display: grid;
     grid-template-columns: 2rem auto 2rem;
     align-items: center;
+    height: 2rem;
     font-size: .75em;
     padding: .25em .5em;
     border-radius: .5em;
     background: rgb(0 0 0 / 0.25);
     color: #fff;
+    box-shadow:
+        0 1px 3px rgb(0 0 0 /.2),
+        inset 0 -1px 0.5px rgb(0 0 0 / .3),
+        inset 0 1px 0.5px rgb(255 255 255 / .5);
 
-    & >:last-child{
+
+    & span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &>:last-child {
         margin-inline-start: .5rem;
         justify-self: center;
     }
-  }
+
+    & .icon {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}

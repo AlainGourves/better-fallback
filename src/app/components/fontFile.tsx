@@ -1,6 +1,6 @@
 import FontFileStyles from './fontFile.module.scss';
-import CloseBtn from './form-components/closeBtn/closeBtn';
-import FontFileIcon from './svg/fontFileIcon';
+import CloseBtn from './closeBtn/closeBtn';
+import { Icon } from './Icon';
 
 type FontFileProps = {
     name: string,
@@ -12,7 +12,7 @@ export default function FontFile(props: FontFileProps) {
 
     return (
         <div className={FontFileStyles['font-file']}>
-            <FontFileIcon  width="24" height="24" />
+            <Icon name={'font-file'} className={FontFileStyles['icon']} />
             <span>{props.name}</span>
             <CloseBtn
                 title='Remove font file'

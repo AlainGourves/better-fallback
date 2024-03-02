@@ -1,45 +1,99 @@
 .select-font {
-    background-color: yellowgreen;
+    --drop-bg: yellowgreen;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
+    background-color: var(--drop-bg);
+    border-radius: .5rem;
+}
 
-    &>div {
+.dropzone {
+    --w: 12rem;
+    position: relative;
 
-        &:nth-of-type(1) {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
+    &>* {
+        border-radius: .5rem;
+    }
 
-            & img {
-                justify-self: center;
+    & .base {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        padding: 1rem;
+
+        &>div {
+            &:nth-of-type(1) {
+                display: grid;
+                align-items: center;
+                justify-content: end;
+
+                background-image: url('/letter.svg');
+                background-repeat: no-repeat;
+                background-position: max(0%, calc((100% - var(--w))/2)) 50%;
+            }
+
+            &:nth-of-type(2) {
+                display: grid;
+                place-content: center;
+            }
+
+            &:nth-of-type(3) {
+                display: grid;
+                grid-template-columns: auto 8.5rem;
+                align-items: center;
+                gap: .5rem;
             }
         }
+    }
 
-        &:nth-of-type(2) {
-            display: grid;
-            place-content: center;
-            ;
+
+    & .hover {
+        position: absolute;
+        inset: 0;
+        display: none;
+        background: var(--drop-bg);
+        padding: 1rem;
+        color: #fff;
+
+        &.active {
+            z-index: 1;
+            display: block;
         }
 
-        &:nth-of-type(3) {
-            display: grid;
-            grid-template-columns: auto 8.5rem;
-            align-items: center;
-            gap: .5rem;
+        &.error {
+            --drop-bg: orangered;
         }
+    }
+
+    & .message {
+        --drop-bdr: color-mix(in oklch, var(--drop-bg), #fff 40%);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        padding: 1rem;
+        text-align: center;
+        border: 4px dashed var(--drop-bdr, #fff);
+        border-radius: .5em;
     }
 }
 
+
 .drop-instructions {
+    width: var(--w);
+    min-height: var(--w);
     display: flex;
     flex-direction: column;
-    gap: 1rem;
     align-items: center;
+    justify-content: center;
+    gap: 1rem;
 
-    & label[for=font-upload] {
+    & button {
+        appearance: none;
+        border: none;
+        font: inherit;
         font-weight: 600;
+        background: transparent;
 
         &:hover {
             cursor: pointer;
@@ -57,14 +111,6 @@
         position: absolute;
         z-index: -1;
     }
-
-    & .font-file {
-        font-size: .75em;
-        padding: .25em .5em;
-        border-radius: .5em;
-        background: rgb(255 255 255 / 0.5);
-        border: 1px solid #fff;
-    }
 }
 
 .error-msg-container {
@@ -74,9 +120,24 @@
 .error-msg {
     padding: .5rem;
     background: #ff6701;
+    background-image: linear-gradient(0deg, rgb(0 0 0 /.2), rgb(255 255 255 /.2));
+    background-blend-mode: overlay;
     border-radius: .25rem;
     font-family: monospace-ui, monospace;
+    font-size: .75em;
     color: #052441;
-    box-shadow: 0 1px 0 rgb(255 255 255 / .25) inset,
-        0 -1px 0 rgb(0 0 0 / .25) inset;
+    box-shadow:
+        0 1px 3px rgb(0 0 0 /.2),
+        inset 0 -1px 0.5px rgb(0 0 0 / .3),
+        inset 0 1px 0.5px rgb(255 255 255 / .5);
+
+    &:not(:last-of-type) {
+        margin-block-end: .25em;
+    }
+}
+
+.drop-icon {
+    width: 6rem;
+    height: 6rem;
+    stroke-width: 1.5;
 }

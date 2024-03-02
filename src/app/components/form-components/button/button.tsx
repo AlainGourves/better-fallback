@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef } from 'react';
-import '../component-global.scss';
+import '../component-global.scss'; //TODO: qu'est-ce que ça fout là ?
 import buttonStyle from './button.module.scss';
 
 type ButtonPropsBase = {
