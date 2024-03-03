@@ -3,7 +3,9 @@
 export type IconName =
 	| "alert-triangle"
 	| "check"
+	| "code"
 	| "copy"
 	| "download"
 	| "font-file"
+	| "reset"
 	| "x-circle";

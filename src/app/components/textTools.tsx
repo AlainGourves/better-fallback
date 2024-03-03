@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
+import { Icon } from './Icon';
 import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
 import { defaultUserData } from '@/app/context/userDataContext';
 import ColorInput from './form-components/colorInput/colorInput';
@@ -126,10 +127,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                     onClick={handleReset}
                     title='Reset'
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 102 102" preserveAspectRatio="xMidYMid meet">
-                        <path stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" d="M7.502 67.603a46 46 0 1 0 0-35.206m0-26v26h26" />
-                    </svg>
+                    <Icon name={'reset'} />
                 </button>
             </div>
         </div>
