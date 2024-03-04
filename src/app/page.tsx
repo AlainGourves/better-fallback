@@ -28,7 +28,7 @@ interface MyFontFaceDescriptors extends FontFaceDescriptors {
 
 // for server actions
 const initialState = {
-  success: false,
+  success: 'unset',
   message: null,
 }
 
@@ -95,15 +95,17 @@ export default function Home() {
 
   useEffect(() => {
     if (!overridesFormState.message) return;
-    if (!overridesFormState.success && overridesFormState.message) {
+    if (overridesFormState.status === 'error'){//} && overridesFormState.message) {
       // TODO: gestion erreur en fonction de `.message`
       console.warn("There was an error", overridesFormState.message)
       return;
     }
-    dispatchOverrides({
-      type: 'setInfos',
-      payload: overridesFormState.message
-    })
+    if (overridesFormState.status === 'success') {
+      dispatchOverrides({
+        type: 'setInfos',
+        payload: overridesFormState.message
+      })
+    }
   }, [overridesFormState, dispatchOverrides]);
 
   useEffect(() => {

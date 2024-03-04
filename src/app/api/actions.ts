@@ -1,7 +1,7 @@
 'use server';
 
 import { readFileSync } from 'fs';
-import Font, * as fontkit from 'fontkit';
+import * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
 import { FontOverridesType, overridesDefault } from '../../../types/types';
 
@@ -32,11 +32,11 @@ type FbFont = {
 type FbFontsArray = FbFont[];
 
 type ResponseType = {
-    success: boolean,
+    status: 'unset'|'success'|'error',
     message: string | object
 }
 
-let myFont: Font.Font | undefined;
+let myFont: fontkit.Font | undefined;
 
 export async function getFontInfos(prevState: ResponseType, formData: FormData) {
     // let font: Font.Font;
@@ -44,10 +44,11 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
 
     const url = formData.get('fontUrl') as string;
     const file = formData.get('font-upload') as File;
+    console.log("file", file)
     try {
         const { size, type, font } = url ? await loadFetchedFont(url) : await loadUploadedFont(file);
 
-        if (font) {
+        if (font as fontkit.Font) {
             fontInfos = {
                 fullName: font.fullName,
                 postscriptName: font.postscriptName,
@@ -58,15 +59,15 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
             console.log(">>>>", font.fullName)
             myFont = font;
         }
-    } catch (err) {
+    } catch (err:any) {
         return {
-            success: false,
-            message: err?.toString()
+            status: 'error',
+            message: err?.message
         }
     }
 
     return {
-        success: true,
+        status: 'success',
         message: fontInfos
     }
 }
@@ -109,13 +110,13 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
 
     } catch (err) {
         return {
-            success: false,
+            status: 'error',
             message: err?.toString()
         }
     }
 
     return {
-        success: true,
+        status: 'success',
         message: fontOverrides
     }
 }
@@ -131,7 +132,7 @@ const loadFetchedFont = async (url: string) => {
         const buffer = await response.arrayBuffer();
         const size = buffer.byteLength;
         const type = await getFontType(new File([buffer], 'web font'));
-        const font = fontkit.create(new Uint8Array(buffer) as Buffer);
+        const font = fontkit.create(new Uint8Array(buffer) as Buffer) as fontkit.Font;
         return { size, type, font }
     } catch (err) {
         throw new Error(err as any);
@@ -143,14 +144,14 @@ const loadUploadedFont = async (file: File) => {
         const type = file.type;
         const size = file.size;
         const buffer = await file.arrayBuffer()
-        const font = fontkit.create(new Uint8Array(buffer) as Buffer);
+        const font = fontkit.create(new Uint8Array(buffer) as Buffer) as fontkit.Font;
         return { size, type, font }
     } catch (err) {
         throw new Error(err as any);
     }
 }
 
-const getAvgWidth = async (font: Font.Font, freq: FrequencyMap) => {
+const getAvgWidth = async (font: fontkit.Font, freq: FrequencyMap) => {
     let width = 0;
     const chars = Object.keys(freq);
     chars.forEach((char) => {
@@ -177,7 +178,7 @@ const getFallbackInfos = (name: string) => {
     return obj;
 }
 
-const getSizeAdjust = async (font: Font.Font, fbInfos: FbFont, lang: string) => {
+const getSizeAdjust = async (font: fontkit.Font, fbInfos: FbFont, lang: string) => {
     const freq = getFrequencies(lang);
     // Average with of the submitted font
     const avgWidthFont = await getAvgWidth(font, freq);

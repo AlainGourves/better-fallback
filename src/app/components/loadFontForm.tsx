@@ -21,25 +21,16 @@ export default function LoadFontForm() {
     // Error handling
     const [error, setError] = useState(false);
     const [errorCodes, setErrorCodes] = useState<string[]>([]);
-    const [errorMessage, setErrorMessage] = useState('');
-    const resetErrorMessages = () => {
-        setError(false);
-        setErrorCodes([]);
+    const [errorMessages, setErrorMessages] = useState<string[]>([]);
+    const resetErrors = () => {
+            console.log("resetErrors", errorCodes, errorMessages)
+            setErrorMessages([]);
+            setErrorCodes([]);
+            setError(false);
     }
 
+    const formRef = useRef<HTMLFormElement>(null);
     const urlRef = useRef<HTMLInputElement>(null);
-
-    // Input[File] for selecting a font
-    const handleFontFile = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("handleFontFile")
-        if (!ev.target.files) return;
-        dispatchFontInfos({
-            type: "setFile",
-            payload: {
-                value: ev.target.files[0]
-            }
-        })
-    }
 
     // 'X' button to remove font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
@@ -47,13 +38,14 @@ export default function LoadFontForm() {
             type: "reset",
             payload: null
         });
-        if (error) resetErrorMessages();
+        if (error) resetErrors();
         ev.preventDefault();
         ev.stopPropagation();
     }
 
     // Input[text] for font URL
     const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        if (error) resetErrors();
         const val = ev.target.value;
         if (URLValidator(val) || val === '') {
             urlRef.current?.setCustomValidity(''); // remove :invalid state if present
@@ -93,6 +85,15 @@ export default function LoadFontForm() {
 
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
+            // Add the file to the inpu[file] element (react-dropzone doesn't do it)
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(acceptedFiles[0]);
+            if (formRef.current) {
+                const input: HTMLInputElement | null = formRef.current.querySelector('input[type=file');
+                if (input) {
+                    input.files = dataTransfer.files;
+                }
+            }
             dispatchFontInfos({
                 type: "setFile",
                 payload: {
@@ -101,17 +102,19 @@ export default function LoadFontForm() {
             });
         }
         if (fileRejections.length) {
-            setError(true);
+            const codes: string[] = [];
             fileRejections.forEach((r) => {
-                setErrorCodes(errorCodes => [...errorCodes, r.errors[0].code])
+                codes.push(r.errors[0].code);
             });
+            setErrorCodes(codes);
+            setError(true);
         }
-    }, [fontInfos]);
+    }, [dispatchFontInfos]);
 
     const maxFileSize = 1024 * 1024 * 2; // 2 megabytes max font size
 
     const onFileDialogOpen = useCallback(() => {
-        if (error) resetErrorMessages();
+        if (error) resetErrors();
     }, [error]);
 
     const {
@@ -149,51 +152,55 @@ export default function LoadFontForm() {
 
 
     // Error handling --------------------------------
-    const errorMessages: string[] | undefined = [];
-    if (errorCodes.length) {
-        // make errors' type unique
-        const theErrors = new Set(errorCodes);
-        theErrors.forEach((err) => {
-            let msg = '';
-            switch (err) {
-                case 'file-invalid-type':
-                    msg = `Only font files: ${fontTypes.join(', ')}.`;
-                    break;
-                case 'file-too-large':
-                    msg = `Files must be less than 2Mb.`;
-                    break;
-                case 'too-many-files':
-                    msg = `Only one font at a time!`;
-                    break;
-                default:
-                    msg = 'There was a problem, the nature of which is unclear…';
-                    break;
-            }
-            errorMessages.push(msg);
-        })
-    }
+    useEffect(()=>{
+        if (errorCodes.length) {
+            // remove duplicate codes
+            const theErrors = new Set(errorCodes);
+            let theMessages: string[] = [];
+            theErrors.forEach((err) => {
+                let msg = '';
+                switch (err) {
+                    case 'file-invalid-type':
+                        msg = `Only font files: ${fontTypes.join(', ')}.`;
+                        break;
+                    case 'file-too-large':
+                        msg = `Files must be less than 2Mb.`;
+                        break;
+                    case 'too-many-files':
+                        msg = `Only one font at a time!`;
+                        break;
+                    default:
+                        msg = 'There was a problem, the nature of which is unclear…';
+                        break;
+                }
+                theMessages.push(msg);
+            });
+            setErrorMessages(errorMessages => [
+                ...errorMessages,
+                ...theMessages
+            ]);
+        }
+    }, [errorCodes]);
 
     useEffect(() => {
         if (isDragActive) {
-            resetErrorMessages();
+            resetErrors();
         }
     }, [isDragActive]);
-
-    useEffect(() => {
-        if (!error) setErrorMessage('');
-    }, [error]);
 
 
     // Server actions --------------------------------
     const initialState = {
-        success: false,
+        status: 'unset',
         message: null,
     }
+
     const [loadFormState, loadFormAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
     // UseEffects ---------------
     useEffect(() => {
-        if (loadFormState.success) {
+        if (!formRef.current) return;
+        if (loadFormState.status === 'success') {
             dispatchFontInfos({
                 type: 'setInfos',
                 payload: {
@@ -207,8 +214,23 @@ export default function LoadFontForm() {
         }
     }, [loadFormState, dispatchFontInfos]);
 
+    useEffect(() => {
+        console.log("useEffect start", errorMessages)
+        if (loadFormState.status === 'error') {
+            // Make sure an error message is only added once
+            const errMsgs = Array.from(new Set([...errorMessages, loadFormState.message]));
+            if (errMsgs.length !== errorMessages.length) {
+                setError(true);
+                setErrorMessages(errMsgs);
+                console.log("useEffect end", errorMessages)
+            }
+        }
+    }, [loadFormState, errorMessages]);
+
+    // console.log(fontInfos)
     return (
         <form
+            ref={formRef}
             id="select-font"
             className={formStyles["select-font"]}
             action={loadFormAction}
@@ -285,22 +307,15 @@ export default function LoadFontForm() {
             </div>
             {(error && errorMessages.length > 0) && (
                 <div className={formStyles['error-msg-container']}>
-                    {errorMessages.map((err) => (
-                        <p
-                            key={"hu" + Math.random()}
+                    {errorMessages.map((err, idx) => (
+                        <div
+                            key={`err${idx}`}
                             className={formStyles['error-msg']}
                         >
                             {err}
-                        </p>
-                    ))}
-                </div>
-            )}
-            {!loadFormState.success && loadFormState.message && (
-                <div className={formStyles['error-msg-container']}>
-                    <div className={formStyles['error-msg']}>
-                        <h3>A problem occurred!</h3>
-                        {loadFormState.message}
-                    </div>
+                        </div>
+                    ))
+                    }
                 </div>
             )}
         </form>

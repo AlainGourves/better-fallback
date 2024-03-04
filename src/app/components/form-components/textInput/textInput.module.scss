@@ -72,6 +72,10 @@
         right: 0;
         top: 50%;
         translate: -0.75em -50%;
-        background-color: rgb(0 0 0 / 0.18);
+
+        &:hover{
+            color: rgb(0 0 0 / .85);;
+            background-color: #fff;
+        }
     }
 }
