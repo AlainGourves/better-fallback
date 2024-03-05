@@ -1,12 +1,75 @@
 .code-container {
+    --trans: 0.2s cubic-bezier(0.75, 0.5, 0.75, 1.5); //ease-in-out;
     width: 100%;
     background-color: #2d2d2d;
     position: relative;
 
-    & button{
+    & label[for='copyBtn'] {
         position: absolute;
         top: 0;
         right: 0;
         margin: 1rem;
+    }
+
+    & button {
+        appearance: none;
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        cursor: pointer;
+        color: var(--clr-active);
+        background: var(--clr-active-50);
+
+        &:hover {
+            background: rgb(255 255 255 / .95);
+            // box-shadow: 0 0 0 var(--outline-width)
+            //   color-mix(in oklab, var(--clr-outline) 80%, #fff);
+
+            &+span {
+                box-shadow: 0 0.25em 1em rgb(0 0 0 /0.25);
+                translate: -50% calc(100% + 1.2em);
+                opacity: 1;
+            }
+        }
+    }
+
+    & svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        stroke-width: 2;
+    }
+}
+
+
+.tooltip {
+    --__bg: deeppink;
+    background: var(--__bg);
+    border-radius: 0.25em;
+    padding: 0.5em 0.75em;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 200%;
+    opacity: 0;
+    user-select: none;
+    text-wrap: nowrap;
+    box-shadow: 0 0 0 rgb(0 0 0 /0);
+    transition:
+        box-shadow var(--trans),
+        opacity var(--trans),
+        translate var(--trans);
+
+    &:before {
+        position: absolute;
+        content: "";
+        width: 1em;
+        height: 0.75em;
+        left: 50%;
+        top: 0;
+        translate: -50% calc(1px - 100%);
+        background: conic-gradient(from 150deg at 50% 0,
+                var(--__bg) 60deg,
+                transparent 0);
     }
 }

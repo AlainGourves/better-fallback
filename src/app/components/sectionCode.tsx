@@ -1,20 +1,21 @@
 import Prism from 'prismjs';
 import "prismjs/themes/prism-tomorrow.css";
 import sectionStyles from './sectionCode.module.scss';
-import type { FontOverridesType} from '../../../types/types'
+import type { FontOverridesType } from '../../../types/types'
 import { useEffect, useRef } from 'react';
 import Button from './form-components/button/button';
-import {copyToClipboard} from '../_lib/utils';
+import { copyToClipboard } from '../_lib/utils';
 import { useOverrides } from '../context/overridesContext';
 import { useFontInfos } from '../context/fontContext';
 import { fontKitLoad } from '../_lib/fonts';
+import { Icon } from './Icon';
 
-type CodeProps={
+type CodeProps = {
     overrides: FontOverridesType
 }
 
 export default function SectionCode() {
-    const codeRef = useRef<null|HTMLElement>(null);
+    const codeRef = useRef<null | HTMLElement>(null);
 
     const className = `code ${sectionStyles['code-container']}`;
 
@@ -38,8 +39,8 @@ export default function SectionCode() {
     }`;
 
     // TODO: signaler que c'est copié (autrement qu'avec un console!)
-    const handleClick = (ev:React.MouseEvent<HTMLButtonElement, MouseEvent>)=>{
-        if (codeRef.current){
+    const handleClick = (ev: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        if (codeRef.current) {
             let css = codeRef.current.dataset.css;
             css = decodeURI(css as string);
             copyToClipboard(css);
@@ -61,12 +62,16 @@ export default function SectionCode() {
             className={className}
             data-css={encodeURI(code)}
         >
-            <Button
-                type='button'
-                text='Copy Code'
-                onClick={handleClick}
-                classAdd={['small', 'outlined']}
-            />
+            <label htmlFor='copyBtn'>
+                <button
+                    type='button'
+                    id='copyBtn'
+                    onClick={handleClick}
+                >
+                    <Icon name={'copy'} />
+                </button>
+                <span className={sectionStyles['tooltip']}>Copy Code</span>
+            </label>
             <pre>
                 <code className="language-css" >
                     {code}
