@@ -16,6 +16,7 @@ type TextInputProps = {
     readOnly?: boolean | undefined,
     onChange: React.ChangeEventHandler<HTMLInputElement>,
     onClick(event: React.MouseEvent<HTMLButtonElement>): void,
+    onBlur?: React.FocusEventHandler<HTMLInputElement>,
     title: string,
 }
 
@@ -36,6 +37,7 @@ const TextInput = forwardRef(function TextInput(props: TextInputProps, ref: Reac
                 name={props.id}
                 value={props.value}
                 onChange={props.onChange}
+                onBlur={props.onBlur}
                 disabled={props.disabled}
                 readOnly={props.readOnly}
                 placeholder={props.placeholder ?? props.placeholder}

@@ -33,7 +33,8 @@ type FbFontsArray = FbFont[];
 
 type ResponseType = {
     status: 'unset'|'success'|'error',
-    message: string | object
+    message: string | object,
+    id?: string,
 }
 
 let myFont: fontkit.Font | undefined;
@@ -41,10 +42,10 @@ let myFont: fontkit.Font | undefined;
 export async function getFontInfos(prevState: ResponseType, formData: FormData) {
     // let font: Font.Font;
     let fontInfos = {};
-    console.log(">>>>", crypto.randomUUID())
 
     const url = formData.get('fontUrl') as string;
     const file = formData.get('font-upload') as File;
+    const reqId = formData.get('reqId') as string;
     try {
         const { size, type, font } = url ? await loadFetchedFont(url) : await loadUploadedFont(file);
 
@@ -62,13 +63,15 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
     } catch (err:any) {
         return {
             status: 'error',
-            message: err?.message
+            message: err?.message,
+            id: reqId
         }
     }
 
     return {
         status: 'success',
-        message: fontInfos
+        message: fontInfos,
+        id: reqId
     }
 }
 

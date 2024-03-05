@@ -2,14 +2,15 @@ import { useCallback, useState, useRef, useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import formStyles from './loadFontForm.module.scss';
 import clsx from 'clsx';
+import { nanoid } from 'nanoid';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import { getFontInfos } from '@/app/api/actions';
-import FontFile from './fontFile';
-import TextInput from './form-components/textInput/textInput';
-import SubmitButton from './submitButton';
 import { URLValidator, listAcceptable } from '../_lib/utils';
 import { fontTypes, FontTypes } from '../../../types/types'
 import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
-import { useDropzone, FileRejection } from 'react-dropzone';
+import FontFile from './fontFile';
+import TextInput from './form-components/textInput/textInput';
+import SubmitButton from './submitButton';
 import { Icon } from './Icon';
 import { type IconName } from '../../../types/name';
 
@@ -32,6 +33,12 @@ export default function LoadFontForm() {
     const formRef = useRef<HTMLFormElement>(null);
     const urlRef = useRef<HTMLInputElement>(null);
 
+    // useFormState does not allow to reset the form state: it remains the same until the form is posted again, especially error messages keep being displayed
+    // Generating a new key (for eg. when a "bad" URL is erased) allows to know when to display error message, or not
+    // See: https://stackoverflow.com/a/77816853/5351146
+    const [formKey, setFormKey] = useState(() => nanoid());
+    const updateFormKey = () => setFormKey(nanoid());
+
     // 'X' button to remove font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
         if (error) resetErrors();
@@ -45,7 +52,8 @@ export default function LoadFontForm() {
 
     // Input[text] for font URL
     const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        if (error) resetErrors();
+        // setFormKey(()=>nanoid())
+        // if (error) resetErrors();
         const val = ev.target.value;
         if (URLValidator(val) || val === '') {
             urlRef.current?.setCustomValidity(''); // remove :invalid state if present
@@ -60,6 +68,9 @@ export default function LoadFontForm() {
 
     // 'X' button to erase TextInput
     const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        if (formRef.current) {
+            formRef.current.reset()
+        }
         dispatchFontInfos({
             type: "reset",
             payload: null
@@ -90,7 +101,7 @@ export default function LoadFontForm() {
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(acceptedFiles[0]);
             if (formRef.current) {
-                const input: HTMLInputElement | null = formRef.current.querySelector('input[type=file');
+                const input: HTMLInputElement | null = formRef.current.querySelector('input[type=file]');
                 if (input) {
                     input.files = dataTransfer.files;
                 }
@@ -120,7 +131,8 @@ export default function LoadFontForm() {
 
     const onDragEnter = useCallback(() => {
         if (error || errorCodes.length || errorMessages.length) {
-            resetErrors();
+            console.log("reset ONDRAGENTER")
+            updateFormKey()
         }
     }, [error, errorCodes, errorMessages])
 
@@ -201,7 +213,6 @@ export default function LoadFontForm() {
     useEffect(() => {
         if (!formRef.current) return;
         if (loadFormState.status === 'success') {
-            resetErrors();
             dispatchFontInfos({
                 type: 'setInfos',
                 payload: {
@@ -217,7 +228,8 @@ export default function LoadFontForm() {
 
     useEffect(() => {
         console.log("useEffect start", errorMessages, loadFormState.status)
-        if (loadFormState.status === 'error') {
+        console.log(loadFormState.id, formKey)
+        if (loadFormState.status === 'error' && loadFormState.id === formKey) {
             console.log("status ERROR")
             // Make sure an error message is only added once
             const errMsgs = Array.from(new Set([...errorMessages, loadFormState.message]));
@@ -227,15 +239,20 @@ export default function LoadFontForm() {
                 console.log("useEffect end", errorMessages)
             }
         }
-    }, [loadFormState, errorMessages]);
+    }, [loadFormState, errorMessages, formKey]);
 
-    // console.log(fontInfos)
+    useEffect(()=>{
+        resetErrors();
+    }, [formKey]);
+
     return (
         <form
+            key={formKey}
             ref={formRef}
             id="select-font"
             className={formStyles["select-font"]}
             action={loadFormAction}
+            onReset={updateFormKey}
         >
 
             <div  {...getRootProps({
@@ -252,6 +269,11 @@ export default function LoadFontForm() {
                                     id="font-upload"
                                     name="font-upload"
                                     {...getInputProps()}
+                                />
+                                <input
+                                    type="hidden"
+                                    name="reqId"
+                                    value={formKey}
                                 />
                                 <button
                                     type='button'
@@ -287,7 +309,6 @@ export default function LoadFontForm() {
                     </div>
                 </div>
 
-                {/* {true && */}
                 {isDragActive &&
                     <div className={clsx(
                         formStyles['hover'],
@@ -307,7 +328,7 @@ export default function LoadFontForm() {
                     </div>
                 }
             </div>
-            {(error && errorMessages.length || loadFormState.status === 'error') && (
+            {(error && errorMessages.length) && (
                 // {(error && errorMessages.length > 0) && (
                 <div className={formStyles['error-msg-container']}>
                     {errorMessages.map((err, idx) => (
