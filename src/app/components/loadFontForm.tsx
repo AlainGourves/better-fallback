@@ -23,12 +23,11 @@ export default function LoadFontForm() {
     const [error, setError] = useState(false);
     const [errorCodes, setErrorCodes] = useState<string[]>([]);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
-    const resetErrors = () => {
-        console.log("resetErrors", errorCodes, errorMessages)
+    const resetErrors = useCallback(() => {
         setErrorMessages([]);
         setErrorCodes([]);
         setError(false);
-    }
+    }, [setError, setErrorCodes, setErrorMessages]);
 
     const formRef = useRef<HTMLFormElement>(null);
     const urlRef = useRef<HTMLInputElement>(null);
@@ -41,7 +40,7 @@ export default function LoadFontForm() {
 
     // 'X' button to remove font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        if (error) resetErrors();
+        updateFormKey();
         dispatchFontInfos({
             type: "reset",
             payload: null
@@ -52,8 +51,6 @@ export default function LoadFontForm() {
 
     // Input[text] for font URL
     const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        // setFormKey(()=>nanoid())
-        // if (error) resetErrors();
         const val = ev.target.value;
         if (URLValidator(val) || val === '') {
             urlRef.current?.setCustomValidity(''); // remove :invalid state if present
@@ -97,7 +94,7 @@ export default function LoadFontForm() {
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
             resetErrors();
-            // Add the file to the inpu[file] element (react-dropzone doesn't do it)
+            // Add the file to the input[file] element (react-dropzone doesn't do it)
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(acceptedFiles[0]);
             if (formRef.current) {
@@ -121,7 +118,7 @@ export default function LoadFontForm() {
             setErrorCodes(codes);
             setError(true);
         }
-    }, [dispatchFontInfos]);
+    }, [dispatchFontInfos, resetErrors]);
 
     const maxFileSize = 1024 * 1024 * 2; // 2 megabytes max font size
 
@@ -243,7 +240,7 @@ export default function LoadFontForm() {
 
     useEffect(()=>{
         resetErrors();
-    }, [formKey]);
+    }, [formKey, resetErrors]);
 
     return (
         <form
