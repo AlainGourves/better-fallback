@@ -3,7 +3,7 @@
 import { readFileSync } from 'fs';
 import * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
-import { FontOverridesType, overridesDefault } from '../../../types/types';
+import { fallbackFonts, FallbackFontsType, FontOverridesType, overridesDefault } from '../../../types/types';
 
 
 type FrequencyMap = {
@@ -32,7 +32,7 @@ type FbFont = {
 type FbFontsArray = FbFont[];
 
 type ResponseType = {
-    status: 'unset'|'success'|'error',
+    status: 'unset' | 'success' | 'error',
     message: string | object,
     id?: string,
 }
@@ -40,7 +40,6 @@ type ResponseType = {
 let myFont: fontkit.Font | undefined;
 
 export async function getFontInfos(prevState: ResponseType, formData: FormData) {
-    // let font: Font.Font;
     let fontInfos = {};
 
     const url = formData.get('fontUrl') as string;
@@ -60,7 +59,7 @@ export async function getFontInfos(prevState: ResponseType, formData: FormData) 
             console.log(">>>>", font.fullName)
             myFont = font;
         }
-    } catch (err:any) {
+    } catch (err: any) {
         return {
             status: 'error',
             message: err?.message,
@@ -84,45 +83,65 @@ const fallbacks = JSON.parse(rawdata);
 export async function getFontOverrides(prevState: ResponseType, formData: FormData) {
     console.log("hello from server");
 
-    const fallbackFont = formData.get('fallbackFontSelect') as string;
+    const fallbackFont = formData.get('fallbackFontSelect') as FallbackFontsType;
     const lang = formData.get('targetLanguage') as string;
 
-    let fontOverrides = overridesDefault;
-    // TODO: calculer les FMO pour les 3 polices (en mettant en premier celle qui est sélectionnée)
-    //  -> renvoyer un array d'objets 'fontOverrides'
-    try {
-        if (myFont) {
-            const fallbackFontInfos = getFallbackInfos(fallbackFont);
-            const sizeAdjust = await getSizeAdjust(myFont, fallbackFontInfos, lang);
-            const upm = myFont.unitsPerEm
-            const ascent = formatForCSS(myFont.ascent / (upm * sizeAdjust));
-            const descent = formatForCSS(myFont.descent / (upm * sizeAdjust));
-            const lineGap = formatForCSS(myFont.lineGap / (upm * sizeAdjust));
-            fontOverrides = {
-                'fullName': fallbackFontInfos.fullName,
-                'postscriptName': fallbackFontInfos.postscriptName,
-                'file': fallbackFontInfos.file,
-                'ascent': ascent,
-                'descent': descent,
-                'lineGap': lineGap,
-                'sizeAdjust': formatForCSS(sizeAdjust),
-                'isActive': true,
-                'overridesName': `fallback for ${myFont.postscriptName}`
+    let fontOverrides: FontOverridesType[] = [];
+
+    // Will compute override metrics for each fallback font
+    // to return an array of 'fontOverrides' object
+    // the selected fallback font being @ index 0
+    if (fallbackFont && lang) {
+        try {
+            // reorder fallback fonts array
+            let fontArray = fallbackFonts.filter(f => f !== fallbackFont);
+            fontArray = [fallbackFont, ...fontArray];
+            if (myFont) {
+                fontArray.forEach(async (fnt) => {
+                    if (myFont) {
+                        let overrides = overridesDefault;
+
+                        const fallbackFontInfos = getFallbackInfos(fnt);
+                        const sizeAdjust = await getSizeAdjust(myFont, fallbackFontInfos, lang);
+                        const upm = myFont.unitsPerEm
+                        const ascent = formatForCSS(myFont.ascent / (upm * sizeAdjust));
+                        const descent = formatForCSS(myFont.descent / (upm * sizeAdjust));
+                        const lineGap = formatForCSS(myFont.lineGap / (upm * sizeAdjust));
+                        overrides = {
+                            'name': fnt,
+                            'fullName': fallbackFontInfos.fullName,
+                            'postscriptName': fallbackFontInfos.postscriptName,
+                            'file': fallbackFontInfos.file,
+                            'ascent': ascent,
+                            'descent': descent,
+                            'lineGap': lineGap,
+                            'sizeAdjust': formatForCSS(sizeAdjust),
+                            'isActive': true,
+                            'overridesName': `${fnt[0].toUpperCase()}${fnt.slice(1)} fallback for ${myFont.postscriptName}`
+                        }
+                        fontOverrides.push(overrides);
+                    }
+                })
+            } else {
+                throw new Error("I've lost the font! 😭");
             }
-        } else {
-            throw new Error("I've lost the font! 😭");
+
+        } catch (err) {
+            return {
+                status: 'error',
+                message: err?.toString()
+            }
         }
 
-    } catch (err) {
+        return {
+            status: 'success',
+            message: fontOverrides
+        }
+    } else {
         return {
             status: 'error',
-            message: err?.toString()
+            message: "Unable to deal with the informations you sent!"
         }
-    }
-
-    return {
-        status: 'success',
-        message: fontOverrides
     }
 }
 
@@ -142,9 +161,9 @@ const loadFetchedFont = async (url: string) => {
         const font = fontkit.create(new Uint8Array(buffer) as Buffer) as fontkit.Font;
         return { size, type, font }
     } catch (err) {
-        if(err instanceof TypeError && err.message === 'fetch failed') {
+        if (err instanceof TypeError && err.message === 'fetch failed') {
             throw new Error("Impossible to load a font file, please check your URL.")
-        }else{
+        } else {
             throw new Error(err as any);
         }
     }

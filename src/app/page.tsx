@@ -34,6 +34,9 @@ const initialState = {
 
 export default function Home() {
 
+  const userData = useUserData();
+  const dispatchUserData = useUserDataDispatch();
+
   const fontInfos = useFontInfos();
   const dispatchFontInfos = useFontInfosDispatch();
 
@@ -42,9 +45,10 @@ export default function Home() {
   const overrides = useOverrides();
   const dispatchOverrides = useOverridesDispatch();
 
+  const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
+
   useEffect(() => {
     if (fontInfos.postscriptName) {
-      // console.log("useEffect 52", fontInfos)
 
       const loadFontInDocument = async () => {
         try {
@@ -86,16 +90,13 @@ export default function Home() {
     }
   }, [fontInfos, dispatchFontInfos, dispatchOverrides]);
 
-  // useEffect(() => {
-  //   console.log("Page", overrides)
-  // }, [overrides])
 
   // Server actions
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
     if (!overridesFormState.message) return;
-    if (overridesFormState.status === 'error'){//} && overridesFormState.message) {
+    if (overridesFormState.status === 'error') {//} && overridesFormState.message) {
       // TODO: gestion erreur en fonction de `.message`
       console.warn("There was an error", overridesFormState.message)
       return;
@@ -103,14 +104,28 @@ export default function Home() {
     if (overridesFormState.status === 'success') {
       dispatchOverrides({
         type: 'setInfos',
-        payload: overridesFormState.message
+        payload: overridesFormState.message[0]
       })
     }
   }, [overridesFormState, dispatchOverrides]);
 
   useEffect(() => {
-    // console.log("overrides page", overrides)
-    // console.log("fontInfos", fontInfos)
+    // Update when selected fallback font changes
+    // providing that the selected language doesn't change (in which case it requires a new computation of the values)
+    const font = userData.fallbackFont;
+    if (font !== overrides.name && overridesFormState.message) {
+      const newOverrides = overridesFormState.message.find((obj: FontOverridesType) => obj.name === font);
+
+      if (newOverrides) {
+        dispatchOverrides({
+          type: 'setInfos',
+          payload: newOverrides
+        })
+      }
+    }
+  }, [userData.fallbackFont, dispatchOverrides, overrides.name, overridesFormState.message]);
+
+  useEffect(() => {
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
         const name = overrides.overridesName;
@@ -148,10 +163,6 @@ export default function Home() {
       }
     }
   }, [overrides])
-
-  const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
-  const userData = useUserData();
-  const dispatchUserData = useUserDataDispatch();
 
   useEffect(() => {
     // Load user settings from localStorage

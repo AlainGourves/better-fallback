@@ -128,7 +128,6 @@ export default function LoadFontForm() {
 
     const onDragEnter = useCallback(() => {
         if (error || errorCodes.length || errorMessages.length) {
-            console.log("reset ONDRAGENTER")
             updateFormKey()
         }
     }, [error, errorCodes, errorMessages])
@@ -224,16 +223,12 @@ export default function LoadFontForm() {
     }, [loadFormState, dispatchFontInfos]);
 
     useEffect(() => {
-        console.log("useEffect start", errorMessages, loadFormState.status)
-        console.log(loadFormState.id, formKey)
         if (loadFormState.status === 'error' && loadFormState.id === formKey) {
-            console.log("status ERROR")
             // Make sure an error message is only added once
             const errMsgs = Array.from(new Set([...errorMessages, loadFormState.message]));
             if (errMsgs.length !== errorMessages.length) {
                 setError(true);
                 setErrorMessages(errMsgs);
-                console.log("useEffect end", errorMessages)
             }
         }
     }, [loadFormState, errorMessages, formKey]);
