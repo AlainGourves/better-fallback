@@ -41,10 +41,10 @@ let myFont: fontkit.Font | undefined;
 export async function getFontInfos(prevState: ResponseType, formData: FormData) {
     // let font: Font.Font;
     let fontInfos = {};
+    console.log(">>>>", crypto.randomUUID())
 
     const url = formData.get('fontUrl') as string;
     const file = formData.get('font-upload') as File;
-    console.log("file", file)
     try {
         const { size, type, font } = url ? await loadFetchedFont(url) : await loadUploadedFont(file);
 
@@ -85,6 +85,8 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
     const lang = formData.get('targetLanguage') as string;
 
     let fontOverrides = overridesDefault;
+    // TODO: calculer les FMO pour les 3 polices (en mettant en premier celle qui est sélectionnée)
+    //  -> renvoyer un array d'objets 'fontOverrides'
     try {
         if (myFont) {
             const fallbackFontInfos = getFallbackInfos(fallbackFont);
@@ -126,7 +128,9 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
 const loadFetchedFont = async (url: string) => {
     try {
         const response = await fetch(url);
+        console.log("coucou", response.status)
         if (!response.ok) {
+            // console.log(typeof response.status)
             throw new Error(`${response.status} ${response.statusText}`)
         }
         const buffer = await response.arrayBuffer();
@@ -135,7 +139,11 @@ const loadFetchedFont = async (url: string) => {
         const font = fontkit.create(new Uint8Array(buffer) as Buffer) as fontkit.Font;
         return { size, type, font }
     } catch (err) {
-        throw new Error(err as any);
+        if(err instanceof TypeError && err.message === 'fetch failed') {
+            throw new Error("Impossible to load a font file, please check your URL.")
+        }else{
+            throw new Error(err as any);
+        }
     }
 }
 

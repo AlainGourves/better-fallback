@@ -23,10 +23,10 @@ export default function LoadFontForm() {
     const [errorCodes, setErrorCodes] = useState<string[]>([]);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const resetErrors = () => {
-            console.log("resetErrors", errorCodes, errorMessages)
-            setErrorMessages([]);
-            setErrorCodes([]);
-            setError(false);
+        console.log("resetErrors", errorCodes, errorMessages)
+        setErrorMessages([]);
+        setErrorCodes([]);
+        setError(false);
     }
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -34,11 +34,11 @@ export default function LoadFontForm() {
 
     // 'X' button to remove font file
     const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
+        if (error) resetErrors();
         dispatchFontInfos({
             type: "reset",
             payload: null
         });
-        if (error) resetErrors();
         ev.preventDefault();
         ev.stopPropagation();
     }
@@ -85,6 +85,7 @@ export default function LoadFontForm() {
 
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
+            resetErrors();
             // Add the file to the inpu[file] element (react-dropzone doesn't do it)
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(acceptedFiles[0]);
@@ -115,7 +116,13 @@ export default function LoadFontForm() {
 
     const onFileDialogOpen = useCallback(() => {
         if (error) resetErrors();
-    }, [error]);
+    }, [error, resetErrors]);
+
+    const onDragEnter = useCallback(() => {
+        if (error || errorCodes.length || errorMessages.length) {
+            resetErrors();
+        }
+    }, [error, errorCodes, errorMessages])
 
     const {
         acceptedFiles,
@@ -130,6 +137,7 @@ export default function LoadFontForm() {
         onDrop: onDrop,
         accept: objAcceptable([...fontTypes]),
         onFileDialogOpen: onFileDialogOpen,
+        onDragEnter: onDragEnter,
         maxFiles: 1,
         multiple: false,
         maxSize: maxFileSize,
@@ -152,7 +160,7 @@ export default function LoadFontForm() {
 
 
     // Error handling --------------------------------
-    useEffect(()=>{
+    useEffect(() => {
         if (errorCodes.length) {
             // remove duplicate codes
             const theErrors = new Set(errorCodes);
@@ -182,13 +190,6 @@ export default function LoadFontForm() {
         }
     }, [errorCodes]);
 
-    useEffect(() => {
-        if (isDragActive) {
-            resetErrors();
-        }
-    }, [isDragActive]);
-
-
     // Server actions --------------------------------
     const initialState = {
         status: 'unset',
@@ -197,10 +198,10 @@ export default function LoadFontForm() {
 
     const [loadFormState, loadFormAction] = useFormState<any, FormData>(getFontInfos, initialState);
 
-    // UseEffects ---------------
     useEffect(() => {
         if (!formRef.current) return;
         if (loadFormState.status === 'success') {
+            resetErrors();
             dispatchFontInfos({
                 type: 'setInfos',
                 payload: {
@@ -215,8 +216,9 @@ export default function LoadFontForm() {
     }, [loadFormState, dispatchFontInfos]);
 
     useEffect(() => {
-        console.log("useEffect start", errorMessages)
+        console.log("useEffect start", errorMessages, loadFormState.status)
         if (loadFormState.status === 'error') {
+            console.log("status ERROR")
             // Make sure an error message is only added once
             const errMsgs = Array.from(new Set([...errorMessages, loadFormState.message]));
             if (errMsgs.length !== errorMessages.length) {
@@ -285,8 +287,8 @@ export default function LoadFontForm() {
                     </div>
                 </div>
 
-                {true &&
-                    // {isDragActive &&
+                {/* {true && */}
+                {isDragActive &&
                     <div className={clsx(
                         formStyles['hover'],
                         isDragActive && formStyles['active'],
@@ -305,7 +307,8 @@ export default function LoadFontForm() {
                     </div>
                 }
             </div>
-            {(error && errorMessages.length > 0) && (
+            {(error && errorMessages.length || loadFormState.status === 'error') && (
+                // {(error && errorMessages.length > 0) && (
                 <div className={formStyles['error-msg-container']}>
                     {errorMessages.map((err, idx) => (
                         <div
