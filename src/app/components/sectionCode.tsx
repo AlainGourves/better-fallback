@@ -3,7 +3,6 @@ import "prismjs/themes/prism-tomorrow.css";
 import sectionStyles from './sectionCode.module.scss';
 import type { FontOverridesType } from '../../../types/types'
 import { useEffect, useRef } from 'react';
-import Button from './form-components/button/button';
 import { copyToClipboard } from '../_lib/utils';
 import { useOverrides } from '../context/overridesContext';
 import { useFontInfos } from '../context/fontContext';
@@ -11,33 +10,49 @@ import { fontKitLoad } from '../_lib/fonts';
 import { Icon } from './Icon';
 
 type CodeProps = {
-    overrides: FontOverridesType
+    code: FontOverridesType[]
 }
 
-export default function SectionCode() {
+export default function SectionCode({ code }: CodeProps) {
     const codeRef = useRef<null | HTMLElement>(null);
 
     const className = `code ${sectionStyles['code-container']}`;
 
     const fontInfos = useFontInfos();
-    const overrides = useOverrides();
 
-    const code = `
-    @font-face {
-        font-family: "${overrides.overridesName}";
-        src: local("${overrides.fullName}"),
-             local("${overrides.postscriptName}");
-        size-adjust: ${overrides.sizeAdjust};
-        ascent-override: ${overrides.ascent};
-        descent-override: ${overrides.descent};
-        line-gap-override: ${overrides.lineGap};
+    let theCSS: string ='';
+
+    const getFontFaces = (overrides: FontOverridesType) => {
+        return `
+        @font-face {
+            font-family: "${overrides.overridesName}";
+            src: local("${overrides.fullName}"),
+            local("${overrides.postscriptName}");
+            size-adjust: ${overrides.sizeAdjust};
+            ascent-override: ${overrides.ascent};
+            descent-override: ${overrides.descent};
+            line-gap-override: ${overrides.lineGap};
+        }`;
     }
 
-    /* Usage: */
-    body {
-        font-family: "${fontInfos.fullName}", "${overrides.overridesName}";
-    }`;
+    if (Array.isArray(code) && code.length) {
+        let codeFontFaces = '';
+        let bodyVals: string[] = [];
+        code.forEach((obj, idx) => {
+            codeFontFaces += getFontFaces(obj);
+            if (idx === 0) bodyVals.push(`"${fontInfos.fullName}"`)
+            bodyVals.push(`"${obj.overridesName}"`);
+        });
+        theCSS = `
+${codeFontFaces}
 
+/* Usage: */
+body {
+    font-family: ${bodyVals.join(', ')};
+}`;
+    }
+
+    
     // TODO: signaler que c'est copié (autrement qu'avec un console!)
     const handleClick = (ev: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         if (codeRef.current) {
@@ -53,14 +68,14 @@ export default function SectionCode() {
             await Prism.highlightAll();
         }
         highlight();
-    }, [code]);
+    }, [theCSS]);
 
 
     return (
         <section
             ref={codeRef}
             className={className}
-            data-css={encodeURI(code)}
+            // data-css={encodeURI(codeFontFaces)}
         >
             <label htmlFor='copyBtn'>
                 <button
@@ -74,7 +89,7 @@ export default function SectionCode() {
             </label>
             <pre>
                 <code className="language-css" >
-                    {code}
+                    {theCSS}
                 </code>
             </pre>
         </section>

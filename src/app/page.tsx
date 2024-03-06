@@ -44,8 +44,10 @@ export default function Home() {
 
   const overrides = useOverrides();
   const dispatchOverrides = useOverridesDispatch();
+  let overridesArray:FontOverridesType[] = []; // stores the array of overrides from the server
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
+
 
   useEffect(() => {
     if (fontInfos.postscriptName) {
@@ -102,12 +104,14 @@ export default function Home() {
       return;
     }
     if (overridesFormState.status === 'success') {
+      // make a deep copy of the result
+      overridesArray = structuredClone(overridesFormState.message);
       dispatchOverrides({
         type: 'setInfos',
         payload: overridesFormState.message[0]
       })
     }
-  }, [overridesFormState, dispatchOverrides]);
+  }, [overridesFormState, dispatchOverrides, overridesArray]);
 
   useEffect(() => {
     // Update when selected fallback font changes
@@ -190,6 +194,8 @@ export default function Home() {
 
   }, [userData, isLocalStorageRead]);
 
+  console.log("overridesArray", overridesArray)
+
   return (
     <main className={styles.main}>
 
@@ -202,8 +208,8 @@ export default function Home() {
 
       <DynamicDemoText />
 
-      {overrides.overridesName !== '' && (
-        <SectionCode />
+      {(overridesArray.length>0) && (
+        <SectionCode code={overridesArray} />
       )}
     </main>
   )
