@@ -5,7 +5,7 @@ import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
 import { updateCustomProperty } from './_lib/utils';
-import { FontOverridesType, overridesDefault } from '../../types/types';
+import { FontOverridesType, FallbackFontsType } from '../../types/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
@@ -44,14 +44,16 @@ export default function Home() {
 
   const overrides = useOverrides();
   const dispatchOverrides = useOverridesDispatch();
-  let overridesArray:FontOverridesType[] = []; // stores the array of overrides from the server
+
+  //type Bob = {[key in FallbackFontsType]: FontOverridesType}
+  const [bob, setBob] = useState<FontOverridesType[]>([]);
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
 
 
   useEffect(() => {
+    // Load the tested font in the document
     if (fontInfos.postscriptName) {
-
       const loadFontInDocument = async () => {
         try {
           let theFile: null | File;
@@ -80,6 +82,7 @@ export default function Home() {
   }, [fontInfos]);
 
   useEffect(() => {
+    // Reset values when the tested font is deleted
     if (!fontInfos.url && !fontInfos.file) {
       // reset overrides
       dispatchOverrides({
@@ -97,6 +100,7 @@ export default function Home() {
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
+    // Handle response from the server
     if (!overridesFormState.message) return;
     if (overridesFormState.status === 'error') {//} && overridesFormState.message) {
       // TODO: gestion erreur en fonction de `.message`
@@ -105,20 +109,20 @@ export default function Home() {
     }
     if (overridesFormState.status === 'success') {
       // make a deep copy of the result
-      overridesArray = structuredClone(overridesFormState.message);
+      setBob(structuredClone(overridesFormState.message));
       dispatchOverrides({
         type: 'setInfos',
         payload: overridesFormState.message[0]
       })
     }
-  }, [overridesFormState, dispatchOverrides, overridesArray]);
+  }, [overridesFormState, dispatchOverrides]);
 
   useEffect(() => {
     // Update when selected fallback font changes
     // providing that the selected language doesn't change (in which case it requires a new computation of the values)
     const font = userData.fallbackFont;
-    if (font !== overrides.name && overridesFormState.message) {
-      const newOverrides = overridesFormState.message.find((obj: FontOverridesType) => obj.name === font);
+    if (font !== overrides.name && bob) {
+      const newOverrides = bob.find((obj: FontOverridesType) => obj.name === font);
 
       if (newOverrides) {
         dispatchOverrides({
@@ -127,9 +131,25 @@ export default function Home() {
         })
       }
     }
-  }, [userData.fallbackFont, dispatchOverrides, overrides.name, overridesFormState.message]);
+  }, [
+    userData.fallbackFont,
+    dispatchOverrides,
+    overrides.name,
+    bob
+  ]);
+
+  useEffect(()=>{
+    // Reset oveerides when the language's choice changes
+    // It needs re-computation
+    // reset overrides
+    dispatchOverrides({
+      type: 'reset', payload: null
+    })
+    setBob([]);
+  }, [userData.language, dispatchOverrides])
 
   useEffect(() => {
+    // Load fallback font in the document with metrics overrides
     const loadFallBackFont = async (overrides: FontOverridesType) => {
       try {
         const name = overrides.overridesName;
@@ -186,15 +206,15 @@ export default function Home() {
   }, [dispatchUserData]);
 
   useEffect(() => {
+    // Save to localStorage
     if (isLocalStorageRead) {
+      // Make sure that localStorage has been read before writing to it
       if ('localStorage' in window) {
         localStorage.setItem('userSettings', JSON.stringify(userData));
       }
     }
 
   }, [userData, isLocalStorageRead]);
-
-  console.log("overridesArray", overridesArray)
 
   return (
     <main className={styles.main}>
@@ -208,8 +228,8 @@ export default function Home() {
 
       <DynamicDemoText />
 
-      {(overridesArray.length>0) && (
-        <SectionCode code={overridesArray} />
+      {(bob.length > 0) && (
+        <SectionCode code={bob} />
       )}
     </main>
   )

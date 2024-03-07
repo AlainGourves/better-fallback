@@ -1,0 +1,71 @@
+.btn-icon {
+    --__w: 2.5rem;
+    position: relative;
+
+    & button {
+        appearance: none;
+        border: none;
+        width: var(--__w);
+        height: var(--__w);
+        border-radius: 50%;
+        padding: 0;
+        display: grid;
+        place-content: center;
+        cursor: pointer;
+        color: var(--clr-active);
+        background: var(--clr-active-50);
+
+        &:hover {
+            background: rgb(255 255 255 / .95);
+            box-shadow: 0 0 0 var(--outline-width) var(--clr-outline);
+
+            &+span {
+                box-shadow: 0 0.25em 1em rgb(0 0 0 /0.25);
+                translate: -50% calc(100% + 1.2em);
+                opacity: 1;
+            }
+        }
+    }
+
+    & svg {
+        width: calc(var(--__w) * 3/5);
+        height: calc(var(--__w) * 3/5);
+        stroke-width: 2;
+    }
+}
+
+
+.tooltip {
+    --__bg: deeppink;
+    --trans: 0.2s cubic-bezier(0.75, 0.5, 0.75, 1.5); //ease-in-out;
+    background: var(--__bg);
+    border-radius: 0.25em;
+    padding: 0.5em 0.75em;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 200%;
+    opacity: 0;
+    user-select: none;
+    text-wrap: nowrap;
+    z-index: 100;
+    box-shadow: 0 0 0 rgb(0 0 0 /0);
+    transition:
+        box-shadow var(--trans),
+        opacity var(--trans),
+        translate var(--trans);
+
+    &:before {
+        // for the arrow
+        position: absolute;
+        content: "";
+        width: 1em;
+        height: 0.75em;
+        left: 50%;
+        top: 0;
+        translate: -50% calc(1px - 100%);
+        background: conic-gradient(from 150deg at 50% 0,
+                var(--__bg) 60deg,
+                transparent 0);
+    }
+}

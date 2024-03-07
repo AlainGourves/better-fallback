@@ -90,14 +90,10 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
 
     // Will compute override metrics for each fallback font
     // to return an array of 'fontOverrides' object
-    // the selected fallback font being @ index 0
     if (fallbackFont && lang) {
         try {
-            // reorder fallback fonts array
-            let fontArray = fallbackFonts.filter(f => f !== fallbackFont);
-            fontArray = [fallbackFont, ...fontArray];
             if (myFont) {
-                fontArray.forEach(async (fnt) => {
+                fallbackFonts.forEach(async (fnt) => {
                     if (myFont) {
                         let overrides = overridesDefault;
 
@@ -123,6 +119,7 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
                     }
                 })
             } else {
+                // TODO: error handling
                 throw new Error("I've lost the font! 😭");
             }
 

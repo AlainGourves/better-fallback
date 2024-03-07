@@ -1,13 +1,14 @@
 'use client'
 import { useEffect, useState } from 'react';
+import clsx from 'clsx';
 import textToolsStyles from './textTools.module.scss';
 import Slider from './form-components/slider/slider';
 import Switch from './form-components/switch/switch';
-import { Icon } from './Icon';
 import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
 import { defaultUserData } from '@/app/context/userDataContext';
 import ColorInput from './form-components/colorInput/colorInput';
 import { updateCustomProperty } from '../_lib/utils';
+import BtnIcon from './form-components/btnIcon/btnIcon';
 
 const defaultAlpha = parseFloat(defaultUserData.opacity);
 const defaultFontSize = parseInt(defaultUserData.fontSize);
@@ -122,13 +123,13 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                     onChange={onChange}
                 />
                 <span className={textToolsStyles.divider}></span>
-                <button
-                    className={`agf-component ${textToolsStyles['reset-btn']}`}
+                <BtnIcon
+                    className={clsx('agf-component', textToolsStyles['reset-btn'])}
+                    id='reset-settings'
+                    iconName='reset'
                     onClick={handleReset}
-                    title='Reset'
-                >
-                    <Icon name={'reset'} />
-                </button>
+                    text='Reset settings'
+                />
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { Icon } from '../../Icon';
+import { Icon } from '../Icon';
 import closeBtnStyles from './closeBtn.module.scss';
 
 type CloseBtnProps = {

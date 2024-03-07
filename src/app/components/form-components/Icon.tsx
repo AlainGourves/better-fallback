@@ -1,6 +1,6 @@
 import { type SVGProps } from "react";
 import clsx from "clsx";
-import { type IconName } from "../../../types/name";
+import { type IconName } from "../../../../types/name";
 import styles from './Icon.module.scss';
 
 export { IconName };

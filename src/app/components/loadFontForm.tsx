@@ -11,7 +11,7 @@ import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 import FontFile from './fontFile';
 import TextInput from './form-components/textInput/textInput';
 import SubmitButton from './submitButton';
-import { Icon } from './Icon';
+import { Icon } from './form-components/Icon';
 import { type IconName } from '../../../types/name';
 
 

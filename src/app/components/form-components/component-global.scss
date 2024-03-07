@@ -93,7 +93,7 @@ $shades: (
     --anim-fn: ease-out;
 
     &:is(button),
-    & :is(input, select, textarea) {
+    & :is(input, select, textarea, button) {
 
         &:focus:not(:focus-visible) {
             // disable the default outline on a focused element which doesn’t have the :focus-visible state (-> button after a mouse click)
