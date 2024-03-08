@@ -8,7 +8,9 @@ import { dummyText } from '@/app/_lib/dummyText';
 import { useUserDataDispatch, useUserData } from "@/app/context/userDataContext";
 import Switch from "./form-components/switch/switch";
 import { updateCustomProperty } from "../_lib/utils";
-import { useOverrides, useOverridesDispatch } from "../context/overridesContext";
+import {fallbackFontsOptions} from './overridesForm';
+import { useOverrides } from "../context/overridesContext";
+import {FallbackFontsType} from '../../../types/types'
 
 export default function DemoText() {
 
@@ -40,7 +42,7 @@ export default function DemoText() {
 
   const saveUserText = (ev: React.FocusEvent<HTMLDivElement, Element>) => {
     setIsEditing(false);
-    // Important ! contentEditable attribute is an enumerated one and not a Boolean one
+    // Important ! contentEditable attribute is enumerated, not a Boolean
     // its value is a string, not a bool
     if (demoText.current?.contentEditable === 'true') {
       const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText : '';
@@ -75,10 +77,33 @@ export default function DemoText() {
     setDisplayFMO(overrides.isActive);
   }, [overrides.isActive]);
 
+  // --fallback-family variations
+  const setBaseFallback = ()=>{
+    const family = fallbackFontsOptions[userData.fallbackFont as FallbackFontsType]?.style;
+    if (family && 'document' in window) {
+      updateCustomProperty('--fallback-family', family);
+    }
+  }
+
   useEffect(() => {
-    if (overrides.overridesName || overrides.postscriptName) {
-      const val = displayFMO ? overrides.overridesName : overrides.postscriptName;
-      updateCustomProperty('--fallback-family', val);
+    // When selected fallback font changes
+    setBaseFallback();
+}, [userData.fallbackFont])
+
+  useEffect(() => {
+    // When FMO switch value changes
+    if (overrides.overridesName && overrides.name) {
+      let val;
+      if (displayFMO) {
+        val = overrides.overridesName;
+      }else{
+        val = fallbackFontsOptions[overrides.name as FallbackFontsType]?.style;
+      }
+      if (val && 'document' in window) {
+        updateCustomProperty('--fallback-family', val);
+      }
+    }else{
+      setBaseFallback();
     }
   }, [displayFMO, overrides]);
 

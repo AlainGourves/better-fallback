@@ -1,3 +1,4 @@
+'use client';
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import formStyles from './loadFontForm.module.scss';
@@ -109,6 +110,7 @@ export default function LoadFontForm() {
                     value: acceptedFiles[0]
                 }
             });
+            if (formRef.current) formRef.current.requestSubmit();
         }
         if (fileRejections.length) {
             const codes: string[] = [];

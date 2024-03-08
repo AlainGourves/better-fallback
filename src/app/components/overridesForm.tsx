@@ -1,21 +1,22 @@
-import { useState, useRef, useEffect, forwardRef } from 'react';
+'use client'
+import { useRef, useEffect, forwardRef, useState } from 'react';
 import formStyles from './overridesForm.module.scss';
 import Select from './form-components/select/select';
 import RadioGroup from './form-components/radioGroup/radioGroup';
 import SubmitButton from './submitButton';
 import { FallbackFontsType, LanguagesType } from '../../../types/types';
 import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
-import { updateCustomProperty } from '../_lib/utils';
 import { useFontInfos } from '../context/fontContext';
 import { useOverrides, useOverridesDispatch } from '../context/overridesContext';
 
 type OverridesFormProps = {
     formAction: string | ((formData: FormData) => void) | undefined,
+    formKey: string,
 }
 
 type Ref = HTMLButtonElement;
 
-const fallbackFontsOptions = {
+export const fallbackFontsOptions = {
     "times": {
         "text": "Times New Roman",
         "style": "'Times New Roman', TimesNewRomanPSMT, times"
@@ -31,7 +32,7 @@ const fallbackFontsOptions = {
 };
 
 
-const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overridesSubmitRef) => {
+const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey }, overridesSubmitRef) => {
 
     const userData = useUserData();
     const dispatchUserData = useUserDataDispatch();
@@ -46,6 +47,14 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overr
     const fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
 
     let fallbackFontValue = fallbackFontDefault;
+
+    const [note, setNote] = useState(false);
+    const handleSubmit = (ev:React.FormEvent<HTMLFormElement>) => {
+        if (note) setNote(false);
+        console.log(ev.currentTarget)
+        ev.preventDefault();
+        ev.currentTarget.requestSubmit();
+    }
 
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
         if (ev.target.value) {
@@ -66,14 +75,6 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overr
         }
     }
 
-    useEffect(() => {
-        const font = (userData.fallbackFont) ? userData.fallbackFont : fallbackFontValue;
-        const family = fallbackFontsOptions[font as FallbackFontsType]?.style;
-        if (family && 'document' in window) {
-            updateCustomProperty('--fallback-family', family);
-        }
-    }, [fallbackFontValue, userData.fallbackFont])
-
     // `RadioGroup` for choosing the target language
     const languageOptions = [
         { id: 'lang-en', label: 'English', value: 'en' },
@@ -84,14 +85,15 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overr
         const field = ev.currentTarget;
         const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
         if (selected) {
-            // if language changes, overrides need to be recomputed, so we start by resetting overrides
-            dispatchOverrides({
-                type: 'reset', payload: null
-            });
+            if ((selected.value !== userData.language) && overrides.fullName) {
+                // display invatation to recompute overrides
+                setNote(true);
+            }
             dispatchUserData({
                 type: 'changeLanguage',
                 payload: { value: selected.value as LanguagesType }
             });
+            // NB: overrides need to be recomputed, done in `page.tsx`
         }
     }
 
@@ -105,6 +107,8 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overr
         <form
             className={formStyles['font-settings']}
             action={formAction}
+            key={formKey}
+            onSubmit={handleSubmit}
         >
             <div
                 className={formStyles['font-infos']}
@@ -152,15 +156,24 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction }, overr
                     onChange={handleLanguageChoice}
                     label='Lang.'
                 />
+
+                <input
+                    type="hidden"
+                    name="reqId"
+                    value={formKey}
+                />
             </div>
 
-            <div>
+            <div className={formStyles['submit']}>
                 <SubmitButton
                     ref={overridesSubmitRef}
                     id="proceed"
                     text='Proceed'
-                    disabled={!fontInfos.fullName}
+                    disabled={!fontInfos.fullName && !overrides.fullName}
                 />
+                {note && (
+                    <div className={formStyles['note']}>Language changed, values need to be recomputed.</div>
+                )}
             </div>
         </form>
     )

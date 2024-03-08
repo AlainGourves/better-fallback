@@ -85,6 +85,7 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
 
     const fallbackFont = formData.get('fallbackFontSelect') as FallbackFontsType;
     const lang = formData.get('targetLanguage') as string;
+    const reqId = formData.get('reqId') as string;
 
     let fontOverrides: FontOverridesType[] = [];
 
@@ -126,18 +127,21 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
         } catch (err) {
             return {
                 status: 'error',
-                message: err?.toString()
+                message: err?.toString(),
+                id: reqId
             }
         }
 
         return {
             status: 'success',
-            message: fontOverrides
+            message: fontOverrides,
+            id: reqId
         }
     } else {
         return {
             status: 'error',
-            message: "Unable to deal with the informations you sent!"
+            message: "Unable to deal with the informations you sent!",
+            id: reqId
         }
     }
 }

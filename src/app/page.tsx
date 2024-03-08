@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 import { useFormState } from "react-dom";
 import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
@@ -16,6 +17,7 @@ import { useOverrides, useOverridesDispatch } from '@/app/context/overridesConte
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
+import { userAgent } from 'next/server';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
   loading: () => <p>Loading...</p>
@@ -44,6 +46,12 @@ export default function Home() {
 
   const overrides = useOverrides();
   const dispatchOverrides = useOverridesDispatch();
+
+  // useFormState does not allow to reset the form state: it remains the same until the form is submitted again
+  // Generating a new key to prevent useEffect from re-dispatching override infos of the last submit
+  // See: https://stackoverflow.com/a/77816853/5351146
+  const [formKey, setFormKey] = useState(() => nanoid());
+  const updateFormKey = () => setFormKey(nanoid());
 
   //type Bob = {[key in FallbackFontsType]: FontOverridesType}
   const [bob, setBob] = useState<FontOverridesType[]>([]);
@@ -100,20 +108,24 @@ export default function Home() {
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
-    // Handle response from the server
+    // Handle server response
     if (!overridesFormState.message) return;
-    if (overridesFormState.status === 'error') {//} && overridesFormState.message) {
+    if (overridesFormState.status === 'error') {
       // TODO: gestion erreur en fonction de `.message`
       console.warn("There was an error", overridesFormState.message)
       return;
     }
-    if (overridesFormState.status === 'success') {
-      // make a deep copy of the result
-      setBob(structuredClone(overridesFormState.message));
+
+    if (overridesFormState.status === 'success' && overridesFormState.id === formKey) {
+      setBob(structuredClone(overridesFormState.message)); // make a deep copy of the result
+      // get the right object from response
+      const payload = overridesFormState.message.find((o: FontOverridesType) => o.name === userData.fallbackFont);
       dispatchOverrides({
         type: 'setInfos',
-        payload: overridesFormState.message[0]
+        payload
       })
+      // Update formKey to expire server response
+      updateFormKey();
     }
   }, [overridesFormState, dispatchOverrides]);
 
@@ -121,9 +133,8 @@ export default function Home() {
     // Update when selected fallback font changes
     // providing that the selected language doesn't change (in which case it requires a new computation of the values)
     const font = userData.fallbackFont;
-    if (font !== overrides.name && bob) {
+    if (font !== overrides.name && bob.length > 0) {
       const newOverrides = bob.find((obj: FontOverridesType) => obj.name === font);
-
       if (newOverrides) {
         dispatchOverrides({
           type: 'setInfos',
@@ -138,15 +149,20 @@ export default function Home() {
     bob
   ]);
 
-  useEffect(()=>{
-    // Reset oveerides when the language's choice changes
-    // It needs re-computation
-    // reset overrides
-    dispatchOverrides({
-      type: 'reset', payload: null
-    })
+  useEffect(() => {
+    // When the language's choice changes, it needs re-computation of all overrides
     setBob([]);
-  }, [userData.language, dispatchOverrides])
+  }, [userData.language]);
+
+  useEffect(() => {
+    // Reset current overrides to default values
+    if (bob.length === 0 && fontInfos.fullName) {
+      dispatchOverrides({
+        type: 'reset', payload: null
+      });
+    }
+  }, [bob, fontInfos.fullName]);
+
 
   useEffect(() => {
     // Load fallback font in the document with metrics overrides
@@ -166,11 +182,11 @@ export default function Home() {
         );
         await fbFont.load();
         document.fonts.add(fbFont);
-        updateCustomProperty('--fallback-family', name);
       } catch (err) {
         console.error(err);
       }
     }
+
     if (overrides.fullName !== '') {
       loadFallBackFont(overrides);
       // Scroll demo text into view
@@ -224,6 +240,7 @@ export default function Home() {
       <OverridesForm
         ref={overridesSubmitRef}
         formAction={overridesFormAction}
+        formKey={formKey}
       />
 
       <DynamicDemoText />
