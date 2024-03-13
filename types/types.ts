@@ -51,6 +51,7 @@ export type UserDataType = {
   showUserText: boolean,
   userText: string | undefined,
   language: LanguagesType,
+  languageChangedNotif: boolean,
   fallbackFont: FallbackFontsType,
   fontSize: string,
   color: string,

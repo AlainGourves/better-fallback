@@ -48,14 +48,6 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
 
     let fallbackFontValue = fallbackFontDefault;
 
-    const [note, setNote] = useState(false);
-    const handleSubmit = (ev:React.FormEvent<HTMLFormElement>) => {
-        if (note) setNote(false);
-        console.log(ev.currentTarget)
-        ev.preventDefault();
-        ev.currentTarget.requestSubmit();
-    }
-
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
         if (ev.target.value) {
             const prev = fallbackFontDefault;
@@ -86,14 +78,16 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
         const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
         if (selected) {
             if ((selected.value !== userData.language) && overrides.fullName) {
-                // display invatation to recompute overrides
-                setNote(true);
+                // to display invitation to recompute overrides
+                dispatchUserData({
+                    type: 'changeLanguageAlert',
+                    payload: { value: true }
+                });
             }
             dispatchUserData({
                 type: 'changeLanguage',
                 payload: { value: selected.value as LanguagesType }
             });
-            // NB: overrides need to be recomputed, done in `page.tsx`
         }
     }
 
@@ -108,7 +102,6 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
             className={formStyles['font-settings']}
             action={formAction}
             key={formKey}
-            onSubmit={handleSubmit}
         >
             <div
                 className={formStyles['font-infos']}
@@ -171,7 +164,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
                     text='Proceed'
                     disabled={!fontInfos.fullName && !overrides.fullName}
                 />
-                {note && (
+                {userData.languageChangedNotif && (
                     <div className={formStyles['note']}>Language changed, values need to be recomputed.</div>
                 )}
             </div>

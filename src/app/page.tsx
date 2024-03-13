@@ -6,7 +6,7 @@ import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
 import { updateCustomProperty } from './_lib/utils';
-import { FontOverridesType, FallbackFontsType } from '../../types/types';
+import { FontOverridesType } from '../../types/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
@@ -17,7 +17,6 @@ import { useOverrides, useOverridesDispatch } from '@/app/context/overridesConte
 // To make sure that the component only loads on the client (as it uses localStorage)
 // cf: https://nextjs.org/docs/app/building-your-application/optimizing/lazy-loading#nextdynamic
 import dynamic from 'next/dynamic';
-import { userAgent } from 'next/server';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
   loading: () => <p>Loading...</p>
@@ -50,10 +49,10 @@ export default function Home() {
   // useFormState does not allow to reset the form state: it remains the same until the form is submitted again
   // Generating a new key to prevent useEffect from re-dispatching override infos of the last submit
   // See: https://stackoverflow.com/a/77816853/5351146
+  // & https://react.dev/learn/preserving-and-resetting-state#resetting-a-form-with-a-key
   const [formKey, setFormKey] = useState(() => nanoid());
   const updateFormKey = () => setFormKey(nanoid());
 
-  //type Bob = {[key in FallbackFontsType]: FontOverridesType}
   const [bob, setBob] = useState<FontOverridesType[]>([]);
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
@@ -151,8 +150,10 @@ export default function Home() {
 
   useEffect(() => {
     // When the language's choice changes, it needs re-computation of all overrides
-    setBob([]);
-  }, [userData.language]);
+    if (bob.length) setBob([]);
+    // Reset when tested font is deleted (=> fontInfos.fullName === '')
+    if (!fontInfos.fullName) setBob([]);
+  }, [userData.language, fontInfos.fullName]);
 
   useEffect(() => {
     // Reset current overrides to default values
@@ -188,6 +189,12 @@ export default function Home() {
     }
 
     if (overrides.fullName !== '') {
+      if (userData.languageChangedNotif) {
+        dispatchUserData({
+          type: 'changeLanguageAlert',
+          payload: { value: false }
+        });
+      }
       loadFallBackFont(overrides);
       // Scroll demo text into view
       const btn = overridesSubmitRef.current;

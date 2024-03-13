@@ -163,7 +163,7 @@ const loadFetchedFont = async (url: string) => {
         return { size, type, font }
     } catch (err) {
         if (err instanceof TypeError && err.message === 'fetch failed') {
-            throw new Error("Impossible to load a font file, please check your URL.")
+            throw new Error("Impossible to load a font file, please check your URL, or your connection.")
         } else {
             throw new Error(err as any);
         }

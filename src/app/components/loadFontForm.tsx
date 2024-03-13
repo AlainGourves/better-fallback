@@ -151,6 +151,7 @@ export default function LoadFontForm() {
         maxFiles: 1,
         multiple: false,
         maxSize: maxFileSize,
+        autoFocus: true,
         noClick: true, // prevent open dialog from opening twice
     });
 
@@ -272,6 +273,7 @@ export default function LoadFontForm() {
                                 <button
                                     type='button'
                                     onClick={open}
+                                    className={clsx('agf-component', formStyles['browse'])}
                                 >Browse</button>
                             </span>
                             {fontInfos.file && (

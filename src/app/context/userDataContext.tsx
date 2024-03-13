@@ -8,6 +8,7 @@ export const defaultUserData = {
     showUserText: false,
     userText: '',
     language: "en" as LanguagesType,
+    languageChangedNotif: false,
     fallbackFont: 'times' as FallbackFontsType,
     fontSize: '24',
     opacity: '0.8',
@@ -22,6 +23,7 @@ type Action =
     | { type: 'changeColor'; payload: { value: string } }
     | { type: 'changeFontFamily'; payload: { value: FallbackFontsType } }
     | { type: 'changeLanguage'; payload: { value: LanguagesType } }
+    | { type: 'changeLanguageAlert'; payload: { value: boolean } }
     | { type: 'changeAll'; payload: UserDataType }
     | { type: 'reset'; payload: null };
 
@@ -80,6 +82,13 @@ const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
             }
         }
 
+        case 'changeLanguageAlert': {
+            return {
+                ...userData,
+                languageChangedNotif: payload.value
+            }
+        }
+
         case 'changeFontFamily': {
             return {
                 ...userData,
@@ -102,6 +111,7 @@ const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
         }
 
         case 'changeAll': {
+            // to load from localStorage
             return {
                 ...userData,
                 showUserText: payload.showUserText,
