@@ -1,15 +1,7 @@
-@mixin button-reset {
-    // Reset button style
-    appearance: none;
-    padding: 0;
-    border: none;
-    font-family: inherit;
-    color: inherit;
-    background-color: transparent;
-}
+@use '../functions';
 
 .agf-btn {
-    @include button-reset;
+    @include functions.button-reset;
 
     display: inline-block;
     text-align: center;

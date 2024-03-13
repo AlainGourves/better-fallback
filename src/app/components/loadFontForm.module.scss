@@ -1,13 +1,23 @@
+@use './form-components/functions';
+
 .select-font {
     --drop-bg: yellowgreen;
     width: 100%;
     background-color: var(--drop-bg);
     border-radius: .5rem;
+
 }
 
 .dropzone {
     --w: 12rem;
     position: relative;
+
+    &:focus-within {
+        // react-dropzon add a `tabindex="0"` on the containing DIV, making it focusable
+        outline-color: transparent;
+        outline-style: none;
+        outline-width: 0;
+    }
 
     &>* {
         border-radius: .5rem;
@@ -89,14 +99,24 @@
     gap: 1rem;
 
     & button {
-        appearance: none;
-        border: none;
-        font: inherit;
+        @include functions.button-reset;
+
+        font-size: 1rem;
         font-weight: 600;
-        background: transparent;
+
+        &.browse {
+            padding: .25em .75em;
+            border-radius: 999rem;
+            transition:
+                background-color var(--anim-dur) var(--anim-fn),
+                box-shadow var(--anim-dur) var(--anim-fn);
+
+            &:focus-visible {
+                background-color: rgb(255 255 255/ .6);
+            }
+        }
 
         &:hover {
-            cursor: pointer;
             text-decoration: underline;
             text-decoration-thickness: max(0.125em, 2px);
             text-underline-offset: 0.125em;

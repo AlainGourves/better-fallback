@@ -1,17 +1,18 @@
+@use '../functions';
+
 .btn-icon {
     --__w: 2.5rem;
     position: relative;
 
     & button {
-        appearance: none;
-        border: none;
+        @include functions.button-reset;
+
         width: var(--__w);
         height: var(--__w);
         border-radius: 50%;
         padding: 0;
         display: grid;
         place-content: center;
-        cursor: pointer;
         color: var(--clr-active);
         background: var(--clr-active-50);
 

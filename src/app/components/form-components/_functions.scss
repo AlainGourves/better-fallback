@@ -28,6 +28,17 @@
     @return "hsl(#{$hue} #{$sat} #{$lig})";
 }
 
+@mixin button-reset {
+    // Reset button style
+    appearance: none;
+    padding: 0;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    background-color: transparent;
+    cursor: pointer;
+}
+
 // Utility functions ----------------------------------------------
 
 // linear interpolation between intervals [inMin, inMax] & [outMin, outMax]

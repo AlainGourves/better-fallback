@@ -1,8 +1,10 @@
+@use '../functions';
+
 // Button with a 'X' icon
 .close-btn {
+    @include functions.button-reset;
+
     --__w: 1.25em;
-    appearance: none;
-    border: none;
     width: var(--__w);
     aspect-ratio: 1;
     background-color: rgb(255 255 255 / .25);
@@ -12,7 +14,6 @@
     place-content: center;
     transition: background-color var(--anim-dur) linear,
             color var(--anim-dur) linear;
-    cursor: pointer;
 
     &:hover {
         color: #fff;
