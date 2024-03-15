@@ -3,20 +3,20 @@
 import { readFileSync } from 'fs';
 import * as fontkit from 'fontkit';
 import { getFontType, getFontSize } from '../_lib/fonts';
-import { fallbackFonts, FallbackFontsType, FontOverridesType, overridesDefault } from '../../../types/types';
+import { LanguagesType, fallbackFonts, FallbackFontsType, FontOverridesType, overridesDefault } from '../../../types/types';
 
 
 type FrequencyMap = {
     [key: string]: number
 }
 type LanguageFrequency = {
-    lang: string,
+    lang: LanguagesType,
     freq: FrequencyMap
 }
 type LanguagesArray = LanguageFrequency[];
 
 type FbFontData = {
-    lang: string;
+    lang: LanguagesType;
     width: number;
 };
 
@@ -81,10 +81,9 @@ const fallbacks = JSON.parse(rawdata);
 
 
 export async function getFontOverrides(prevState: ResponseType, formData: FormData) {
-    console.log("hello from server");
 
     const fallbackFont = formData.get('fallbackFontSelect') as FallbackFontsType;
-    const lang = formData.get('targetLanguage') as string;
+    const lang = formData.get('targetLanguage') as LanguagesType;
     const reqId = formData.get('reqId') as string;
 
     let fontOverrides: FontOverridesType[] = [];
@@ -94,6 +93,7 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
     if (fallbackFont && lang) {
         try {
             if (myFont) {
+                console.log(`Computing overrides for ${myFont.fullName}`);
                 fallbackFonts.forEach(async (fnt) => {
                     if (myFont) {
                         let overrides = overridesDefault;
@@ -114,6 +114,7 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
                             'lineGap': lineGap,
                             'sizeAdjust': formatForCSS(sizeAdjust),
                             'isActive': true,
+                            'language': lang,
                             'overridesName': `${fnt[0].toUpperCase()}${fnt.slice(1)} fallback for ${myFont.postscriptName}`
                         }
                         fontOverrides.push(overrides);
@@ -151,7 +152,6 @@ export async function getFontOverrides(prevState: ResponseType, formData: FormDa
 const loadFetchedFont = async (url: string) => {
     try {
         const response = await fetch(url);
-        console.log("coucou", response.status)
         if (!response.ok) {
             // console.log(typeof response.status)
             throw new Error(`${response.status} ${response.statusText}`)
@@ -193,13 +193,13 @@ const getAvgWidth = async (font: fontkit.Font, freq: FrequencyMap) => {
     return width;
 }
 
-const getFrequencies = (lang: string) => {
+const getFrequencies = (lang: LanguagesType) => {
     const obj = frequencies.find((o: LanguageFrequency) => o.lang === lang);
     return obj.freq;
 }
 
 
-const getFallbackAvgWidth = (fb: FbFont, lang: string) => {
+const getFallbackAvgWidth = (fb: FbFont, lang: LanguagesType) => {
     const data = fb.data.find((o: FbFontData) => o.lang === lang);
     return data?.width;
 }
@@ -209,7 +209,7 @@ const getFallbackInfos = (name: string) => {
     return obj;
 }
 
-const getSizeAdjust = async (font: fontkit.Font, fbInfos: FbFont, lang: string) => {
+const getSizeAdjust = async (font: fontkit.Font, fbInfos: FbFont, lang: LanguagesType) => {
     const freq = getFrequencies(lang);
     // Average with of the submitted font
     const avgWidthFont = await getAvgWidth(font, freq);

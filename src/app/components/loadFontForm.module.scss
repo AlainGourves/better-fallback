@@ -98,6 +98,11 @@
     justify-content: center;
     gap: 1rem;
 
+    & > span:last-of-type:is(:last-child){
+        // reserve vertical space for font-file DIV & prevent layout shift
+        margin-block-end: 3rem; // gap + height of fontFile
+    }
+
     & button {
         @include functions.button-reset;
 

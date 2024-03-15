@@ -6,7 +6,7 @@ import styles from './page.module.scss'
 import { getFontOverrides } from './api/actions';
 import { fetchFont } from './_lib/fonts';
 import { updateCustomProperty } from './_lib/utils';
-import { FontOverridesType } from '../../types/types';
+import { FontOverridesType, overridesDefault } from '../../types/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
@@ -45,6 +45,10 @@ export default function Home() {
 
   const overrides = useOverrides();
   const dispatchOverrides = useOverridesDispatch();
+  let currentOverrides: FontOverridesType = overridesDefault;
+  if (overrides.length > 0) {
+    currentOverrides = overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType;
+  }
 
   // useFormState does not allow to reset the form state: it remains the same until the form is submitted again
   // Generating a new key to prevent useEffect from re-dispatching override infos of the last submit
@@ -52,8 +56,6 @@ export default function Home() {
   // & https://react.dev/learn/preserving-and-resetting-state#resetting-a-form-with-a-key
   const [formKey, setFormKey] = useState(() => nanoid());
   const updateFormKey = () => setFormKey(nanoid());
-
-  const [bob, setBob] = useState<FontOverridesType[]>([]);
 
   const [isLocalStorageRead, setIsLocalStorageRead] = useState(false);
 
@@ -100,7 +102,7 @@ export default function Home() {
         type: 'reset', payload: null
       });
     }
-  }, [fontInfos, dispatchFontInfos, dispatchOverrides]);
+  }, [fontInfos.url, fontInfos.file, dispatchFontInfos, dispatchOverrides]);
 
 
   // Server actions
@@ -116,54 +118,40 @@ export default function Home() {
     }
 
     if (overridesFormState.status === 'success' && overridesFormState.id === formKey) {
-      setBob(structuredClone(overridesFormState.message)); // make a deep copy of the result
-      // get the right object from response
-      const payload = overridesFormState.message.find((o: FontOverridesType) => o.name === userData.fallbackFont);
+      if (userData.languageChangedNotif) {
+        dispatchUserData({
+          type: 'changeLanguageNotif',
+          payload: { value: false }
+        });
+      }
       dispatchOverrides({
         type: 'setInfos',
-        payload
+        payload: overridesFormState.message
       })
       // Update formKey to expire server response
       updateFormKey();
     }
-  }, [overridesFormState, dispatchOverrides]);
+  }, [overridesFormState, dispatchOverrides, formKey]);
+
 
   useEffect(() => {
-    // Update when selected fallback font changes
-    // providing that the selected language doesn't change (in which case it requires a new computation of the values)
-    const font = userData.fallbackFont;
-    if (font !== overrides.name && bob.length > 0) {
-      const newOverrides = bob.find((obj: FontOverridesType) => obj.name === font);
-      if (newOverrides) {
-        dispatchOverrides({
-          type: 'setInfos',
-          payload: newOverrides
-        })
-      }
-    }
-  }, [
-    userData.fallbackFont,
-    dispatchOverrides,
-    overrides.name,
-    bob
-  ]);
-
-  useEffect(() => {
+    if (!currentOverrides.name) return;
+    console.log(currentOverrides)
     // When the language's choice changes, it needs re-computation of all overrides
-    if (bob.length) setBob([]);
-    // Reset when tested font is deleted (=> fontInfos.fullName === '')
-    if (!fontInfos.fullName) setBob([]);
-  }, [userData.language, fontInfos.fullName]);
-
-  useEffect(() => {
-    // Reset current overrides to default values
-    if (bob.length === 0 && fontInfos.fullName) {
+    if (userData.language !== currentOverrides.language) {
       dispatchOverrides({
-        type: 'reset', payload: null
+        type: 'reset',
+        payload: null
       });
     }
-  }, [bob, fontInfos.fullName]);
-
+    // Reset when tested font is deleted (=> fontInfos.fullName === '')
+    if (!fontInfos.fullName) {
+      dispatchOverrides({
+        type: 'reset',
+        payload: null
+      });
+    }
+  }, [currentOverrides, userData.language, fontInfos.fullName]);
 
   useEffect(() => {
     // Load fallback font in the document with metrics overrides
@@ -188,28 +176,21 @@ export default function Home() {
       }
     }
 
-    if (overrides.fullName !== '') {
-      if (userData.languageChangedNotif) {
-        dispatchUserData({
-          type: 'changeLanguageAlert',
-          payload: { value: false }
+    if (!currentOverrides.name) return;
+    loadFallBackFont(currentOverrides);
+    // Scroll demo text into view
+    const btn = overridesSubmitRef.current;
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      setTimeout(() => {
+        const y = window.scrollY + rect.y - 16;
+        window.scrollTo({
+          top: y,
+          behavior: "auto"
         });
-      }
-      loadFallBackFont(overrides);
-      // Scroll demo text into view
-      const btn = overridesSubmitRef.current;
-      if (btn) {
-        const rect = btn.getBoundingClientRect();
-        setTimeout(() => {
-          const y = window.scrollY + rect.y - 16;
-          window.scrollTo({
-            top: y,
-            behavior: "auto"
-          });
-        }, 250); // without this delay, scroll doesn't stop  in the right position (probably by React haven't finished reconstructing the DOM)
-      }
+      }, 250); // without this delay, scroll doesn't stop  in the right position (probably by React haven't finished reconstructing the DOM)
     }
-  }, [overrides])
+  }, [currentOverrides, userData.languageChangedNotif, dispatchUserData])
 
   useEffect(() => {
     // Load user settings from localStorage
@@ -239,6 +220,7 @@ export default function Home() {
 
   }, [userData, isLocalStorageRead]);
 
+
   return (
     <main className={styles.main}>
 
@@ -252,8 +234,8 @@ export default function Home() {
 
       <DynamicDemoText />
 
-      {(bob.length > 0) && (
-        <SectionCode code={bob} />
+      {(overrides.length > 0) && (
+        <SectionCode code={overrides} />
       )}
     </main>
   )

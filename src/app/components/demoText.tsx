@@ -1,16 +1,16 @@
 'use client'
 // localStorage only exists in browser !
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import styles from './demoText.module.scss';
 import TextTools from "./textTools";
 import { dummyText } from '@/app/_lib/dummyText';
 import { useUserDataDispatch, useUserData } from "@/app/context/userDataContext";
 import Switch from "./form-components/switch/switch";
 import { updateCustomProperty } from "../_lib/utils";
-import {fallbackFontsOptions} from './overridesForm';
+import { fallbackFontsOptions } from './overridesForm';
 import { useOverrides } from "../context/overridesContext";
-import {FallbackFontsType} from '../../../types/types'
+import { FallbackFontsType, FontOverridesType, overridesDefault } from '../../../types/types'
 
 export default function DemoText() {
 
@@ -21,6 +21,11 @@ export default function DemoText() {
   const dispatchUserData = useUserDataDispatch();
 
   const overrides = useOverrides();
+
+  let currentOverrides: FontOverridesType = overridesDefault;
+  if (overrides.length > 0) {
+    currentOverrides = overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType;
+  }
 
   const [showUserTextSwitch, setShowUserTextSwitch] = useState(userData.showUserText);
 
@@ -74,38 +79,48 @@ export default function DemoText() {
   }
 
   useEffect(() => {
-    setDisplayFMO(overrides.isActive);
-  }, [overrides.isActive]);
+    if (!currentOverrides.name) return;
+    setDisplayFMO(currentOverrides.isActive);
+  }, [currentOverrides.isActive]);
 
   // --fallback-family variations
-  const setBaseFallback = ()=>{
+  const setBaseFallback = useCallback(() => {
     const family = fallbackFontsOptions[userData.fallbackFont as FallbackFontsType]?.style;
     if (family && 'document' in window) {
       updateCustomProperty('--fallback-family', family);
     }
-  }
+  }, [userData.fallbackFont]);
 
   useEffect(() => {
-    // When selected fallback font changes
-    setBaseFallback();
-}, [userData.fallbackFont])
+    // Update when selected fallback font changes
+    // providing that the selected language doesn't change (in which case it requires a new computation of the values)
+    if (!currentOverrides.name) return;
+    if (userData.fallbackFont !== currentOverrides.name) {
+      currentOverrides = overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType;
+      setBaseFallback();
+    }
+  }, [
+    userData.fallbackFont,
+    overrides
+  ]);
 
   useEffect(() => {
     // When FMO switch value changes
-    if (overrides.overridesName && overrides.name) {
+    if (!currentOverrides.name) return;
+    if (currentOverrides.overridesName) {
       let val;
       if (displayFMO) {
-        val = overrides.overridesName;
-      }else{
-        val = fallbackFontsOptions[overrides.name as FallbackFontsType]?.style;
+        val = currentOverrides.overridesName;
+      } else {
+        val = fallbackFontsOptions[currentOverrides.name as FallbackFontsType]?.style;
       }
       if (val && 'document' in window) {
         updateCustomProperty('--fallback-family', val);
       }
-    }else{
+    } else {
       setBaseFallback();
     }
-  }, [displayFMO, overrides]);
+  }, [displayFMO, currentOverrides]);
 
   const handleInput = (ev: React.FormEvent<HTMLDivElement>) => {
     setIsEditing(true);
@@ -118,7 +133,7 @@ export default function DemoText() {
         onChange={handleShowUserTextSwitch}
       />
 
-      {(overrides.overridesName !== '' && !isEditing) &&
+      {(currentOverrides.overridesName !== '' && !isEditing) &&
         <div className={styles['sticker']}>
           <Switch
             id='apply-overrides'

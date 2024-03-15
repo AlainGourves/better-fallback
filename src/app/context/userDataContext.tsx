@@ -23,7 +23,7 @@ type Action =
     | { type: 'changeColor'; payload: { value: string } }
     | { type: 'changeFontFamily'; payload: { value: FallbackFontsType } }
     | { type: 'changeLanguage'; payload: { value: LanguagesType } }
-    | { type: 'changeLanguageAlert'; payload: { value: boolean } }
+    | { type: 'changeLanguageNotif'; payload: { value: boolean } }
     | { type: 'changeAll'; payload: UserDataType }
     | { type: 'reset'; payload: null };
 
@@ -33,11 +33,19 @@ export const UserDataContext = createContext<UserDataType>(defaultUserData);
 export const UserDataDispatchContext = createContext<React.Dispatch<Action>>(() => { });
 
 export function useUserData() {
-    return useContext(UserDataContext);
+    const context = useContext(UserDataContext);
+    if (!context) {
+        throw new Error('useUserData must be used within a context provider!');
+    }
+    return context;
 }
 
 export function useUserDataDispatch() {
-    return useContext(UserDataDispatchContext);
+    const context = useContext(UserDataDispatchContext);
+    if (!context) {
+        throw new Error('useUserData must be used within a context provider!');
+    }
+    return context;
 }
 
 export function UserDataProvider({ value, children }: { value: UserDataType, children: ReactNode }) {
@@ -82,7 +90,7 @@ const userDataReducer = (userData: UserDataType, { type, payload}: Action) => {
             }
         }
 
-        case 'changeLanguageAlert': {
+        case 'changeLanguageNotif': {
             return {
                 ...userData,
                 languageChangedNotif: payload.value

@@ -11,16 +11,17 @@ const languages = ['en', 'fr'] as const;
 export type LanguagesType = typeof languages[number];
 
 export type FontOverridesType = {
-  name: string,
-  fullName: string,
-  postscriptName: string,
+  name: string, // 'arial' | 'roboto' | 'times'
+  fullName: string, // fallback full name
+  postscriptName: string, // fallback postscript name (one word)
   file: string, // path to the fallback fonts in /public
   ascent: string,
   descent: string,
   lineGap: string,
   sizeAdjust: string,
+  language:LanguagesType, // targeted language for the overrides
   isActive: boolean,
-  overridesName: string,
+  overridesName: string, // name for fallback font with overrides (eg. "Times fallback for Anton-Regular")
 }
 
 export const overridesDefault = {
@@ -33,6 +34,7 @@ export const overridesDefault = {
   lineGap: '',
   sizeAdjust: '',
   isActive: false,
+  language: 'en' as LanguagesType,
   overridesName: ''
 }
 

@@ -44,19 +44,15 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
     const dispatchOverrides = useOverridesDispatch();
 
     // `Select` for choosing fallback font
-    const fallbackFontDefault = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
+    const initialFallbackFont = userData.fallbackFont ? userData.fallbackFont : 'times' as FallbackFontsType;
 
-    let fallbackFontValue = fallbackFontDefault;
+    let fallbackFontValue = initialFallbackFont;
 
     const handleFallbackSelect = (ev: React.ChangeEvent<HTMLSelectElement>) => {
         if (ev.target.value) {
-            const prev = fallbackFontDefault;
+            const prev = initialFallbackFont;
             fallbackFontValue = ev.target.value as FallbackFontsType;
             if (fallbackFontValue !== prev) {
-                // if the font changed, overrides need to be recomputed
-                dispatchOverrides({
-                    type: 'reset', payload: null
-                })
                 dispatchUserData({
                     type: 'changeFontFamily',
                     payload: {
@@ -77,10 +73,10 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
         const field = ev.currentTarget;
         const selected = field.querySelector('[type=radio]:checked') as HTMLInputElement;
         if (selected) {
-            if ((selected.value !== userData.language) && overrides.fullName) {
+            if ((selected.value !== userData.language) && overrides.length) {
                 // to display invitation to recompute overrides
                 dispatchUserData({
-                    type: 'changeLanguageAlert',
+                    type: 'changeLanguageNotif',
                     payload: { value: true }
                 });
             }
@@ -138,7 +134,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
                     id='fallbackFontSelect'
                     label='Family'
                     options={fallbackFontsOptions}
-                    value={fallbackFontDefault}
+                    value={initialFallbackFont}
                     onChange={handleFallbackSelect}
                 />
 
@@ -162,7 +158,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
                     ref={overridesSubmitRef}
                     id="proceed"
                     text='Proceed'
-                    disabled={!fontInfos.fullName && !overrides.fullName}
+                    disabled={!fontInfos.fullName && !overrides.length}
                 />
                 {userData.languageChangedNotif && (
                     <div className={formStyles['note']}>Language changed, values need to be recomputed.</div>

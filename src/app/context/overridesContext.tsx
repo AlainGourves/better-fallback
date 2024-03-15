@@ -1,11 +1,13 @@
 import { createContext, useContext, ReactNode, useReducer } from "react";
-import { FontOverridesType, overridesDefault } from "../../../types/types";
+import { FontOverridesType } from "../../../types/types";
 
 type Action =
     | { type: 'setInfos', payload: object }
     | { type: 'reset'; payload: null };
 
-export const OverridesContext = createContext<FontOverridesType>(overridesDefault);
+const initialState: FontOverridesType[] = [];
+
+export const OverridesContext = createContext<FontOverridesType[]>(initialState);
 
 export const OverridesDispatchContext = createContext<React.Dispatch<Action>>(() => { });
 
@@ -25,8 +27,8 @@ export function useOverridesDispatch() {
     return context;
 }
 
-export function OverridesProvider({ value, children }: { value: FontOverridesType, children: ReactNode }) {
-    const [state, dispatch] = useReducer(overridesReducer, overridesDefault);
+export function OverridesProvider({ value, children }: { value: FontOverridesType[], children: ReactNode }) {
+    const [state, dispatch] = useReducer(overridesReducer, initialState);
 
     return (
         <OverridesDispatchContext.Provider value={dispatch}>
@@ -37,18 +39,15 @@ export function OverridesProvider({ value, children }: { value: FontOverridesTyp
     )
 }
 
-const overridesReducer = (overrides: FontOverridesType, { type, payload }: Action) => {
+const overridesReducer = (overrides: FontOverridesType[], { type, payload }: Action) => {
     switch (type) {
 
         case 'setInfos': {
-            return {
-                ...overrides,
-                ...payload
-            }
+            return payload as FontOverridesType[]
         }
 
         case 'reset': {
-            return overridesDefault;
+            return [];
         }
 
         default: {
