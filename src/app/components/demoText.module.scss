@@ -2,6 +2,7 @@
   width: 100%;
   background-color: #fff;
   position: relative;
+  padding-inline: .75rem;
 }
 
 .temoin {
@@ -10,6 +11,7 @@
   max-height: 20rem;
   overflow-y: auto;
   margin-inline: auto;
+  padding-inline: .25rem; // needs inline padding for the caret to be visible at the left of the lines (when edited)
   line-height: 1.5;
   font-family: var(--tested-font, 'Times New Roman', Times, serif);
   font-size: var(--temoin-fs, 24px);
@@ -19,7 +21,9 @@
   text-wrap: pretty;
   white-space: pre-line;
   position: relative;
-  // border: 0;
+  border-radius: .25rem;
+  box-shadow: 0 0 0 transparent;
+  transition: box-shadow var(--anim-dur) var(--anim-fn);
 
   &::before,
   &::after {
@@ -34,13 +38,12 @@
     color: var(--fallback-color, red);
     font-family: var(--fallback-family, 'Times New Roman', Times, serif);
     opacity: var(--fallback-opacity, .75);
-
+    padding-inline: .25rem;
   }
 
   &:focus-visible::before {
-    // TODO
-    // fallback text is not visible while the text is edited
-    content: '';
+      // fallback text is not visible while the text is edited
+      content: '';
   }
 
   &:empty::after {

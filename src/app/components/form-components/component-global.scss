@@ -92,7 +92,7 @@ $shades: (
     --anim-dur: .25s;
     --anim-fn: ease-out;
 
-    &:is(button),
+    &:is(button, div),
     & :is(input, select, textarea, button) {
 
         &:focus:not(:focus-visible) {
