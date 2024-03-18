@@ -2,6 +2,7 @@
 // localStorage only exists in browser !
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import clsx from "clsx";
 import styles from './demoText.module.scss';
 import TextTools from "./textTools";
 import { dummyText } from '@/app/_lib/dummyText';
@@ -9,28 +10,24 @@ import { useUserDataDispatch, useUserData } from "@/app/context/userDataContext"
 import Switch from "./form-components/switch/switch";
 import { updateCustomProperty } from "../_lib/utils";
 import { fallbackFontsOptions } from './overridesForm';
-import { useOverrides } from "../context/overridesContext";
 import { FallbackFontsType, FontOverridesType, overridesDefault } from '../../../types/types'
 
-export default function DemoText() {
+type DemoTextProps = {
+  currentOverrides: FontOverridesType
+}
+
+export default function DemoText({ currentOverrides }: DemoTextProps) {
 
   const demoText = useRef<HTMLDivElement | null>(null);
 
   const userData = useUserData();
-  let userText = (userData.userText) ? userData.userText : '';
   const dispatchUserData = useUserDataDispatch();
-
-  const overrides = useOverrides();
-
-  let currentOverrides: FontOverridesType = overridesDefault;
-  if (overrides.length > 0) {
-    currentOverrides = overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType;
-  }
 
   const [showUserTextSwitch, setShowUserTextSwitch] = useState(userData.showUserText);
 
   const lang = userData.language ? userData.language : 'en';
   const text = dummyText[(lang as keyof typeof dummyText)];
+  let userText = (userData.userText) ? userData.userText : '';
 
   // To know when DemoText is edited by the user
   const [isEditing, setIsEditing] = useState(false);
@@ -45,33 +42,6 @@ export default function DemoText() {
     });
   }
 
-  const saveUserText = (ev: React.FocusEvent<HTMLDivElement, Element>) => {
-    setIsEditing(false);
-    // Important ! contentEditable attribute is enumerated, not a Boolean
-    // its value is a string, not a bool
-    if (demoText.current?.contentEditable === 'true') {
-      const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText : '';
-      dispatchUserData({
-        type: 'changeDemoText',
-        payload: { value: newText }
-      });
-    }
-  }
-
-
-  // TODO:
-  const pasteUserText = (ev: React.ClipboardEvent<HTMLDivElement>) => {
-    // Captures the `paste` event to only get plain text instead of HTML rich content
-    ev.preventDefault();
-    // get text representation of clipboard
-    const text = (ev.clipboardData).getData("text/plain");
-    const selection = window.getSelection();
-    if (!selection || !selection.rangeCount) return;
-    selection.deleteFromDocument();
-    selection.getRangeAt(0).insertNode(document.createTextNode(text));
-    selection.collapseToEnd();
-  }
-
   // Handle wether the text is displayed with or without Fonts Metrics Overrides
   const [displayFMO, setDisplayFMO] = useState(false);
   const handleSwitchFMO = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +51,7 @@ export default function DemoText() {
   useEffect(() => {
     if (!currentOverrides.name) return;
     setDisplayFMO(currentOverrides.isActive);
-  }, [currentOverrides.isActive]);
+  }, [currentOverrides.name, currentOverrides.isActive]);
 
   // --fallback-family variations
   const setBaseFallback = useCallback(() => {
@@ -92,22 +62,8 @@ export default function DemoText() {
   }, [userData.fallbackFont]);
 
   useEffect(() => {
-    // Update when selected fallback font changes
-    // providing that the selected language doesn't change (in which case it requires a new computation of the values)
-    if (!currentOverrides.name) return;
-    if (userData.fallbackFont !== currentOverrides.name) {
-      currentOverrides = overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType;
-      setBaseFallback();
-    }
-  }, [
-    userData.fallbackFont,
-    overrides
-  ]);
-
-  useEffect(() => {
     // When FMO switch value changes
-    if (!currentOverrides.name) return;
-    if (currentOverrides.overridesName) {
+    if (currentOverrides.name) {
       let val;
       if (displayFMO) {
         val = currentOverrides.overridesName;
@@ -120,10 +76,38 @@ export default function DemoText() {
     } else {
       setBaseFallback();
     }
-  }, [displayFMO, currentOverrides]);
+  }, [displayFMO, currentOverrides, setBaseFallback]);
 
-  const handleInput = (ev: React.FormEvent<HTMLDivElement>) => {
-    setIsEditing(true);
+
+  // ContentEditable DIV ---------------------------
+  const handleFocus = (ev: React.FormEvent<HTMLDivElement>) => {
+    if (showUserTextSwitch) setIsEditing(true);
+  }
+
+  // Save the user text when the DIV has been edited
+  const saveUserText = (ev: React.FocusEvent<HTMLDivElement, Element>) => {
+    setIsEditing(false);
+    // Important ! contentEditable attribute is enumerated, not a Boolean
+    // its value is a string, not a bool
+    if (demoText.current?.contentEditable === 'true') {
+      const newText = (ev.currentTarget.innerText) ? ev.currentTarget.innerText.trim() : '';
+      dispatchUserData({
+        type: 'changeDemoText',
+        payload: { value: newText }
+      });
+    }
+  }
+
+  // Captures the `paste` event to only get plain text instead of HTML rich content
+  const pasteUserText = (ev: React.ClipboardEvent<HTMLDivElement>) => {
+    ev.preventDefault();
+    // get text representation of clipboard
+    const text = (ev.clipboardData).getData("text/plain");
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+    selection.deleteFromDocument();
+    selection.getRangeAt(0).insertNode(document.createTextNode(text));
+    selection.collapseToEnd();
   }
 
   return (
@@ -133,7 +117,7 @@ export default function DemoText() {
         onChange={handleShowUserTextSwitch}
       />
 
-      {(currentOverrides.overridesName !== '' && !isEditing) &&
+      {(currentOverrides && currentOverrides.overridesName !== '' && !isEditing) &&
         <div className={styles['sticker']}>
           <Switch
             id='apply-overrides'
@@ -145,7 +129,7 @@ export default function DemoText() {
       }
       <div
         ref={demoText}
-        className={styles.temoin}
+        className={clsx(styles.temoin, 'agf-component')}
         data-txt={showUserTextSwitch ? userText : text}
         contentEditable={showUserTextSwitch}
         role={showUserTextSwitch ? 'textbox' : ''}
@@ -154,7 +138,8 @@ export default function DemoText() {
         suppressContentEditableWarning={true}
         onBlur={saveUserText}
         onPaste={pasteUserText}
-        onInput={handleInput}
+        onFocus={handleFocus}
+        lang={userData.language}
       >
         {(showUserTextSwitch) ? userText : text}
       </div>

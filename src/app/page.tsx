@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, use, useCallback } from 'react';
 import { nanoid } from 'nanoid';
 import { useFormState } from "react-dom";
 import styles from './page.module.scss'
@@ -45,10 +45,25 @@ export default function Home() {
 
   const overrides = useOverrides();
   const dispatchOverrides = useOverridesDispatch();
-  let currentOverrides: FontOverridesType = overridesDefault;
-  if (overrides.length > 0) {
-    currentOverrides = overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType;
+
+  const [currentOverrides, setCurrentOverrides] = useState<FontOverridesType>(overridesDefault);
+  const updateCurrentOverrides = useCallback(() => {
+    setCurrentOverrides(prev => overrides.find((obj) => obj.name === userData.fallbackFont) as FontOverridesType);
+  }, [overrides, userData.fallbackFont]);
+  const resetCurrentOverrides = () => {
+    setCurrentOverrides(overridesDefault);
   }
+  // Update currentOverrides when selected fallback font changes
+  useEffect(() => {
+    if (!currentOverrides.name) return;
+    if (userData.fallbackFont !== currentOverrides.name) {
+      updateCurrentOverrides();
+    }
+  }, [
+    userData.fallbackFont,
+    currentOverrides,
+    updateCurrentOverrides
+  ]);
 
   // useFormState does not allow to reset the form state: it remains the same until the form is submitted again
   // Generating a new key to prevent useEffect from re-dispatching override infos of the last submit
@@ -109,7 +124,7 @@ export default function Home() {
   const [overridesFormState, overridesFormAction] = useFormState<any, FormData>(getFontOverrides, initialState);
 
   useEffect(() => {
-    // Handle server response
+    // Handle server response for overrides
     if (!overridesFormState.message) return;
     if (overridesFormState.status === 'error') {
       // TODO: gestion erreur en fonction de `.message`
@@ -120,6 +135,7 @@ export default function Home() {
     if (overridesFormState.status === 'success' && overridesFormState.id === formKey) {
       if (userData.languageChangedNotif) {
         dispatchUserData({
+          // reset value in case it was 'true'
           type: 'changeLanguageNotif',
           payload: { value: false }
         });
@@ -127,22 +143,32 @@ export default function Home() {
       dispatchOverrides({
         type: 'setInfos',
         payload: overridesFormState.message
-      })
+      });
+      setCurrentOverrides(overridesFormState.message.find((obj: FontOverridesType) => obj.name === userData.fallbackFont));
       // Update formKey to expire server response
       updateFormKey();
     }
-  }, [overridesFormState, dispatchOverrides, formKey]);
+  }, [
+    overridesFormState,
+    dispatchOverrides,
+    userData.languageChangedNotif,
+    userData.fallbackFont,
+    dispatchUserData,
+    formKey
+  ]);
 
-
+  // Resetting when:
+  //   1) targeted language changes
+  //   2) tested font is cleared
   useEffect(() => {
-    if (!currentOverrides.name) return;
-    console.log(currentOverrides)
+    if (!currentOverrides?.name) return;
     // When the language's choice changes, it needs re-computation of all overrides
     if (userData.language !== currentOverrides.language) {
       dispatchOverrides({
         type: 'reset',
         payload: null
       });
+      resetCurrentOverrides();
     }
     // Reset when tested font is deleted (=> fontInfos.fullName === '')
     if (!fontInfos.fullName) {
@@ -150,8 +176,14 @@ export default function Home() {
         type: 'reset',
         payload: null
       });
+      resetCurrentOverrides();
     }
-  }, [currentOverrides, userData.language, fontInfos.fullName]);
+  }, [
+    currentOverrides,
+    userData.language,
+    fontInfos.fullName,
+    dispatchOverrides
+  ]);
 
   useEffect(() => {
     // Load fallback font in the document with metrics overrides
@@ -192,6 +224,8 @@ export default function Home() {
     }
   }, [currentOverrides, userData.languageChangedNotif, dispatchUserData])
 
+
+  // LocalStorage -------------------------------------------
   useEffect(() => {
     // Load user settings from localStorage
     if ('localStorage' in window) {
@@ -220,7 +254,6 @@ export default function Home() {
 
   }, [userData, isLocalStorageRead]);
 
-
   return (
     <main className={styles.main}>
 
@@ -232,7 +265,7 @@ export default function Home() {
         formKey={formKey}
       />
 
-      <DynamicDemoText />
+      <DynamicDemoText currentOverrides={currentOverrides} />
 
       {(overrides.length > 0) && (
         <SectionCode code={overrides} />

@@ -13,9 +13,11 @@ type PropsType = {
 
 export default function BtnIcon({ id, iconName, onClick, text, className }: PropsType) {
 
-
+/*
+    Note: containing element is a DIV, not a LABEL as it would make the tooltip clickable (unintentionnally more often than not!)
+*/
     return (
-        <label htmlFor={id} className={clsx(className, btnIconStyles['btn-icon'])}>
+        <div className={clsx(className, btnIconStyles['btn-icon'])}>
             <button
                 type='button'
                 id={id}
@@ -24,6 +26,6 @@ export default function BtnIcon({ id, iconName, onClick, text, className }: Prop
                 <Icon name={iconName} />
             </button>
             <span className={btnIconStyles['tooltip']}>{text}</span>
-        </label>
+        </div>
     )
 }
