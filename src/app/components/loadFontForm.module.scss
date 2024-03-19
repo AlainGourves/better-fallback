@@ -1,14 +1,14 @@
 @use './form-components/functions';
 
 .select-font {
-    --drop-bg: yellowgreen;
     width: 100%;
-    background-color: var(--drop-bg);
-    border-radius: .5rem;
-
 }
 
 .dropzone {
+    --drop-bg: yellowgreen;
+    width: 100%;
+    background-color: var(--drop-bg);
+    // border-radius: .5rem;
     --w: 12rem;
     position: relative;
 
@@ -45,7 +45,7 @@
                 place-content: center;
             }
 
-            &:nth-of-type(3) {
+            &.input-url {
                 display: grid;
                 grid-template-columns: auto 8.5rem;
                 align-items: center;
@@ -62,6 +62,7 @@
         background: var(--drop-bg);
         padding: 1rem;
         color: #fff;
+        border-radius: inherit;
 
         &.active {
             z-index: 1;
@@ -69,7 +70,7 @@
         }
 
         &.error {
-            --drop-bg: orangered;
+            --drop-bg: #ed8008;
         }
     }
 
@@ -139,12 +140,12 @@
 }
 
 .error-msg-container {
-    padding: 1rem;
+    padding: 1rem 1rem 0 1rem;
 }
 
 .error-msg {
-    padding: .5rem;
-    background: #ff6701;
+    padding: .5rem 1rem;
+    background: #ed8008;
     background-image: linear-gradient(0deg, rgb(0 0 0 /.2), rgb(255 255 255 /.2));
     background-blend-mode: overlay;
     border-radius: .25rem;

@@ -1,10 +1,12 @@
 .font-settings {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: .5rem;
     width: 100%;
     min-height: 6lh;
     background-color: tomato;
+
+    & > form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: .5rem;
 
     &>div {
       display: flex;
@@ -37,6 +39,7 @@
         justify-content: center;
         position: relative;
       }
+    }
     }
   }
 

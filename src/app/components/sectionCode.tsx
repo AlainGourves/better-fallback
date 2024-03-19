@@ -102,7 +102,7 @@ body {
 
 
     if (theCode) return (
-        <section>
+        <section className={sectionStyles['generated-css']}>
             <h3>Font metrics (optimized for {language} text)</h3>
             <div
                 className={clsx('code', sectionStyles['code-container'])}

@@ -94,8 +94,10 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
     }, [fontInfos])
 
     return (
-        <form
+        <section
             className={formStyles['font-settings']}
+        >
+        <form
             action={formAction}
             key={formKey}
         >
@@ -165,6 +167,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
                 )}
             </div>
         </form>
+        </section>
     )
 });
 

@@ -111,7 +111,7 @@ export default function DemoText({ currentOverrides }: DemoTextProps) {
   }
 
   return (
-    <div className={styles['text-container']}>
+    <section className={styles['text-container']}>
       <TextTools
         checked={showUserTextSwitch}
         onChange={handleShowUserTextSwitch}
@@ -143,6 +143,6 @@ export default function DemoText({ currentOverrides }: DemoTextProps) {
       >
         {(showUserTextSwitch) ? userText : text}
       </div>
-    </div>
+    </section>
   );
 };
