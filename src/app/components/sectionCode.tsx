@@ -7,61 +7,67 @@ import { useEffect, useMemo } from 'react';
 import { copyToClipboard } from '../_lib/utils';
 import { useUserData } from '../context/userDataContext';
 import { useFontInfos } from '../context/fontContext';
+import { useOverrides } from '../context/overridesContext';
 import BtnIcon from './form-components/btnIcon/btnIcon';
 
-type CodeProps = {
-    code: FontOverridesType[]
+type CSSCodeType = {
+    css: string,
+    body: string
 }
 
-export default function SectionCode({ code }: CodeProps) {
+export default function SectionCode() {
 
     const userData = useUserData();
     const language = (userData.language === 'en') ? 'English' : 'French';
 
     const fontInfos = useFontInfos();
 
-    const getFontFaces = (overrides: FontOverridesType) => {
+    const overrides = useOverrides();
+
+    let theCode: CSSCodeType | null = null; // stores the code to copy
+    let theColoredCode: CSSCodeType | null = null; // stores syntax highlighted code
+
+    const getFontFaces = (font: FontOverridesType) => {
         return `
 @font-face {
-    font-family: "${overrides.overridesName}";
+    font-family: "${font.overridesName}";
     src:
-        local("${overrides.fullName}"),
-        local("${overrides.postscriptName}");
-    size-adjust: ${overrides.sizeAdjust};
-    ascent-override: ${overrides.ascent};
-    descent-override: ${overrides.descent};
-    line-gap-override: ${overrides.lineGap};
+        local("${font.fullName}"),
+        local("${font.postscriptName}");
+    size-adjust: ${font.sizeAdjust};
+    ascent-override: ${font.ascent};
+    descent-override: ${font.descent};
+    line-gap-override: ${font.lineGap};
 }`;
     }
 
     const getCode = () => {
+        if (!overrides.length) return null;
         let css: string = '';
         let example: string = '';
-        if (Array.isArray(code) && code.length) {
-            const fallbackFont = userData.fallbackFont
-            // reorder fallback fonts array
-            let fontArray = fallbackFonts.filter(f => f !== fallbackFont);
-            fontArray = [fallbackFont, ...fontArray];
-            let codeFontFaces = '';
-            let bodyVals: string[] = [];
-            fontArray.forEach((font, idx) => {
-                // find the right object in `code`
-                const obj = code.find(o => o.name === font);
-                if (obj) {
-                    codeFontFaces += getFontFaces(obj);
-                    if (idx === 0) bodyVals.push(`"${fontInfos.fullName}"`)
-                    bodyVals.push(`"${obj.overridesName}"`);
-                }
-            });
-            css = `
+        const fallbackFont = userData.fallbackFont
+        // reorder fallback fonts array
+        let fontArray = fallbackFonts.filter(f => f !== fallbackFont);
+        fontArray = [fallbackFont, ...fontArray];
+        let codeFontFaces = '';
+        let bodyVals: string[] = [];
+        fontArray.forEach((font, idx) => {
+            // find the right object in `code`
+            const obj = overrides.find(o => o.name === font);
+            if (obj) {
+                codeFontFaces += getFontFaces(obj);
+                if (idx === 0) bodyVals.push(`"${fontInfos.fullName}"`)
+                bodyVals.push(`"${obj.overridesName}"`);
+            }
+        });
+        css = `
 ${codeFontFaces}`;
 
-            example = `
+        example = `
 body {
     font-family:
         ${bodyVals.reduce((acc, cur) => `${acc},\n\t\t${cur}`)};
 }`;
-        }
         if (css && example) {
             return {
                 css: css,
@@ -72,12 +78,20 @@ body {
         }
     }
 
-    const theCode = useMemo(getCode, [userData.fallbackFont, code, fontInfos.fullName]);
+    const colorCode = (code: CSSCodeType) => {
+        if (!code) return null;
+        const css = Prism.highlight(code.css, Prism.languages.css, 'css');
+        const body = Prism.highlight(code.body, Prism.languages.css, 'css');
+        return {
+            css: css,
+            body: body
+        }
+    }
 
     const handleClick = (ev: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         // TODO: signaler que c'est copié (autrement qu'avec un console!)
         if (theCode) {
-            const where = ev.currentTarget.closest('DIV') as HTMLElement;
+            const where = ev.currentTarget.closest('DIV.code') as HTMLElement;
             const what = where?.dataset.code;
             switch (what) {
                 case 'CSS':
@@ -93,15 +107,12 @@ body {
         }
     }
 
-    useEffect(() => {
-        const highlight = async () => {
-            await Prism.highlightAll();
-        }
-        highlight();
-    }, [theCode]);
+    theCode = useMemo(getCode, [userData.fallbackFont, overrides, fontInfos.fullName]);
+    if (overrides.length && theCode) {
+        theColoredCode = colorCode(theCode as CSSCodeType);
+    }
 
-
-    if (theCode) return (
+    if (theColoredCode) return (
         <section className={sectionStyles['generated-css']}>
             <h3>Font metrics (optimized for {language} text)</h3>
             <div
@@ -114,16 +125,12 @@ body {
                     onClick={handleClick}
                     text='Copy Code'
                 />
-                <pre>
-                    <code className="language-css" >
-                        {theCode.css}
-                    </code>
-                </pre>
+                <Code str={theColoredCode.css} />
             </div>
 
             <h3>Usage example</h3>
             <div
-                className={clsx(code, sectionStyles['code-container'])}
+                className={clsx('code', sectionStyles['code-container'])}
                 data-code='Example'
             >
                 <BtnIcon
@@ -132,12 +139,24 @@ body {
                     onClick={handleClick}
                     text='Copy Code'
                 />
-                <pre>
-                    <code className="language-css" >
-                        {theCode.body}
-                    </code>
-                </pre>
+                <Code str={theColoredCode.body} />
             </div>
         </section>
+    )
+}
+
+type CodePropType = {
+    str: string
+}
+
+function Code(props: CodePropType) {
+    return (
+        <pre>
+
+            <code
+                className="language-css"
+                dangerouslySetInnerHTML={{ __html: props.str }}
+            ></code>
+        </pre>
     )
 }

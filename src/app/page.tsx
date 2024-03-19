@@ -267,9 +267,7 @@ export default function Home() {
 
       <DynamicDemoText currentOverrides={currentOverrides} />
 
-      {(overrides.length > 0) && (
-        <SectionCode code={overrides} />
-      )}
+      {(overrides.length > 0) && <SectionCode />}
     </main>
   )
 }

@@ -214,6 +214,7 @@ export default function LoadFontForm() {
     useEffect(() => {
         if (!formRef.current) return;
         if (loadFormState.status === 'success') {
+            resetErrors();
             dispatchFontInfos({
                 type: 'setInfos',
                 payload: {
@@ -225,7 +226,7 @@ export default function LoadFontForm() {
                 }
             });
         }
-    }, [loadFormState, dispatchFontInfos]);
+    }, [loadFormState, dispatchFontInfos, resetErrors]);
 
     useEffect(() => {
         if (loadFormState.status === 'error' && loadFormState.id === formKey) {

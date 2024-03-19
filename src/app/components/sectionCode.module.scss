@@ -6,6 +6,9 @@
     background-color: #2d2d2d;
     font-size: .75rem;
     position: relative;
+    padding: inherit;
+    border-radius: inherit;
+    margin-block-end: 2rem;
 
     & div[class*="btn-icon"] {
         position: absolute;
