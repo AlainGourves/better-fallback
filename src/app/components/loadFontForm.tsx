@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { nanoid } from 'nanoid';
 import { useDropzone, FileRejection } from 'react-dropzone';
 import { getFontInfos } from '@/app/api/actions';
-import { URLValidator, listAcceptable } from '../_lib/utils';
+import { URLValidator, checkProtocol } from '../_lib/utils';
 import { fontTypes, FontTypes } from '../../../types/types'
 import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 import FontFile from './fontFile';
@@ -52,14 +52,16 @@ export default function LoadFontForm() {
 
     // Input[text] for font URL
     const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        const val = ev.target.value;
+        let val = '';
+        // Adds a 'https://' before if missing
+        if (ev.target.value !== '') val = checkProtocol(ev.target.value);
         if (URLValidator(val) || val === '') {
             urlRef.current?.setCustomValidity(''); // remove :invalid state if present
         }
         dispatchFontInfos({
             type: "setURL",
             payload: {
-                value: ev.target.value
+                value: val
             }
         });
     };
@@ -160,13 +162,13 @@ export default function LoadFontForm() {
     let hoverMessage = '';
     if (isDragAccept) {
         hoverIcon = 'download';
-        hoverTitle = 'Drop it!';
-        hoverMessage = `(like it's hot)`;
+        hoverTitle = 'Drop it';
+        hoverMessage = `(like it's hot!)`;
     }
     if (isDragReject) {
         hoverIcon = 'alert-triangle';
         hoverTitle = 'Attention!';
-        hoverMessage = `There's an issue with what you are dragging, drop it to see the error(s).`;
+        hoverMessage = `There's an issue with what you are dragging, drop it to see the origin.`;
     }
 
 
@@ -180,7 +182,7 @@ export default function LoadFontForm() {
                 let msg = '';
                 switch (err) {
                     case 'file-invalid-type':
-                        msg = `Only font files: ${fontTypes.join(', ')}.`;
+                        msg = `Only files of MIME type: ${fontTypes.join(', ')}.`;
                         break;
                     case 'file-too-large':
                         msg = `Files must be less than 2Mb.`;
@@ -236,23 +238,23 @@ export default function LoadFontForm() {
         }
     }, [loadFormState, errorMessages, formKey]);
 
-    useEffect(()=>{
+    useEffect(() => {
         resetErrors();
     }, [formKey, resetErrors]);
 
     return (
-        <form
-            key={formKey}
-            ref={formRef}
-            id="select-font"
-            className={formStyles["select-font"]}
-            action={loadFormAction}
-            onReset={updateFormKey}
-        >
 
-            <div  {...getRootProps({
-                className: formStyles['dropzone'],
-            })}>
+        <section  {...getRootProps({
+            className: formStyles['dropzone'],
+        })}>
+            <form
+                key={formKey}
+                ref={formRef}
+                id="select-font"
+                className={formStyles["select-font"]}
+                action={loadFormAction}
+                onReset={updateFormKey}
+            >
                 <div className={formStyles['base']}>
                     <div>
                         <div className={formStyles["drop-instructions"]}>
@@ -285,13 +287,27 @@ export default function LoadFontForm() {
                         </div>
                     </div>
                     <div>OR</div>
-                    <div>
+                    {(error && errorMessages.length) && (
+                        // {(error && errorMessages.length > 0) && (
+                        <div className={formStyles['error-msg-container']}>
+                            {errorMessages.map((err, idx) => (
+                                <div
+                                    key={`err${idx}`}
+                                    className={formStyles['error-msg']}
+                                >
+                                    {err}
+                                </div>
+                            ))
+                            }
+                        </div>
+                    )}
+                    <div className={formStyles['input-url']}>
                         <TextInput
                             ref={urlRef}
                             id={'fontUrl'}
-                            type={'url'}
+                            type={'text'}
                             value={fontInfos.url ? fontInfos.url : ''}
-                            placeholder={'Paste a font URL'}
+                            placeholder={'https://example.com/my-font.ttf'}
                             onChange={handleFontURL}
                             title='Erase field'
                             onClick={eraseTextInput}
@@ -323,21 +339,7 @@ export default function LoadFontForm() {
                         </div>
                     </div>
                 }
-            </div>
-            {(error && errorMessages.length) && (
-                // {(error && errorMessages.length > 0) && (
-                <div className={formStyles['error-msg-container']}>
-                    {errorMessages.map((err, idx) => (
-                        <div
-                            key={`err${idx}`}
-                            className={formStyles['error-msg']}
-                        >
-                            {err}
-                        </div>
-                    ))
-                    }
-                </div>
-            )}
-        </form>
+            </form>
+        </section>
     );
 }

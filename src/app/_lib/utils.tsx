@@ -13,6 +13,14 @@ export const URLValidator = (str: string): boolean => {
     }
 }
 
+export const checkProtocol = (url:string)=>{
+    const regex = /^(http|https):\/\//;
+    if(regex.test(url)){
+        return url;
+    }
+    return `https://${url}`;
+}
+
 // TODO: File size validation
 /*
 Mettre une limite + gestion d'erreur et affichage adéquat
