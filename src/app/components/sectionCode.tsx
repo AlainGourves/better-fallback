@@ -25,7 +25,7 @@ export default function SectionCode() {
     const overrides = useOverrides();
 
     let theCode: CSSCodeType | null = null; // stores the code to copy
-    let theColoredCode: CSSCodeType | null = null; // stores syntax highlighted code
+    let theHTML: CSSCodeType | null = null; // stores syntax highlighted code
 
     const getFontFaces = (font: FontOverridesType) => {
         return `
@@ -109,10 +109,10 @@ body {
 
     theCode = useMemo(getCode, [userData.fallbackFont, overrides, fontInfos.fullName]);
     if (overrides.length && theCode) {
-        theColoredCode = colorCode(theCode as CSSCodeType);
+        theHTML = colorCode(theCode as CSSCodeType);
     }
 
-    if (theColoredCode) return (
+    if (theHTML) return (
         <section className={sectionStyles['generated-css']}>
             <h3>Font metrics (optimized for {language} text)</h3>
             <div
@@ -125,7 +125,7 @@ body {
                     onClick={handleClick}
                     text='Copy Code'
                 />
-                <Code str={theColoredCode.css} />
+                <Code str={theHTML.css} />
             </div>
 
             <h3>Usage example</h3>
@@ -139,12 +139,14 @@ body {
                     onClick={handleClick}
                     text='Copy Code'
                 />
-                <Code str={theColoredCode.body} />
+                <Code str={theHTML.body} />
             </div>
         </section>
     )
 }
 
+
+// Component for the PrismJS code ----------
 type CodePropType = {
     str: string
 }
@@ -152,11 +154,10 @@ type CodePropType = {
 function Code(props: CodePropType) {
     return (
         <pre>
-
             <code
                 className="language-css"
                 dangerouslySetInnerHTML={{ __html: props.str }}
-            ></code>
+            />
         </pre>
     )
 }
