@@ -33,9 +33,11 @@
     <path fill="#f3f5ef"
         d="M66.68 8.66c2.67 2.63 4.37 6.42 5.15 10.29s3.71 6.8 7.45 7.69c4.18.99 8.23 2.85 11.4 5.69L66.67 8.66z" ></path>
 </symbol>
-<symbol viewBox="0 0 24 24" preserveAspectRatio="xMidYMid" id="reset">
-    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-        d="M2.1 16.12a10.42 10.42 0 1 0 0-7.98m0-5.89v5.9H8" id="path1" ></path>
+<symbol viewBox="0 0 24 24" id="reset">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5.96 5.24V9h3.76" ></path>
+        <path d="M5.96 9a6.73 6.73 0 0 1 12.78 3c0 3.72-3.02 6.74-6.74 6.74s-6.46-2.75-6.72-6.24" ></path>
+    </g>
 </symbol>
 <symbol viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" id="x-circle">
   <circle cx="12" cy="12" r="10" ></circle>

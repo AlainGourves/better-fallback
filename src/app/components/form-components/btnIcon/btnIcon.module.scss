@@ -9,19 +9,23 @@
 
         width: var(--__w);
         height: var(--__w);
-        border-radius: 50%;
+        border-radius: calc(var(--__w) / 2);
         padding: 0;
         display: grid;
         place-content: center;
         color: var(--clr-active);
         background: var(--clr-active-50);
+        box-shadow: 0 0 0 0 var(--clr-outline);
+        transition: box-shadow .25s ease-in-out;
 
         &:hover {
-            background: rgb(255 255 255 / .95);
-            box-shadow: 0 0 0 var(--outline-width) var(--clr-outline);
+            box-shadow: 0 0 0 4px var(--clr-outline); //var(--clr-highlight);
 
             &+span {
-                box-shadow: 0 0.25em 1em rgb(0 0 0 /0.25);
+                box-shadow:
+                    inset 0 -1px 0.5px rgb(0 0 0 / .25),
+                    inset 0 1px 0.5px hsl(0 0% 100% / .5),
+                    0 0.25em 1em rgb(0 0 0 /0.25);
                 translate: -50% calc(100% + 1.2em);
                 opacity: 1;
             }
@@ -29,15 +33,14 @@
     }
 
     & svg {
-        width: calc(var(--__w) * 3/5);
-        height: calc(var(--__w) * 3/5);
-        stroke-width: 2;
+        width: calc(var(--__w) *3/5);
+        height: calc(var(--__w) *3/5);
     }
 }
 
 
 .tooltip {
-    --__bg: deeppink;
+    --__bg: #efd383;
     --trans: 0.2s cubic-bezier(0.75, 0.5, 0.75, 1.5); //ease-in-out;
     background: var(--__bg);
     border-radius: 0.25em;
@@ -49,8 +52,12 @@
     opacity: 0;
     user-select: none;
     text-wrap: nowrap;
+    font-size: .875rem;
     z-index: 100;
-    box-shadow: 0 0 0 rgb(0 0 0 /0);
+    box-shadow:
+        inset 0 -1px 0.5px rgb(0 0 0 / .3),
+        inset 0 1px 0.5px hsl(0 0% 100% / .5),
+        0 0 0 rgb(0 0 0 /0);
     transition:
         box-shadow var(--trans),
         opacity var(--trans),
@@ -64,9 +71,9 @@
         height: 0.75em;
         left: 50%;
         top: 0;
-        translate: -50% calc(1px - 100%);
-        background: conic-gradient(from 150deg at 50% 0,
-                var(--__bg) 60deg,
-                transparent 0);
+        background-color: inherit;
+        background-image: conic-gradient(from 180deg at 50% 1px, transparent 28deg, hsl(0 0% 100% / .35) 30deg, hsl(0 0% 100% / .35) 328deg, transparent 330deg);
+        translate: -50% calc(2px - 100%);
+        clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
     }
 }

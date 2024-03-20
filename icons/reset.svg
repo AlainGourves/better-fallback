@@ -1,4 +1,6 @@
-<svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid" xmlns="http://www.w3.org/2000/svg">
-    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-        d="M2.1 16.12a10.42 10.42 0 1 0 0-7.98m0-5.89v5.9H8" id="path1" />
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5.96 5.24V9h3.76" />
+        <path d="M5.96 9a6.73 6.73 0 0 1 12.78 3c0 3.72-3.02 6.74-6.74 6.74s-6.46-2.75-6.72-6.24" />
+    </g>
 </svg>
