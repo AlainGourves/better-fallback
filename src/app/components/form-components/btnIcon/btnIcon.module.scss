@@ -36,6 +36,10 @@
         width: calc(var(--__w) *3/5);
         height: calc(var(--__w) *3/5);
     }
+
+    &[class*='anim-icon'] > button {
+        animation: anim .5s linear backwards !important;
+    }
 }
 
 
@@ -75,5 +79,14 @@
         background-image: conic-gradient(from 180deg at 50% 1px, transparent 28deg, hsl(0 0% 100% / .35) 30deg, hsl(0 0% 100% / .35) 328deg, transparent 330deg);
         translate: -50% calc(2px - 100%);
         clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+    }
+}
+
+@keyframes anim {
+    0%{
+        background-color: #fff;
+    }
+    100% {
+        background-color: yellowgreen;
     }
 }

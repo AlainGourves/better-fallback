@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Prism from 'prismjs';
 import "prismjs/themes/prism-tomorrow.css";
 import clsx from 'clsx';
@@ -88,21 +89,29 @@ body {
         }
     }
 
-    const handleClick = (ev: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const [animBtn1, setAnimBtn1] = useState(false);
+    const [animBtn2, setAnimBtn2] = useState(false);
+    const handleClick = async (ev: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         // TODO: signaler que c'est copié (autrement qu'avec un console!)
         if (theCode) {
             const where = ev.currentTarget.closest('DIV.code') as HTMLElement;
             const what = where?.dataset.code;
             switch (what) {
                 case 'CSS':
-                    copyToClipboard(theCode.css);
+                    await copyToClipboard(theCode.css);
+                    setAnimBtn1(true);
                     break;
                 case 'Example':
-                    copyToClipboard(theCode.body);
+                    await copyToClipboard(theCode.body);
+                    setAnimBtn2(true);
                     break;
                 default:
                     return;
             }
+            setTimeout(()=>{
+                setAnimBtn1(false);
+                setAnimBtn2(false);
+            }, 500);
             console.log("Copied !")
         }
     }
@@ -121,10 +130,11 @@ body {
             >
                 <BtnIcon
                     id='copyCSS'
-                    iconName='copy'
+                    iconName={animBtn1 ? 'check' : 'copy'}
                     onClick={handleClick}
                     text='Copy Code'
-                />
+                    className={clsx(animBtn1 && 'anim-icon')}
+                    />
                 <Code str={theHTML.css} />
             </div>
 
@@ -132,12 +142,13 @@ body {
             <div
                 className={clsx('code', sectionStyles['code-container'])}
                 data-code='Example'
-            >
+                >
                 <BtnIcon
                     id='copyExample'
-                    iconName='copy'
+                    iconName={animBtn2 ? 'check' : 'copy'}
                     onClick={handleClick}
                     text='Copy Code'
+                    className={clsx(animBtn2 && 'anim-icon')}
                 />
                 <Code str={theHTML.body} />
             </div>
