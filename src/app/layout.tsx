@@ -4,6 +4,7 @@ import './globals.scss'
 import { Suspense } from 'react'
 import Loading from './loading'
 import { ContextProvider } from './context/ContextProvider'
+import SVGSprite from './components/SVGSprite'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,6 +27,7 @@ export default function RootLayout({
             {children}
           </ContextProvider>
         </Suspense>
+        <SVGSprite />
       </body>
     </html>
   )

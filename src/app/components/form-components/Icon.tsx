@@ -32,7 +32,7 @@ export function Icon({
             {...props}
             className={clsx(styles['icon'], className)}
         >
-            <use href={`./svg-icons/sprite.svg#${name}`} />
+            <use href={`#${name}`} />
         </svg>
     );
 }

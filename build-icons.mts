@@ -1,15 +1,20 @@
-// Code come from here, slightly modified => https://www.jamesshopland.com/blog/nextjs-svg-sprites
+// Base code come from here => https://www.jamesshopland.com/blog/nextjs-svg-sprites
+
+// Uses now SVGR (https://react-svgr.com/) to convert 'sprite.svg' to a proper React Component
 
 import * as path from "node:path";
 import fsExtra from "fs-extra";
 import { glob } from "glob";
 import { parse } from "node-html-parser";
+import { transform } from '@svgr/core';
 
 const cwd = process.cwd();
 const inputDir = path.join(cwd, "icons");
 const inputDirRelative = path.relative(cwd, inputDir);
 const typeDir = path.join(cwd, "types");
-const outputDir = path.join(cwd, "public", "svg-icons");
+const outputDir = cwd; // path.join(cwd, "public", "svg-icons");
+const exportDir = path.join(cwd, "src", "app", "components");
+
 await fsExtra.ensureDir(outputDir);
 await fsExtra.ensureDir(typeDir);
 
@@ -60,6 +65,12 @@ async function generateIconFiles() {
         outputPath: spriteFilepath,
     });
 
+    // Generate Component if sprite has changed
+    if (spriteChanged) {
+        logVerbose(`Generating React Component for the sprite`);
+        await SVGToComponent(spriteFilepath);
+    }
+
     for (const file of files) {
         logVerbose("✅", file);
     }
@@ -85,7 +96,9 @@ export type IconName =
 
 This directory contains SVG icons that are used by the app.
 
-Everything in this directory is made into a sprite using \`npm run build:icons\`. This file will show in /public/svg-icons/sprite.svg
+Everything in this directory is made into a sprite using \`npm run build:icons\`. This result is '/sprite.svg'.
+
+Finally SVGR converts the sprite to a component: './src/app/components/SVGSprite.tsx'.
 `
     );
 
@@ -153,4 +166,24 @@ async function writeIfChanged(filepath: string, newContent: string) {
     if (currentContent === newContent) return false;
     await fsExtra.writeFile(filepath, newContent, "utf8");
     return true;
+}
+
+async function SVGToComponent(filepath: string) {
+    const svgCode = await fsExtra
+        .readFile(filepath, "utf8")
+        .catch(() => "");
+    const jsCode = await transform(
+        svgCode, // source
+        {
+            // options used to transform the SVG
+            typescript: true,
+            jsxRuntime: 'classic',
+            svgo: false, // SVGO (without special configuration) delete "unused" elements, like '<defs>'
+            plugins: ["@svgr/plugin-jsx", "@svgr/plugin-prettier"]
+        },
+        {
+            componentName: 'SVGSprite',
+        }, // state linked to the transformation
+    );
+    await writeIfChanged(path.join(exportDir, "SVGSprite.tsx"), jsCode);
 }
