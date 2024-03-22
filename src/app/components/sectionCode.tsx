@@ -112,7 +112,6 @@ body {
                 setAnimBtn1(false);
                 setAnimBtn2(false);
             }, 500);
-            console.log("Copied !")
         }
     }
 

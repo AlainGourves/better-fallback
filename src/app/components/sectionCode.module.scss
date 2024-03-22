@@ -1,6 +1,7 @@
-.generated-css{
+.generated-css {
     background: #d9c3b0;
 }
+
 .code-container {
     width: 100%;
     background-color: #2d2d2d;
@@ -15,5 +16,27 @@
         top: 0;
         right: 0;
         margin: 1rem;
+    }
+
+    & div[class*="anim-icon"]>button {
+        --path-length: 23;
+        animation: anim .5s linear backwards !important;
+    }
+}
+
+
+
+@keyframes anim {
+    0% {
+        background-color: #fff;
+        stroke-dasharray: 0 var(--path-length);
+    }
+
+    60% {
+        stroke-dasharray: var(--path-length) var(--path-length);
+    }
+
+    90% {
+        background-color: yellowgreen;
     }
 }

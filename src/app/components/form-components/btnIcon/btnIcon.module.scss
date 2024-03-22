@@ -36,27 +36,4 @@
         width: calc(var(--__w) *3/5);
         height: calc(var(--__w) *3/5);
     }
-
-    &[class*='anim-icon']>button {
-        &[class*='anim-icon']>button {
-            --path-length: 23;
-            animation: anim .5s linear backwards !important;
-        }
-    }
-
-
-    @keyframes anim {
-        0% {
-            background-color: #fff;
-            stroke-dasharray: 0 var(--path-length);
-        }
-
-        60% {
-            stroke-dasharray: var(--path-length) var(--path-length);
-        }
-
-        90% {
-            background-color: yellowgreen;
-        }
-    }
 }
