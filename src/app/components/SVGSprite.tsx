@@ -23,7 +23,7 @@ const SVGSprite = (props: SVGProps<SVGSVGElement>) => (
         strokeLinejoin="round"
         id="check"
       >
-        <path d="M20 6 9 17l-5-5" />
+        <path d="M4 12 l5 5l11-11" />
       </symbol>
       <symbol
         viewBox="0 0 24 24"

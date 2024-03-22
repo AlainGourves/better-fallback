@@ -8,7 +8,7 @@
   <path d="M12 17h.01" ></path>
 </symbol>
 <symbol viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" id="check">
-  <path d="M20 6 9 17l-5-5" ></path>
+  <path d="M4 12 l5 5l11-11" ></path>
 </symbol>
 <symbol viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" id="code">
     <polyline points="16 18 22 12 16 6" ></polyline>

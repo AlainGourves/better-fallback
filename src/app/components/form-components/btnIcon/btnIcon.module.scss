@@ -38,6 +38,7 @@
     }
 
     &[class*='anim-icon'] > button {
+        --path-length: 23;
         animation: anim .5s linear backwards !important;
     }
 }
@@ -85,8 +86,12 @@
 @keyframes anim {
     0%{
         background-color: #fff;
+        stroke-dasharray: 0 var(--path-length);
     }
-    100% {
+    60%{
+        stroke-dasharray: var(--path-length) var(--path-length);
+    }
+    90% {
         background-color: yellowgreen;
     }
 }
