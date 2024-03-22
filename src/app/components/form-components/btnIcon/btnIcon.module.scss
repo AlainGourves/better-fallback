@@ -38,17 +38,25 @@
     }
 
     &[class*='anim-icon']>button {
-        animation: anim .5s linear backwards !important;
-    }
-}
-
-
-@keyframes anim {
-    0% {
-        background-color: #fff;
+        &[class*='anim-icon']>button {
+            --path-length: 23;
+            animation: anim .5s linear backwards !important;
+        }
     }
 
-    100% {
-        background-color: yellowgreen;
+
+    @keyframes anim {
+        0% {
+            background-color: #fff;
+            stroke-dasharray: 0 var(--path-length);
+        }
+
+        60% {
+            stroke-dasharray: var(--path-length) var(--path-length);
+        }
+
+        90% {
+            background-color: yellowgreen;
+        }
     }
 }
