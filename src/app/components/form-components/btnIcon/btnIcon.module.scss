@@ -37,55 +37,17 @@
         height: calc(var(--__w) *3/5);
     }
 
-    &[class*='anim-icon'] > button {
+    &[class*='anim-icon']>button {
         animation: anim .5s linear backwards !important;
     }
 }
 
 
-.tooltip {
-    --__bg: #efd383;
-    --trans: 0.2s cubic-bezier(0.75, 0.5, 0.75, 1.5); //ease-in-out;
-    background: var(--__bg);
-    border-radius: 0.25em;
-    padding: 0.5em 0.75em;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    translate: -50% 200%;
-    opacity: 0;
-    user-select: none;
-    text-wrap: nowrap;
-    font-size: .875rem;
-    z-index: 100;
-    box-shadow:
-        inset 0 -1px 0.5px rgb(0 0 0 / .3),
-        inset 0 1px 0.5px hsl(0 0% 100% / .5),
-        0 0 0 rgb(0 0 0 /0);
-    transition:
-        box-shadow var(--trans),
-        opacity var(--trans),
-        translate var(--trans);
-
-    &:before {
-        // for the arrow
-        position: absolute;
-        content: "";
-        width: 1em;
-        height: 0.75em;
-        left: 50%;
-        top: 0;
-        background-color: inherit;
-        background-image: conic-gradient(from 180deg at 50% 1px, transparent 28deg, hsl(0 0% 100% / .35) 30deg, hsl(0 0% 100% / .35) 328deg, transparent 330deg);
-        translate: -50% calc(2px - 100%);
-        clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
-    }
-}
-
 @keyframes anim {
-    0%{
+    0% {
         background-color: #fff;
     }
+
     100% {
         background-color: yellowgreen;
     }

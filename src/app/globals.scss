@@ -113,7 +113,74 @@ svg{
   shape-rendering: geometricprecision;
 }
 
+.glow{
+  animation: glow .35s linear 2;
+  // animation-delay: .5s;
+  border-radius: .5em;
+}
 
+.tooltip {
+  --trans: 0.2s cubic-bezier(0.75, 0.5, 0.75, 1.5); //ease-in-out;
+  // for the arrow
+  --__w: 1em;
+  --__h: 0.75em;
+  border-radius: 0.25em;
+  padding: .35em .85em;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 200%;
+  opacity: 0;
+  user-select: none;
+  text-wrap: nowrap;
+  font-size: .875rem;
+  text-shadow: 0.5px 0.5px 2px rgba(255, 255, 255, 0.95),
+      -0.5px -0.5px 2px rgba(0, 0, 0, 0.25);
+
+  background-image: linear-gradient(0deg,
+          #a16206,
+          #facc16,
+          #fef08a); // fallback gradient
+  background-image: linear-gradient(0deg in oklab,
+          oklch(55.38% 0.121 66.44),
+          oklch(86.06% 0.173 91.94),
+          oklch(94.51% 0.124 101.54));
+  // bg is extended to the size of the :before and positioned accordingly
+  background-size: calc(100% + var(--__w)) calc(100% + var(--__h));
+  background-position: calc(var(--__w) / -2) calc(var(--__h) / -2);
+  box-shadow:
+      inset 0 -1px 0.5px hsl(0 0% 0% / 0.3),
+      inset 0 1px 0.5px hsl(0 0% 100% / .5),
+      0 0 0 rgb(0 0 0 /0);
+  transition:
+      box-shadow var(--trans),
+      opacity var(--trans),
+      translate var(--trans);
+  z-index: 100;
+
+  &:before {
+      // Arrow
+      position: absolute;
+      content: "";
+      // extend outside parent to correspond to the gradient size
+      inset: calc(var(--__h) / -2) calc(var(--__w) / -2);
+
+      background-image: inherit;
+      background-size: 100% 100%;
+      background-position: 0 0;
+      clip-path: polygon(calc(50% - var(--__h) / 2) calc(var(--__h) / 2),
+              50% 0%,
+              calc(50% + var(--__h) / 2) calc(var(--__h) / 2),
+              50% 80%);
+      z-index: -1;
+  }
+
+  &.hidden{
+    display: none;
+  }
+}
+
+// Animations ----------------------------------
 
 @keyframes glow {
 
@@ -141,10 +208,4 @@ svg{
     background-color: #ffffff54;
     scale: 1.05;
   }
-}
-
-.glow{
-  animation: glow .35s linear 2;
-  // animation-delay: .5s;
-  border-radius: .5em;
 }

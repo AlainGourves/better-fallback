@@ -1,5 +1,6 @@
 'use client'
 import { useRef, useEffect, forwardRef, useState } from 'react';
+import clsx from 'clsx';
 import formStyles from './overridesForm.module.scss';
 import Select from './form-components/select/select';
 import RadioGroup from './form-components/radioGroup/radioGroup';
@@ -163,7 +164,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
                     disabled={!fontInfos.fullName && !overrides.length}
                 />
                 {userData.languageChangedNotif && (
-                    <div className={formStyles['note']}>Language changed, values need to be recomputed.</div>
+                    <div className={clsx('tooltip', formStyles['note'])}>Language changed, values need to be recomputed.</div>
                 )}
             </div>
         </form>
