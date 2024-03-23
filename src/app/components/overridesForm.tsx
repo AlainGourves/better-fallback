@@ -92,7 +92,7 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
         if (fontInfos.fullName && fontInfosDiv.current) {
             fontInfosDiv.current.classList.add('glow');
         }
-    }, [fontInfos])
+    }, [fontInfos.fullName])
 
     return (
         <section

@@ -116,8 +116,22 @@ export default function Home() {
       dispatchFontInfos({
         type: 'reset', payload: null
       });
+      // If there is a previous invitation to recompute overrides (after a language's change), reset the value
+      if (userData.languageChangedNotif) {
+        dispatchUserData({
+          type: 'changeLanguageNotif',
+          payload: { value: false }
+        });
+      }
     }
-  }, [fontInfos.url, fontInfos.file, dispatchFontInfos, dispatchOverrides]);
+  }, [
+    fontInfos.url,
+    fontInfos.file,
+    userData.languageChangedNotif,
+    dispatchFontInfos,
+    dispatchOverrides,
+    dispatchUserData
+  ]);
 
 
   // Server actions
