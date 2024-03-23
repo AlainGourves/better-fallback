@@ -111,7 +111,7 @@ body {
             setTimeout(()=>{
                 setAnimBtn1(false);
                 setAnimBtn2(false);
-            }, 500);
+            }, 1200);
         }
     }
 

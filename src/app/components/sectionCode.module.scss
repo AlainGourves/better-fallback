@@ -20,7 +20,7 @@
 
     & div[class*="anim-icon"]>button {
         --path-length: 23;
-        animation: anim .5s linear backwards !important;
+        animation: anim 1s linear backwards !important;
     }
 }
 
@@ -34,9 +34,10 @@
 
     60% {
         stroke-dasharray: var(--path-length) var(--path-length);
+        color: #fff;
     }
 
-    90% {
-        background-color: yellowgreen;
+    80% {
+        background-color: var(--clr-secondary-500);
     }
 }
