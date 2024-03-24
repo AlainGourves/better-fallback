@@ -6,8 +6,7 @@
     gap: .5rem;
     justify-content: space-evenly;
     align-items: center;
-    // width: 100%;
-    // border: var(--__border);
+    font-size: .875rem;
     border-radius: 999rem;
     padding-inline: .75rem;
     margin-block-end: .5rem;
@@ -16,6 +15,11 @@
 
     & input[type=range] {
         min-width: 8em;
+    }
+
+
+    & label span {
+        min-width: max-content;
     }
 }
 
@@ -33,15 +37,24 @@
 
         color: var(--clr-active);
         transition:
+            rotate var(--anim-dur) var(--anim-fn),
             box-shadow var(--anim-dur) var(--anim-fn);
 
-            & svg {
-                width: calc(var(--__w));
-                height: calc(var(--__w));
-            }
+        & svg {
+            width: calc(var(--__w));
+            height: calc(var(--__w));
+        }
 
         &:hover {
             background-color: transparent;
+        }
+
+        &:active {
+            background-color: #fff;
+
+            & svg {
+                rotate: .5turn;
+            }
         }
     }
 }
