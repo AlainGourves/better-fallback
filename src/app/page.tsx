@@ -10,6 +10,7 @@ import { FontOverridesType, overridesDefault } from '../../types/types';
 import SectionCode from './components/sectionCode';
 import OverridesForm from './components/overridesForm';
 import LoadFontForm from './components/loadFontForm';
+import DemoTextSkeleton from './components/DemoTextSkeleton';
 import { useUserData, useUserDataDispatch } from '@/app/context/userDataContext';
 import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 import { useOverrides, useOverridesDispatch } from '@/app/context/overridesContext';
@@ -19,7 +20,7 @@ import { useOverrides, useOverridesDispatch } from '@/app/context/overridesConte
 import dynamic from 'next/dynamic';
 const DynamicDemoText = dynamic(() => import('./components/demoText'), {
   ssr: false,
-  loading: () => <p>Loading...</p>
+  loading: () => <DemoTextSkeleton />
 });
 
 // In the current state (02 2024), Typescript interface for FontFace descriptor doesn't have the `sizeAdjust` property

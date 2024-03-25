@@ -1,0 +1,60 @@
+.skel-cont,
+.skel-line {
+    width: 100%;
+}
+
+.skel-cont {
+    background: #fff;
+}
+
+.skel-tools {
+    height: 2rem;
+    border-radius: 1rem;
+    margin-inline: .25rem;
+    margin-block-end: 1.5rem;
+    padding-inline: .25rem;
+}
+
+.skel-txt {
+    min-height: 6lh;
+    padding-inline: .25rem;
+}
+
+.skel-p {
+    margin-block: .5em 1em;
+}
+
+.skel-line {
+    height: .85em;
+    margin-block-end: 1em;
+    border-radius: 0.25em;
+
+    &:nth-of-type(2n) {
+        animation-delay: 125ms;
+    }
+
+    &:last-of-type {
+        width: 82%;
+    }
+}
+
+.skel-clr {
+    background-size: 300% 100%;
+    background-position-x: 0%;
+    background-image: linear-gradient(to right,
+            hsl(180deg 5% 50%) 33%,
+            hsl(180 5% 65%) 66%,
+            hsl(180deg 5% 50%));
+    opacity: 0.65;
+    animation: 2s anim cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+}
+
+@keyframes anim {
+    from {
+        background-position-x: 0%;
+    }
+
+    to {
+        background-position-x: 100%;
+    }
+}
