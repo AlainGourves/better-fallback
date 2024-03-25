@@ -98,76 +98,76 @@ const OverridesForm = forwardRef<Ref, OverridesFormProps>(({ formAction, formKey
         <section
             className={formStyles['font-settings']}
         >
-        <form
-            action={formAction}
-            key={formKey}
-        >
-            <div
-                className={formStyles['font-infos']}
-                ref={fontInfosDiv}
-                onAnimationEnd={e => {
-                    const target = e.target as HTMLElement;
-                    if (target.classList.contains('glow')) target.classList.remove('glow');
-                }}
+            <form
+                action={formAction}
+                key={formKey}
             >
-                <h3>Selected Font</h3>
-                <div>
-                    <dl>
-                        <dt>Name</dt>
-                        <dd>{fontInfos.fullName && fontInfos.fullName}</dd>
-                    </dl>
-                    <dl>
-                        <dt>Family</dt>
-                        <dd>{fontInfos.familyName && fontInfos.familyName}</dd>
-                    </dl>
-                    <dl>
-                        <dt>Type</dt>
-                        <dd>{fontInfos.type && fontInfos.type}</dd>
-                    </dl>
-                    <dl>
-                        <dt>Size</dt>
-                        <dd>{fontInfos.size && fontInfos.size}</dd>
-                    </dl>
+                <div
+                    className={formStyles['font-infos']}
+                    ref={fontInfosDiv}
+                    onAnimationEnd={e => {
+                        const target = e.target as HTMLElement;
+                        if (target.classList.contains('glow')) target.classList.remove('glow');
+                    }}
+                >
+                    <h3>Selected Font</h3>
+                    <div>
+                        <dl>
+                            <dt>Name</dt>
+                            <dd>{fontInfos.fullName && fontInfos.fullName}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Family</dt>
+                            <dd>{fontInfos.familyName && fontInfos.familyName}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Type</dt>
+                            <dd>{fontInfos.type && fontInfos.type}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Size</dt>
+                            <dd>{fontInfos.size && fontInfos.size}</dd>
+                        </dl>
+                    </div>
                 </div>
-            </div>
 
-            <div className={formStyles['fallback-font']}>
-                <h3>Fallback Font</h3>
-                <Select
-                    id='fallbackFontSelect'
-                    label='Family'
-                    options={fallbackFontsOptions}
-                    value={initialFallbackFont}
-                    onChange={handleFallbackSelect}
-                />
+                <div className={formStyles['fallback-font']}>
+                    <h3>Fallback Font</h3>
+                    <Select
+                        id='fallbackFontSelect'
+                        label='Family'
+                        options={fallbackFontsOptions}
+                        value={initialFallbackFont}
+                        onChange={handleFallbackSelect}
+                    />
 
-                <RadioGroup
-                    groupName='targetLanguage'
-                    selected={userData.language}
-                    radios={languageOptions}
-                    onChange={handleLanguageChoice}
-                    label='Lang.'
-                />
+                    <RadioGroup
+                        groupName='targetLanguage'
+                        selected={userData.language}
+                        radios={languageOptions}
+                        onChange={handleLanguageChoice}
+                        label='Lang.'
+                    />
 
-                <input
-                    type="hidden"
-                    name="reqId"
-                    value={formKey}
-                />
-            </div>
+                    <input
+                        type="hidden"
+                        name="reqId"
+                        value={formKey}
+                    />
+                </div>
 
-            <div className={formStyles['submit']}>
-                <SubmitButton
-                    ref={overridesSubmitRef}
-                    id="proceed"
-                    text='Proceed'
-                    disabled={!fontInfos.fullName && !overrides.length}
-                />
-                {userData.languageChangedNotif && (
-                    <div className={clsx('tooltip', formStyles['note'])}>Language changed, values need to be recomputed.</div>
-                )}
-            </div>
-        </form>
+                <div className={formStyles['submit']}>
+                    <SubmitButton
+                        ref={overridesSubmitRef}
+                        id="proceed"
+                        text='Proceed'
+                        disabled={!fontInfos.fullName && !overrides.length}
+                    />
+                    {userData.languageChangedNotif && (
+                        <div className={clsx('tooltip', formStyles['note'])}>Language changed, values need to be recomputed.</div>
+                    )}
+                </div>
+            </form>
         </section>
     )
 });

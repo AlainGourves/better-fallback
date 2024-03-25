@@ -36,6 +36,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                 value: ev.target.value,
             }
         });
+        updateCustomProperty('--fallback-opacity', alphaSlider.toString());
     }
 
     const handleFontSizeSlider = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +47,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                 value: ev.target.value,
             }
         });
+        updateCustomProperty('--temoin-fs', `${fontSizeSlider}px`);
     }
 
     const handleFallbackColor = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +58,7 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
                 value: ev.target.value,
             }
         });
+        updateCustomProperty('--fallback-color', `${fallbackColor}`);
     }
 
     const handleReset = (ev: React.MouseEvent<HTMLButtonElement>) => {
@@ -67,22 +70,6 @@ export default function TextTools({ checked, onChange }: TextToolsProps) {
             payload: null
         });
     }
-
-    // Fallback font's Alpha -------------
-    useEffect(() => {
-        updateCustomProperty('--fallback-opacity', alphaSlider.toString());
-    }, [alphaSlider]);
-
-    // Fallback font's Family -------------
-    useEffect(() => {
-        updateCustomProperty('--temoin-fs', `${fontSizeSlider}px`);
-    }, [fontSizeSlider]);
-
-    // Fallback font's Color -------------
-    useEffect(() => {
-        updateCustomProperty('--fallback-color', `${fallbackColor}`);
-    }, [fallbackColor]);
-
 
     return (
         <div className={textToolsStyles['text-tools-container']}>
