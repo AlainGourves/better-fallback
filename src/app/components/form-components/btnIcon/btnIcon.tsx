@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useId } from 'react';
 import clsx from 'clsx';
 import btnIconStyles from './btnIcon.module.scss';
 import { Icon } from '../Icon';
@@ -15,6 +15,8 @@ type PropsType = {
 export default function BtnIcon({ id, iconName, onClick, text, className }: PropsType) {
 
     const tooltipRef = useRef<HTMLElement>(null);
+
+    const tooltipID = useId();
 
     const handleESCKey = (ev: KeyboardEvent) => {
         // ESC key should normally close the tooltip
@@ -34,7 +36,7 @@ export default function BtnIcon({ id, iconName, onClick, text, className }: Prop
                 type='button'
                 id={id}
                 onClick={onClick}
-                aria-describedby={`${id}-tltp`}
+                aria-describedby={tooltipID}
                 onMouseEnter={(e) => document.documentElement.addEventListener('keydown', handleESCKey)}
                 onMouseLeave={(e) => {
                     document.documentElement.removeEventListener('keydown', handleESCKey);
@@ -47,7 +49,7 @@ export default function BtnIcon({ id, iconName, onClick, text, className }: Prop
             </button>
             <span
                 ref={tooltipRef}
-                id={`${id}-tltp`}
+                id={tooltipID}
                 role='tooltip'
                 className={'tooltip'}
             >{text}</span>
