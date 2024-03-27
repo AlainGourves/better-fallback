@@ -99,7 +99,7 @@
     justify-content: flex-end;
     gap: 1rem;
 
-    & > span:last-of-type:is(:last-child){
+    &>span:last-of-type:is(:last-child) {
         // reserve vertical space for font-file DIV & prevent layout shift
         margin-block-end: 3rem; // gap + height of fontFile
     }
@@ -144,8 +144,12 @@
 }
 
 .error-msg {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: .5rem;
     width: fit-content;
-    padding: .5rem 1rem;
+    padding: .5rem;
     background: #ed8008;
     background-image: linear-gradient(0deg, rgb(0 0 0 /.2), rgb(255 255 255 /.2));
     background-blend-mode: overlay;
@@ -160,6 +164,17 @@
 
     &:not(:last-of-type) {
         margin-block-end: .25em;
+    }
+
+    & svg {
+
+        width: 1.5rem;
+        aspect-ratio: 1;
+        stroke-width: 2;
+    }
+
+    & span {
+        font-weight: 600;
     }
 }
 
