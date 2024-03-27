@@ -252,6 +252,10 @@ export default function Home() {
           type: "changeAll",
           payload: settings
         });
+        // update custom properties 
+        updateCustomProperty('--fallback-opacity', settings.opacity);
+        updateCustomProperty('--temoin-fs', `${settings.fontSize}px`);
+        updateCustomProperty('--fallback-color', settings.color);
       }
       // localStorage has been read, even if it was empty
       setIsLocalStorageRead(true);

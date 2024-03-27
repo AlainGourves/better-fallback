@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from 'react';
 import colorStyles from './colorInput.module.scss';
 import { getClassName } from '../utils';
 
