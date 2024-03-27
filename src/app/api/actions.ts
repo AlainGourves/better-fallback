@@ -153,8 +153,31 @@ const loadFetchedFont = async (url: string) => {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            // console.log(typeof response.status)
-            throw new Error(`${response.status} ${response.statusText}`)
+            const code = response.status;
+            const addr = new URL(url);
+            const site = addr.hostname;
+            let msg = '';
+            if (code >= 500) {
+                msg = `The server at <span>${site}</span> encountered an error.`
+            }
+            if (code >= 400 && code < 500) {
+                if (code === 400) { // Bad Request
+                    msg = `The site <span>${site}</span> doesn't understand the URL you provided, please check it.`
+                }
+                else if (code === 401) { // Unauthorized
+                    msg = `The URL you provided is part of a restricted area and authentication failed. Make sure you have the proper credentials.`
+                }
+                else if (code === 403) { // Forbidden
+                    msg = `The URL you provided is part of a restricted area and you don't have permission to access the file.`
+                }
+                else if (code === 404) { // Not Found
+                    msg = `The server at <span>${site}</span> can't find the requested resource.`
+                }
+                else { // others
+                    msg = `The requested URL contains bad syntax and/or cannot be fulfilled, please check it.`
+                }
+            }
+            throw new Error(msg);
         }
         const buffer = await response.arrayBuffer();
         const size = buffer.byteLength;
@@ -165,7 +188,7 @@ const loadFetchedFont = async (url: string) => {
         if (err instanceof TypeError && err.message === 'fetch failed') {
             throw new Error("Impossible to load a font file, please check your URL, or your connection.")
         } else {
-            throw new Error(err as any);
+            throw err;
         }
     }
 }
