@@ -8,12 +8,12 @@ import { useDropzone, FileRejection } from 'react-dropzone';
 import { getFontInfos } from '@/app/api/actions';
 import { URLValidator, checkProtocol } from '../_lib/utils';
 import { fontTypes, FontTypes } from '../../../types/types'
+import { type IconName } from '../../../types/name';
 import { useFontInfos, useFontInfosDispatch } from '@/app/context/fontContext';
 import FontFile from './fontFile';
 import TextInput from './form-components/textInput/textInput';
 import SubmitButton from './submitButton';
 import { Icon } from './form-components/Icon';
-import { type IconName } from '../../../types/name';
 
 
 export default function LoadFontForm() {
@@ -22,13 +22,11 @@ export default function LoadFontForm() {
 
     // Error handling
     const [error, setError] = useState(false);
-    const [errorCodes, setErrorCodes] = useState<string[]>([]);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const resetErrors = useCallback(() => {
         setErrorMessages([]);
-        setErrorCodes([]);
         setError(false);
-    }, [setError, setErrorCodes, setErrorMessages]);
+    }, [setError, setErrorMessages]);
 
     const formRef = useRef<HTMLFormElement>(null);
     const urlRef = useRef<HTMLInputElement>(null);
@@ -37,18 +35,7 @@ export default function LoadFontForm() {
     // Generating a new key (for eg. when a "bad" URL is erased) allows to know when to display error message, or not
     // See: https://stackoverflow.com/a/77816853/5351146
     const [formKey, setFormKey] = useState(() => nanoid());
-    const updateFormKey = () => setFormKey(nanoid());
-
-    // 'X' button to remove font file
-    const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        updateFormKey();
-        dispatchFontInfos({
-            type: "reset",
-            payload: null
-        });
-        ev.preventDefault();
-        ev.stopPropagation();
-    }
+    const updateFormKey = useCallback(() => setFormKey(nanoid()), [setFormKey]);
 
     // Input[text] for font URL
     const handleFontURL = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,8 +53,8 @@ export default function LoadFontForm() {
         });
     };
 
-    // 'X' button to erase TextInput
-    const eraseTextInput = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    // 'X' buttons to remove font file
+    const handleRemoveFontFile = (ev: React.MouseEvent<HTMLButtonElement>) => {
         if (formRef.current) {
             formRef.current.reset()
         }
@@ -75,7 +62,9 @@ export default function LoadFontForm() {
             type: "reset",
             payload: null
         });
-        if (error === true) setError(false);
+        if (error === true) resetErrors();
+        ev.preventDefault();
+        ev.stopPropagation();
     }
 
     // Drag & Drop ------------------------------------
@@ -96,7 +85,6 @@ export default function LoadFontForm() {
 
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         if (acceptedFiles.length === 1) {
-            resetErrors();
             // Add the file to the input[file] element (react-dropzone doesn't do it)
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(acceptedFiles[0]);
@@ -106,35 +94,57 @@ export default function LoadFontForm() {
                     input.files = dataTransfer.files;
                 }
             }
+            if (urlRef.current){
+                urlRef.current.value = '';
+            }
             dispatchFontInfos({
                 type: "setFile",
                 payload: {
                     value: acceptedFiles[0]
                 }
             });
+            resetErrors();
             if (formRef.current) formRef.current.requestSubmit();
         }
         if (fileRejections.length) {
-            const codes: string[] = [];
+            const codes = new Set();
             fileRejections.forEach((r) => {
-                codes.push(r.errors[0].code);
+                codes.add(r.errors[0].code);
             });
-            setErrorCodes(codes);
+            let theMessages: string[] = [];
+            Array.from(codes).forEach((err) => {
+                let msg = '';
+                switch (err) {
+                    case 'file-invalid-type':
+                        msg = `Only files of MIME type: ${fontTypes.join(', ')}.`;
+                        break;
+                    case 'file-too-large':
+                        msg = `Files must be less than 2Mb, yours is suspiciously big!`;
+                        break;
+                    case 'too-many-files':
+                        msg = `Only one font at a time!`;
+                        break;
+                    default:
+                        msg = 'There was a problem, the nature of which is unclear…';
+                        break;
+                }
+                theMessages.push(msg);
+            })
             setError(true);
+            setErrorMessages(errorMessages => [
+                ...errorMessages,
+                ...theMessages
+            ]);
         }
     }, [dispatchFontInfos, resetErrors]);
 
     const maxFileSize = 1024 * 1024 * 2; // 2 megabytes max font size
 
-    const onFileDialogOpen = useCallback(() => {
-        if (error) resetErrors();
-    }, [error, resetErrors]);
+    // const onFileDialogOpen = () => {
+    // };
 
-    const onDragEnter = useCallback(() => {
-        if (error || errorCodes.length || errorMessages.length) {
-            updateFormKey()
-        }
-    }, [error, errorCodes, errorMessages])
+    // const onDragEnter = () => {
+    // }
 
     const {
         acceptedFiles,
@@ -148,8 +158,8 @@ export default function LoadFontForm() {
     } = useDropzone({
         onDrop: onDrop,
         accept: objAcceptable([...fontTypes]),
-        onFileDialogOpen: onFileDialogOpen,
-        onDragEnter: onDragEnter,
+        // onFileDialogOpen: onFileDialogOpen,
+        // onDragEnter: onDragEnter,
         maxFiles: 1,
         multiple: false,
         maxSize: maxFileSize,
@@ -171,38 +181,6 @@ export default function LoadFontForm() {
         hoverMessage = `There's an issue with what you are dragging, drop it to see the origin.`;
     }
 
-
-    // Error handling --------------------------------
-    useEffect(() => {
-        if (errorCodes.length) {
-            // remove duplicate codes
-            const theErrors = new Set(errorCodes);
-            let theMessages: string[] = [];
-            theErrors.forEach((err) => {
-                let msg = '';
-                switch (err) {
-                    case 'file-invalid-type':
-                        msg = `Only files of MIME type: ${fontTypes.join(', ')}.`;
-                        break;
-                    case 'file-too-large':
-                        msg = `Files must be less than 2Mb.`;
-                        break;
-                    case 'too-many-files':
-                        msg = `Only one font at a time!`;
-                        break;
-                    default:
-                        msg = 'There was a problem, the nature of which is unclear…';
-                        break;
-                }
-                theMessages.push(msg);
-            });
-            setErrorMessages(errorMessages => [
-                ...errorMessages,
-                ...theMessages
-            ]);
-        }
-    }, [errorCodes]);
-
     // Server actions --------------------------------
     const initialState = {
         status: 'unset',
@@ -213,8 +191,8 @@ export default function LoadFontForm() {
 
     useEffect(() => {
         if (!formRef.current) return;
-        if (loadFormState.status === 'success') {
-            resetErrors();
+        if (!loadFormState.message) return;
+        if (loadFormState.status === 'success' && loadFormState.id === formKey) {
             dispatchFontInfos({
                 type: 'setInfos',
                 payload: {
@@ -225,23 +203,25 @@ export default function LoadFontForm() {
                     size: loadFormState.message?.size
                 }
             });
+            updateFormKey();
         }
-    }, [loadFormState, dispatchFontInfos, resetErrors]);
-
-    useEffect(() => {
         if (loadFormState.status === 'error' && loadFormState.id === formKey) {
             // Make sure an error message is only added once
             const errMsgs = Array.from(new Set([...errorMessages, loadFormState.message]));
             if (errMsgs.length !== errorMessages.length) {
                 setError(true);
-                setErrorMessages(errMsgs);
+                setErrorMessages(prevErrMsgs => errMsgs);
             }
+            updateFormKey();
         }
-    }, [loadFormState, errorMessages, formKey]);
-
-    useEffect(() => {
-        resetErrors();
-    }, [formKey, resetErrors]);
+    }, [
+        loadFormState,
+        errorMessages,
+        formKey,
+        dispatchFontInfos,
+        resetErrors,
+        updateFormKey
+    ]);
 
     return (
 
@@ -279,9 +259,9 @@ export default function LoadFontForm() {
                                     className={clsx('agf-component', formStyles['browse'])}
                                 >Browse</button>
                             </span>
-                            {fontInfos.file && (
+                            {fontInfos.fullName && (
                                 <FontFile
-                                    name={fontInfos.file.name}
+                                    name={fontInfos.fullName}
                                     onClick={handleRemoveFontFile}
                                 />
                             )}
@@ -289,14 +269,18 @@ export default function LoadFontForm() {
                     </div>
                     <div>OR</div>
                     {(error && errorMessages.length) && (
-                        // {(error && errorMessages.length > 0) && (
                         <div className={formStyles['error-msg-container']}>
                             {errorMessages.map((err, idx) => (
                                 <div
                                     key={`err${idx}`}
                                     className={formStyles['error-msg']}
                                 >
-                                    {err}
+                                    <svg>
+                                        <use href='#alert-triangle' />
+                                    </svg>
+                                    <p
+                                        dangerouslySetInnerHTML={{ __html: err }}
+                                    />
                                 </div>
                             ))
                             }
@@ -311,7 +295,7 @@ export default function LoadFontForm() {
                             placeholder={'https://example.com/my-font.ttf'}
                             onChange={handleFontURL}
                             title='Erase field'
-                            onClick={eraseTextInput}
+                            onClick={handleRemoveFontFile}
                         />
                         <SubmitButton
                             id="select-font-submit"

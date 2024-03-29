@@ -45,8 +45,13 @@ export function FontInfosProvider({ value, children }: { value: FontInfosType, c
 }
 
 const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) => {
-    // 'file' & 'url' are mutually exclusive : if one is set, the other must be null
+    // delete FontFace from document.fonts & reset CSS custom prop
+    if (fontInfos.postscriptName){
+        // unloadFont(fontInfos.postscriptName);
+        updateCustomProperty('--tested-font');
+    }
     switch (type) {
+        // 'file' & 'url' are mutually exclusive : if one is set, the other must be null
         case 'setFile': {
             return {
                 ...defaultFontInfos,
@@ -69,11 +74,6 @@ const fontInfosReducer = (fontInfos: FontInfosType, { type, payload }:Action) =>
         }
 
         case 'reset': {
-            // delete FontFace from document.fonts & reset CSS custom prop
-            if (fontInfos.postscriptName){
-                unloadFont(fontInfos.postscriptName);
-                updateCustomProperty('--tested-font');
-            }
             return defaultFontInfos
         }
 
