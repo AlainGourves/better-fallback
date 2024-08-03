@@ -32,7 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "^14.1.4",
     "fs-extra": "^11.2.0",
-    "glob": "^10.3.10",
+    "glob": "^11.0.0",
     "node-html-parser": "^6.1.12",
     "sass": "^1.72.0",
     "typescript": "^5"
