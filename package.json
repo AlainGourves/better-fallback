@@ -30,7 +30,7 @@
     "@types/react-dom": "^19",
     "clsx": "^2.1.0",
     "eslint": "^9",
-    "eslint-config-next": "^15.0.1",
+    "eslint-config-next": "^16.0.10",
     "fs-extra": "^11.2.0",
     "glob": "^11.0.0",
     "node-html-parser": "^7.0.1",
